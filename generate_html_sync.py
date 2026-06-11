@@ -26,21 +26,32 @@ def fmt_d(d):
     return f"{d.month:02d}-{d.day:02d} 周{WK[d.weekday()]}"
 AI="AI·"
 DAILY=8   # 每天总题量约 8
-backend_count=sum(len(qs) for s,qs in data.items() if not s.startswith(AI))
-ai_total=max(1,sum(len(qs) for s,qs in data.items() if s.startswith(AI)))
-total=backend_count+ai_total
+SPREAD_SECS={"MySQL","Redis"}   # 数据库题与 AI 题一起打散到每一天
+def is_spread(s): return s.startswith(AI) or s in SPREAD_SECS
+spread_total=max(1,sum(len(qs) for s,qs in data.items() if is_spread(s)))
+seq_total=sum(len(qs) for s,qs in data.items() if not is_spread(s))
+total=spread_total+seq_total
 num_days=max(1,(total+DAILY-1)//DAILY)
-backend_per_day=max(1,(backend_count+num_days-1)//num_days)
-items=[]; gid=0; b_idx=0; a_idx=0
+seq_per_day=max(1,(seq_total+num_days-1)//num_days)
+# 先按字典顺序定 id，并分流到「成块」与「打散」两组
+items=[]; gid=0
+seq_items=[]; spread_by_sec={}
 for sec,qs in data.items():
-    is_ai=sec.startswith(AI)
     for i,q in enumerate(qs,1):
-        if is_ai:
-            day=a_idx*num_days//ai_total; a_idx+=1   # AI 均匀打散到每一天
-        else:
-            day=b_idx//backend_per_day; b_idx+=1
-        d=START+timedelta(days=day)
-        items.append({"id":gid,"sec":sec,"idx":i,"date":fmt_d(d),"iso":d.isoformat(),"q":q}); gid+=1
+        rec={"id":gid,"sec":sec,"idx":i,"q":q}; items.append(rec)
+        (spread_by_sec.setdefault(sec,[]).append(rec) if is_spread(sec) else seq_items.append(rec))
+        gid+=1
+# 成块组：顺序占天
+for k,rec in enumerate(seq_items): rec["_day"]=k//seq_per_day
+# 打散组：各板块轮流交错，再均匀铺到所有天（数据库 + AI 交替贯穿全程）
+spread_order=[]; secs=list(spread_by_sec.keys()); pos={s:0 for s in secs}; left=sum(len(v) for v in spread_by_sec.values())
+while left>0:
+    for s in secs:
+        if pos[s]<len(spread_by_sec[s]): spread_order.append(spread_by_sec[s][pos[s]]); pos[s]+=1; left-=1
+for rank,rec in enumerate(spread_order): rec["_day"]=rank*num_days//spread_total
+for rec in items:
+    d=START+timedelta(days=rec.pop("_day"))
+    rec["date"]=fmt_d(d); rec["iso"]=d.isoformat()
 JS=json.dumps(items,ensure_ascii=False); SEC=json.dumps(list(data.keys()),ensure_ascii=False)
 
 html = '''<!DOCTYPE html>
@@ -166,7 +177,7 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.1.1</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.1.2</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
