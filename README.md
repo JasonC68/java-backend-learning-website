@@ -6,6 +6,12 @@
 
 ---
 
+## 📄 网页效果
+
+![image-20260611233441428](/Users/jasonchu/Library/Application Support/typora-user-images/image-20260611233441428.png)
+
+---
+
 ## ✨ 主要功能
 
 - **175 道精选必背题**，分 14 个板块：集合、并发、MySQL、JVM、Spring、计算机网络、Redis、扩展(MyBatis/MQ/分布式)、操作系统、Java 基础，以及 4 个 AI 板块（Agent / RAG / 工具调用 / 大模型基础）。
@@ -72,6 +78,3 @@ python3 generate_html_sync.py
 
 ---
 
-## 📌 复习优先级建议
-
-集合 ≈ 并发 ＞ MySQL ≈ JVM ＞ Spring ＞ 网络 ＞ Redis ＞ 扩展 ＞ 操作系统 ＞ Java 基础；AI 板块按投递方向穿插。八股保证不被基础轮刷掉，**项目与 AI Agent 经验决定能否拿 offer**。
