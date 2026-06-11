@@ -8,7 +8,7 @@
 
 ## 📄 网页效果
 
-[![1781185052803.png](https://picui.ogmua.cn/s1/2026/06/11/6a2aba2b32931.webp)](https://picui.ogmua.cn/s1/2026/06/11/6a2aba2b32931.webp)
+<img width="1097" height="709" alt="image" src="https://github.com/user-attachments/assets/fb917f0d-0ad1-4d26-bdcf-e207765a97fe" />
 
 ---
 
