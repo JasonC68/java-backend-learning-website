@@ -8,7 +8,7 @@
 
 ## 📄 网页效果
 
-![image-20260611233441428](/Users/jasonchu/Library/Application Support/typora-user-images/image-20260611233441428.png)
+[![1781185052803.png](https://picui.ogmua.cn/s1/2026/06/11/6a2aba2b32931.webp)](https://picui.ogmua.cn/s1/2026/06/11/6a2aba2b32931.webp)
 
 ---
 
