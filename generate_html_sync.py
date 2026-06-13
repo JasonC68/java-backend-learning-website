@@ -75,7 +75,11 @@ h1{font-size:20px}
 .spacer{flex:1}
 .btn{border:1px solid #d1d5db;background:#fff;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer}
 .btn:hover{background:#f3f4f6}.btn.pri{background:#2563eb;color:#fff;border-color:#2563eb}
-table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+table{width:100%;table-layout:fixed;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+th:nth-child(1),td:nth-child(1){width:56px}
+th:nth-child(4),td.lvlcol{width:100px}
+th:nth-child(5){width:104px}
+th:nth-child(6){width:132px}
 th,td{padding:9px 8px;font-size:13px;text-align:left;border-bottom:1px solid #f0f0f0}
 th{background:#2f5597;color:#fff;font-weight:600;position:sticky;top:0;z-index:2}
 td.c,th.c{text-align:center;white-space:nowrap}
@@ -177,7 +181,7 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.2.1</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.2.2</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
