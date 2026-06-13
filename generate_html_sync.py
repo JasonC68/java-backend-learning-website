@@ -185,7 +185,7 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.3.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.3.3</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -309,8 +309,8 @@ pickBtn.onclick=e=>{e.stopPropagation();if(calBox.classList.contains("show")){ca
 document.addEventListener("click",e=>{if(!calBox.contains(e.target)&&e.target!==pickBtn)calBox.classList.remove("show");});
 document.querySelectorAll('[data-date]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-date]').forEach(x=>x.classList.remove("active"));c.classList.add("active");dateFilter=c.dataset.date;pickedDate="";updatePickBtn();render();});
 document.getElementById("starFilter").onclick=function(){starOnly=!starOnly;this.classList.toggle("active",starOnly);render();};
-function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);const d=(o.date&&o.date!=="")?o.date:baseIso;const sd=!!d&&d<=ti&&!(o.cnt>0);const rd=!!o.next&&o.next<=ti;const future=!!d&&d>ti;if(sd||rd||(stuckToday.has(id)&&!future))n++;};ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
-function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="todayall"){const ti=todayIso();if(ti!==stuckDay){stuckDay=ti;stuckToday.clear();}const o=get(it.id);const d=itemDate(it);const studyDue=!!d&&d<=ti&&!(o.cnt>0);const reviewDue=!!o.next&&o.next<=ti;const futureStudy=!!d&&d>ti;const q=studyDue||reviewDue;if(q)stuckToday.add(it.id);if(futureStudy&&!reviewDue)stuckToday.delete(it.id);return q||stuckToday.has(it.id);}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
+function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);const d=(o.date&&o.date!=="")?o.date:baseIso;const sd=!!d&&d<=ti&&!(o.cnt>0);const rd=!!o.next&&o.next<=ti;const dt=o.last===today();if(sd||rd||dt)n++;};ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
+function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const studyDue=!!d&&d<=ti&&!(o.cnt>0);const reviewDue=!!o.next&&o.next<=ti;const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
   ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso});});
