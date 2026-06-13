@@ -177,14 +177,14 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.1.3</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.2.1</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
 <div class="toolbar">
   <span style="font-size:12px;color:#6b7280">按日期：</span>
   <span class="chip active" data-date="all">全部</span>
-  <span class="chip" data-date="todayall" title="今天要打卡的 + 之前没完成顺延的 + 今天到期/逾期要复习的">📌 今天任务</span>
+  <span class="chip" data-date="todayall" title="今天要打卡的（点 ＋ 算完成）+ 之前没完成顺延的 + 今天到期/逾期要复习的">📌 今天任务</span>
   <span class="chip" data-date="today">📅 今天打卡</span>
   <span class="chip" data-date="tomorrow">明天</span>
   <span class="chip" data-date="review" title="按艾宾浩斯遗忘曲线，到期/逾期需复习的题">🔁 今日复习</span>
@@ -214,6 +214,8 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
   <p>用免费的 <b>JSONBin.io</b> 存进度：注册后新建一个 Bin（内容填 <code>{}</code>），把 <b>Bin ID</b> 和 <b>Master Key</b> 填到下面。每台设备填一次即可互通。详见配套说明文件。</p>
   <label>Bin ID</label><input id="binId" placeholder="例如 6650a1b2ac...">
   <label>Master Key（$2a$10$... 开头）</label><input id="binKey" placeholder="X-Master-Key">
+  <label>图床 API Key（ImgBB，贴图用，可留空）</label><input id="imgKey" placeholder="到 api.imgbb.com 注册免费获取">
+  <p style="font-size:12px;color:#6b7280;margin:6px 0 0">填了图床 Key 后，粘贴/拖入的图片会自动上传图床，笔记里只存链接，进度不会再被图片撑爆。</p>
   <div class="acts">
     <button class="btn" id="cfgClear">清除配置</button>
     <button class="btn" id="cfgCancel">取消</button>
@@ -226,13 +228,23 @@ const KEY="review_tracker_v2", CFGKEY="sync_cfg_v1";
 const LVLS=["未开始","眼熟","能讲框架","能扛追问"];
 let state=JSON.parse(localStorage.getItem(KEY)||"{}");
 let cfg=JSON.parse(localStorage.getItem(CFGKEY)||"null");
-let secFilter="all",lvlFilter="all",dateFilter="all",pickedDate="",starOnly=false,timer=null,openIds=new Set(),editors=[],dirty=false,retryTimer=null;
+let imgKey=localStorage.getItem("imgbb_key")||"";
+window.IMG_UPLOADER=function(dataUrl){
+  if(!imgKey) return Promise.reject(new Error("no imgbb key"));
+  const b64=(dataUrl.split(",")[1]||"");
+  const fd=new FormData(); fd.append("image",b64);
+  return fetch("https://api.imgbb.com/1/upload?key="+encodeURIComponent(imgKey),{method:"POST",body:fd})
+    .then(r=>r.json()).then(j=>{if(j&&j.success&&j.data&&(j.data.display_url||j.data.url))return j.data.display_url||j.data.url;throw new Error("upload failed");});
+};
+let secFilter="all",lvlFilter="all",dateFilter="all",pickedDate="",starOnly=false,timer=null,openIds=new Set(),editors=[],dirty=false,retryTimer=null,stuckToday=new Set(),stuckDay="";
 function isoOf(dt){return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");}
 function todayIso(){return isoOf(new Date());}
 function tomorrowIso(){const d=new Date();d.setDate(d.getDate()+1);return isoOf(d);}
 const EBB=[1,2,4,7,15,30,60];   // 艾宾浩斯遗忘曲线间隔（天）
 function addDays(iso,n){const d=new Date((iso||todayIso())+"T00:00:00");d.setDate(d.getDate()+n);return isoOf(d);}
 function schedNext(cnt){const n=EBB[Math.min(Math.max(cnt,1)-1,EBB.length-1)];return addDays(todayIso(),n);}
+function loadStuck(){try{const s=JSON.parse(localStorage.getItem("stuck_v1")||"null");if(s&&s.day===todayIso()){stuckDay=s.day;stuckToday=new Set(s.ids);}}catch(e){}}
+function saveStuck(){try{localStorage.setItem("stuck_v1",JSON.stringify({day:stuckDay,ids:[...stuckToday]}));}catch(e){}}
 function get(id){return state[id]||(state[id]={lvl:0,cnt:0,last:""});}
 function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
 function md(t){return (window.marked?marked.parse(t||""):"<pre>"+esc(t)+"</pre>");}
@@ -288,7 +300,8 @@ pickBtn.onclick=e=>{e.stopPropagation();if(calBox.classList.contains("show")){ca
 document.addEventListener("click",e=>{if(!calBox.contains(e.target)&&e.target!==pickBtn)calBox.classList.remove("show");});
 document.querySelectorAll('[data-date]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-date]').forEach(x=>x.classList.remove("active"));c.classList.add("active");dateFilter=c.dataset.date;pickedDate="";updatePickBtn();render();});
 document.getElementById("starFilter").onclick=function(){starOnly=!starOnly;this.classList.toggle("active",starOnly);render();};
-function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="todayall"){const o=get(it.id);const d=itemDate(it);const studyDue=!!d&&d<=todayIso()&&!(o.lvl>0||o.cnt>0);const reviewDue=!!o.next&&o.next<=todayIso();return studyDue||reviewDue;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
+function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);const d=(o.date&&o.date!=="")?o.date:baseIso;const sd=!!d&&d<=ti&&!(o.cnt>0);const rd=!!o.next&&o.next<=ti;const future=!!d&&d>ti;if(sd||rd||(stuckToday.has(id)&&!future))n++;};ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
+function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="todayall"){const ti=todayIso();if(ti!==stuckDay){stuckDay=ti;stuckToday.clear();}const o=get(it.id);const d=itemDate(it);const studyDue=!!d&&d<=ti&&!(o.cnt>0);const reviewDue=!!o.next&&o.next<=ti;const futureStudy=!!d&&d>ti;const q=studyDue||reviewDue;if(q)stuckToday.add(it.id);if(futureStudy&&!reviewDue)stuckToday.delete(it.id);return q||stuckToday.has(it.id);}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
   ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso});});
@@ -357,17 +370,22 @@ function render(){const tb=document.getElementById("tb");
   const tot=base.length,pct=tot?Math.round(done/tot*100):0;
   document.getElementById("pbar").style.width=pct+"%";
   document.getElementById("stat").innerHTML="已掌握(能讲框架+能扛追问)：<b>"+done+"</b> / "+tot+"　("+pct+"%)";
+  if(dateFilter==="todayall")saveStuck();
+  {const tc=document.querySelector('[data-date="todayall"]');if(tc)tc.textContent="📌 今天任务："+todayCount();}
   window.scrollTo(0,_sy);requestAnimationFrame(()=>window.scrollTo(0,_sy));}
 const modal=document.getElementById("modal");
-document.getElementById("cfgBtn").onclick=()=>{if(cfg){document.getElementById("binId").value=cfg.bin;document.getElementById("binKey").value=cfg.key;}modal.classList.add("show");};
+document.getElementById("cfgBtn").onclick=()=>{if(cfg){document.getElementById("binId").value=cfg.bin;document.getElementById("binKey").value=cfg.key;}document.getElementById("imgKey").value=imgKey;modal.classList.add("show");};
 document.getElementById("cfgCancel").onclick=()=>modal.classList.remove("show");
 document.getElementById("cfgClear").onclick=()=>{cfg=null;localStorage.removeItem(CFGKEY);setPill("未配置云同步");modal.classList.remove("show");};
-document.getElementById("cfgSave").onclick=async()=>{const b=document.getElementById("binId").value.trim(),k=document.getElementById("binKey").value.trim();
-  if(!b||!k){alert("请填写 Bin ID 和 Master Key");return;}cfg={bin:b,key:k};localStorage.setItem(CFGKEY,JSON.stringify(cfg));modal.classList.remove("show");await pull();await push();};
+document.getElementById("cfgSave").onclick=async()=>{const b=document.getElementById("binId").value.trim(),k=document.getElementById("binKey").value.trim(),ik=document.getElementById("imgKey").value.trim();
+  imgKey=ik;if(ik)localStorage.setItem("imgbb_key",ik);else localStorage.removeItem("imgbb_key");
+  if(b&&k){cfg={bin:b,key:k};localStorage.setItem(CFGKEY,JSON.stringify(cfg));modal.classList.remove("show");await pull();await push();return;}
+  if(b||k){alert("Bin ID 和 Master Key 需要一起填写");return;}
+  modal.classList.remove("show");};
 document.getElementById("pull").onclick=pull;
 document.getElementById("push").onclick=push;
 document.getElementById("reset").onclick=()=>{if(confirm("清空本机进度？若已配置云同步，请之后点上传覆盖云端")){state={};save();render();}};
-buildFilters();render();
+loadStuck();buildFilters();render();
 if(cfg){setPill("正在拉取…","busy");pull();}else{setPill("未配置云同步");}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")autoSync();});
 window.addEventListener("focus",autoSync);
