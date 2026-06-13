@@ -177,14 +177,14 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.1.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.1.3</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
 <div class="toolbar">
   <span style="font-size:12px;color:#6b7280">按日期：</span>
   <span class="chip active" data-date="all">全部</span>
-  <span class="chip" data-date="todayall" title="今天要打卡的 + 今天到期/逾期要复习的">📌 今天任务</span>
+  <span class="chip" data-date="todayall" title="今天要打卡的 + 之前没完成顺延的 + 今天到期/逾期要复习的">📌 今天任务</span>
   <span class="chip" data-date="today">📅 今天打卡</span>
   <span class="chip" data-date="tomorrow">明天</span>
   <span class="chip" data-date="review" title="按艾宾浩斯遗忘曲线，到期/逾期需复习的题">🔁 今日复习</span>
@@ -288,7 +288,7 @@ pickBtn.onclick=e=>{e.stopPropagation();if(calBox.classList.contains("show")){ca
 document.addEventListener("click",e=>{if(!calBox.contains(e.target)&&e.target!==pickBtn)calBox.classList.remove("show");});
 document.querySelectorAll('[data-date]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-date]').forEach(x=>x.classList.remove("active"));c.classList.add("active");dateFilter=c.dataset.date;pickedDate="";updatePickBtn();render();});
 document.getElementById("starFilter").onclick=function(){starOnly=!starOnly;this.classList.toggle("active",starOnly);render();};
-function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="todayall"){const o=get(it.id);return itemDate(it)===todayIso()||(!!o.next&&o.next<=todayIso());}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
+function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="todayall"){const o=get(it.id);const d=itemDate(it);const studyDue=!!d&&d<=todayIso()&&!(o.lvl>0||o.cnt>0);const reviewDue=!!o.next&&o.next<=todayIso();return studyDue||reviewDue;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
   ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso});});
