@@ -132,6 +132,9 @@ td.date input[type=date]{width:108px;box-sizing:border-box;font-size:12px;paddin
 .star{cursor:pointer;color:#d1d5db;margin-right:7px;font-size:15px;user-select:none}
 .star.on{color:#f59e0b}
 .star:hover{color:#f59e0b}
+.qedit{cursor:pointer;color:#cbd5e1;margin-left:8px;font-size:13px}
+.qedit:hover{color:#2563eb}
+.qin{width:92%;padding:5px 8px;border:1px solid #93c5fd;border-radius:6px;font-size:14px}
 .qbtn{cursor:pointer;display:inline-block}
 .qbtn:hover{color:#2563eb}
 .qbtn .arw{display:inline-block;width:14px;color:#9ca3af;font-size:11px}
@@ -181,7 +184,7 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.2.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.3.0</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -250,6 +253,7 @@ function schedNext(cnt){const n=EBB[Math.min(Math.max(cnt,1)-1,EBB.length-1)];re
 function loadStuck(){try{const s=JSON.parse(localStorage.getItem("stuck_v1")||"null");if(s&&s.day===todayIso()){stuckDay=s.day;stuckToday=new Set(s.ids);}}catch(e){}}
 function saveStuck(){try{localStorage.setItem("stuck_v1",JSON.stringify({day:stuckDay,ids:[...stuckToday]}));}catch(e){}}
 function get(id){return state[id]||(state[id]={lvl:0,cnt:0,last:""});}
+function qText(it){const o=get(it.id);return (o.q!==undefined&&o.q!=="")?o.q:it.q;}
 function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
 function md(t){return (window.marked?marked.parse(t||""):"<pre>"+esc(t)+"</pre>");}
 function fmtIso(iso){if(!iso)return"";const d=new Date(iso+"T00:00:00");if(isNaN(d))return iso;const wk=["日","一","二","三","四","五","六"];return (d.getMonth()+1+"").padStart(2,"0")+"-"+(d.getDate()+"").padStart(2,"0")+" 周"+wk[d.getDay()];}
@@ -327,7 +331,7 @@ function render(){const tb=document.getElementById("tb");
       const tr=document.createElement("tr");
       tr.innerHTML='<td class="c">'+it.idx+'</td>'+
         '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
-        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(it.q)+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</span></td>'+
+        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</span><span class="qedit" title="编辑题目">✎</span></td>'+
         '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
         '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
         '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span style="font-size:11px;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
@@ -336,6 +340,7 @@ function render(){const tb=document.getElementById("tb");
         onPick:iso=>{get(it.id).date=iso;save();render();},
         onClear:()=>{delete get(it.id).date;save();render();}});};
       tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
+      tr.querySelector(".qedit").onclick=e=>{e.stopPropagation();const cell=tr.querySelector(".q");cell.innerHTML='<input class="qin">';const inp=cell.querySelector(".qin");inp.value=qText(it);inp.focus();const commit=()=>{const v=inp.value.trim();if(v)get(it.id).q=v;save();render();};inp.onkeydown=ev=>{if(ev.key==="Enter")commit();else if(ev.key==="Escape")render();};inp.onblur=commit;};
       tr.querySelector(".qbtn").onclick=()=>{opened?openIds.delete(it.id):openIds.add(it.id);render();};
       tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
       tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNext(st.cnt);save();render();};
