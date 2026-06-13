@@ -134,7 +134,7 @@ td.date input[type=date]{width:108px;box-sizing:border-box;font-size:12px;paddin
 .star:hover{color:#f59e0b}
 .qedit{cursor:pointer;color:#cbd5e1;margin-left:8px;font-size:13px}
 .qedit:hover{color:#2563eb}
-.qin{width:92%;padding:5px 8px;border:1px solid #93c5fd;border-radius:6px;font-size:14px}
+.qin{width:92%;height:26px;line-height:24px;padding:0 8px;border:1px solid #93c5fd;border-radius:6px;font-size:14px;box-sizing:border-box;vertical-align:middle}
 .qbtn{cursor:pointer;display:inline-block}
 .qbtn:hover{color:#2563eb}
 .qbtn .arw{display:inline-block;width:14px;color:#9ca3af;font-size:11px}
@@ -184,7 +184,7 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.3.0</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.3.1</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
