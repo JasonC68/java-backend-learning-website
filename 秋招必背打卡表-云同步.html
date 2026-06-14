@@ -197,6 +197,15 @@ img.ProseMirror-separator {
 .tui-memo .ProseMirror{outline:none;min-height:70px;padding:10px 14px;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7;color:#1f2937;overflow-wrap:break-word;word-break:break-word}
 .memo-label{font-size:12px;color:#b45309;margin:0 0 4px;font-weight:600}
 .note-hidden{font-size:13px;color:#9ca3af;padding:10px 4px}
+.bk-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #eee;border-radius:8px;margin-bottom:6px}
+.bk-item .meta{flex:1;min-width:0;font-size:13px}
+.bk-item .meta .t{color:#6b7280;font-size:12px}
+.bk-item button{font-size:12px;border:1px solid #d1d5db;background:#fff;border-radius:6px;padding:3px 10px;cursor:pointer}
+.bk-item .rb{color:#2563eb;border-color:#93c5fd}.bk-item .db{color:#b91c1c;border-color:#fca5a5}
+body.dark .bk-item{border-color:#3a3a3a}
+body.dark .bk-item .meta .t{color:#94a3b8}
+body.dark .bk-item button{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
+body.dark #bkLabel{background:#121212;border-color:#3a3a3a;color:#e5e5e5}
 .theme{display:inline-flex;border:1px solid #d1d5db;border-radius:8px;overflow:hidden}
 .theme button{border:none;background:#fff;color:#6b7280;padding:5px 9px;cursor:pointer;display:inline-flex;align-items:center}
 .theme button:hover{color:#111827}
@@ -21272,7 +21281,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.5.10</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.6.1</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -21296,6 +21305,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
   <button class="btn pri" id="cfgBtn">☁️ 云同步设置</button>
   <button class="btn" id="pull">⬇️ 手动拉取</button>
   <button class="btn" id="push">⬆️ 手动上传</button>
+  <button class="btn" id="backupBtn">💾 备份</button>
   <button class="btn" id="recycleBtn">🗑 回收站</button>
   <button class="btn" id="reset">清空</button>
 </div>
@@ -21305,6 +21315,23 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 </tr></thead><tbody id="tb"></tbody></table>
 
 <div class="cal" id="cal"></div>
+<div class="modal" id="bkModal"><div class="card" style="max-width:560px">
+  <h3>进度备份</h3>
+  <p style="font-size:12px;color:#6b7280;margin-bottom:10px">恢复会覆盖当前进度（建议先新建一个备份）。云端备份跨设备可见；本地备份只在本设备。</p>
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <input id="bkLabel" placeholder="备注（可选）" style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
+    <button class="btn" id="bkNew">💾 本地备份</button>
+    <button class="btn pri" id="bkNewCloud">☁️ 云端备份</button>
+  </div>
+  <div style="font-size:12px;color:#6b7280;margin:6px 0 4px">☁️ 云端备份（跨设备）</div>
+  <div id="bkCloudList" style="max-height:200px;overflow:auto"></div>
+  <div style="font-size:12px;color:#6b7280;margin:10px 0 4px">💾 本地备份（本设备）</div>
+  <div id="bkList" style="max-height:200px;overflow:auto"></div>
+  <div class="acts">
+    <label class="btn" style="cursor:pointer">导入文件<input type="file" id="bkImport" accept="application/json" style="display:none"></label>
+    <button class="btn" id="bkClose">关闭</button>
+  </div>
+</div></div>
 <div class="modal" id="modal"><div class="card">
   <h3>云同步设置</h3>
   <p>用免费的 <b>JSONBin.io</b> 存进度：注册后新建一个 Bin（内容填 <code>{}</code>），把 <b>Bin ID</b> 和 <b>Master Key</b> 填到下面。每台设备填一次即可互通。详见配套说明文件。</p>
@@ -21502,6 +21529,40 @@ document.getElementById("cfgSave").onclick=async()=>{const b=document.getElement
 document.getElementById("pull").onclick=pull;
 document.getElementById("push").onclick=push;
 document.getElementById("reset").onclick=()=>{if(confirm("清空本机进度？若已配置云同步，请之后点上传覆盖云端")){state={};save();render();}};
+// ===== 进度备份（本设备）=====
+const BKEY="backups_v1";
+function loadBackups(){try{return JSON.parse(localStorage.getItem(BKEY)||"[]");}catch(e){return [];}}
+function saveBackups(a){try{localStorage.setItem(BKEY,JSON.stringify(a));}catch(e){alert("备份存储已满，请删除旧备份或导出后删除");}}
+function fmtTs(ts){const d=new Date(ts),p=n=>(n+"").padStart(2,"0");return (d.getMonth()+1)+"-"+d.getDate()+" "+p(d.getHours())+":"+p(d.getMinutes());}
+function progCount(s){try{return Object.keys(JSON.parse(s)).filter(k=>!k.startsWith("__")).length;}catch(e){return 0;}}
+function renderBackups(){const a=loadBackups(),box=document.getElementById("bkList");
+  if(!a.length){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">还没有备份，点上面「新建备份」</div>';return;}
+  box.innerHTML=a.map((b,i)=>'<div class="bk-item"><div class="meta"><div>'+(esc(b.label)||"备份")+'</div><div class="t">'+fmtTs(b.ts)+' · '+progCount(b.data)+' 题有记录</div></div><button class="rb" data-i="'+i+'">恢复</button><button class="xb" data-i="'+i+'">导出</button><button class="db" data-i="'+i+'">删除</button></div>').join("");
+  box.querySelectorAll(".rb").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,a=loadBackups();if(confirm("恢复到这个备份？当前进度会被覆盖")){try{state=JSON.parse(a[i].data);save();render();bkModal.classList.remove("show");}catch(e){alert("备份损坏");}}});
+  box.querySelectorAll(".db").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,a=loadBackups();a.splice(i,1);saveBackups(a);renderBackups();});
+  box.querySelectorAll(".xb").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,a=loadBackups();const blob=new Blob([a[i].data],{type:"application/json"});const x=document.createElement("a");x.href=URL.createObjectURL(blob);x.download="打卡备份-"+a[i].ts+".json";x.click();});
+}
+const bkModal=document.getElementById("bkModal");
+// ---- 云端备份（独立 Bin，自动创建，跨设备）----
+async function ensureBkBin(){if(state.__bkBin)return state.__bkBin;
+  const r=await fetch("https://api.jsonbin.io/v3/b",{method:"POST",headers:{"Content-Type":"application/json","X-Master-Key":cfg.key,"X-Bin-Name":"打卡备份","X-Bin-Private":"true"},body:JSON.stringify({backups:[]})});
+  if(!r.ok)throw 0;const j=await r.json();state.__bkBin=j.metadata.id;save();return state.__bkBin;}
+async function cloudBkGet(){const id=await ensureBkBin();const r=await fetch("https://api.jsonbin.io/v3/b/"+id+"/latest",{headers:{"X-Master-Key":cfg.key}});if(!r.ok)throw 0;const j=await r.json();return (j.record&&j.record.backups)||[];}
+async function cloudBkPut(arr){const id=await ensureBkBin();const r=await fetch("https://api.jsonbin.io/v3/b/"+id,{method:"PUT",headers:{"Content-Type":"application/json","X-Master-Key":cfg.key},body:JSON.stringify({backups:arr})});if(!r.ok)throw 0;}
+async function renderCloud(){const box=document.getElementById("bkCloudList");
+  if(!cfg){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">配置「☁️ 云同步」后可用</div>';return;}
+  box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">加载中…</div>';
+  let a;try{a=await cloudBkGet();}catch(e){box.innerHTML='<div style="color:#dc2626;font-size:13px;padding:8px">云端读取失败，检查网络/配置</div>';return;}
+  if(!a.length){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">还没有云端备份</div>';return;}
+  box.innerHTML=a.map((b,i)=>'<div class="bk-item"><div class="meta"><div>'+(esc(b.label)||"备份")+'</div><div class="t">'+fmtTs(b.ts)+' · '+progCount(b.data)+' 题有记录</div></div><button class="rb" data-i="'+i+'">恢复</button><button class="db" data-i="'+i+'">删除</button></div>').join("");
+  box.querySelectorAll(".rb").forEach(btn=>btn.onclick=async()=>{const i=+btn.dataset.i;if(confirm("恢复到这个云端备份？当前进度会被覆盖")){try{const arr=await cloudBkGet();state=JSON.parse(arr[i].data);save();render();bkModal.classList.remove("show");}catch(e){alert("恢复失败");}}});
+  box.querySelectorAll(".db").forEach(btn=>btn.onclick=async()=>{const i=+btn.dataset.i;try{const arr=await cloudBkGet();arr.splice(i,1);await cloudBkPut(arr);renderCloud();}catch(e){alert("删除失败");}});
+}
+document.getElementById("backupBtn").onclick=()=>{renderBackups();renderCloud();bkModal.classList.add("show");};
+document.getElementById("bkClose").onclick=()=>bkModal.classList.remove("show");
+document.getElementById("bkNew").onclick=()=>{const a=loadBackups();a.unshift({ts:Date.now(),label:document.getElementById("bkLabel").value.trim(),data:JSON.stringify(state)});if(a.length>30)a.length=30;saveBackups(a);document.getElementById("bkLabel").value="";renderBackups();};
+document.getElementById("bkNewCloud").onclick=async()=>{if(!cfg){alert("请先配置「☁️ 云同步」");return;}const btn=document.getElementById("bkNewCloud");btn.disabled=true;btn.textContent="备份中…";try{const arr=await cloudBkGet();arr.unshift({ts:Date.now(),label:document.getElementById("bkLabel").value.trim(),data:JSON.stringify(state)});if(arr.length>15)arr.length=15;await cloudBkPut(arr);document.getElementById("bkLabel").value="";renderCloud();}catch(e){alert("云端备份失败，检查网络/配置");}btn.disabled=false;btn.textContent="☁️ 云端备份";};
+document.getElementById("bkImport").onchange=function(){const f=this.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{JSON.parse(r.result);const a=loadBackups();a.unshift({ts:Date.now(),label:"导入 "+f.name,data:r.result});saveBackups(a);renderBackups();}catch(e){alert("文件格式不对");}};r.readAsText(f);this.value="";};
 function applyTheme(){const m=localStorage.getItem("theme")||"system";const dark=m==="dark"||(m==="system"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);document.body.classList.toggle("dark",dark);document.querySelectorAll(".theme button").forEach(b=>b.classList.toggle("on",b.dataset.theme===m));}
 document.querySelectorAll(".theme button").forEach(b=>b.onclick=()=>{localStorage.setItem("theme",b.dataset.theme);applyTheme();});
 if(window.matchMedia)try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if((localStorage.getItem("theme")||"system")==="system")applyTheme();});}catch(e){}
