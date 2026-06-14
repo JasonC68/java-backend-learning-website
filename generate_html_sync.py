@@ -240,6 +240,57 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 .tui-memo .ProseMirror{outline:none;min-height:70px;padding:10px 14px;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7;color:#1f2937;overflow-wrap:break-word;word-break:break-word}
 .memo-label{font-size:12px;color:#b45309;margin:0 0 4px;font-weight:600}
 .note-hidden{font-size:13px;color:#9ca3af;padding:10px 4px}
+.theme{display:inline-flex;border:1px solid #d1d5db;border-radius:8px;overflow:hidden}
+.theme button{border:none;background:#fff;color:#374151;font-size:12px;padding:4px 10px;cursor:pointer}
+.theme button.on{background:#2563eb;color:#fff}
+/* ====== 暗色模式 ====== */
+body.dark{background:#0f172a;color:#e2e8f0}
+body.dark .bar{background:#334155}
+body.dark .statline{color:#cbd5e1}
+body.dark .pill{background:#334155;color:#cbd5e1}
+body.dark .chip{background:#1e293b;border-color:#334155;color:#cbd5e1}
+body.dark .chip.active{background:#2563eb;color:#fff;border-color:#2563eb}
+body.dark .btn{background:#1e293b;border-color:#334155;color:#cbd5e1}
+body.dark .btn:hover{background:#273449}
+body.dark .btn.pri{background:#2563eb;color:#fff;border-color:#2563eb}
+body.dark .pickbtn{background:#1e293b;border-color:#334155;color:#cbd5e1}
+body.dark table{background:#1e293b;box-shadow:none}
+body.dark th,body.dark td{border-color:#334155}
+body.dark tr.sec-row td{background:#27314a;color:#c7d2fe}
+body.dark td.date{color:#94a3b8}
+body.dark td.date:hover{background:#273449}
+body.dark .last{color:#94a3b8}
+body.dark .cnt button{background:#1e293b;border-color:#334155;color:#e2e8f0}
+body.dark .cnt button:hover{background:#273449}
+body.dark .qedit{color:#475569}
+body.dark .tag{background:#1e293b;color:#a5b4fc;border-color:#334155}
+body.dark .tui{background:#0b1220;border-color:#334155}
+body.dark .tui .ProseMirror{color:#e2e8f0}
+body.dark .ProseMirror code{background:#334155;color:#fca5a5}
+body.dark .ProseMirror pre{background:#0b1220}
+body.dark .ProseMirror pre code{color:#e2e8f0}
+body.dark .ProseMirror blockquote{background:#16233a;border-left-color:#3b4a63;color:#cbd5e1}
+body.dark .ProseMirror strong{color:#f1f5f9}
+body.dark .ProseMirror li::marker{color:#94a3b8}
+body.dark .ProseMirror a{color:#60a5fa}
+body.dark .tui-memo{background:#2b240a;border-color:#a16207}
+body.dark .memo-label{color:#fcd34d}
+body.dark .note-hidden{color:#64748b}
+body.dark .ebtn{background:#1e293b;border-color:#334155;color:#cbd5e1}
+body.dark .ebtn:hover{background:#273449}
+body.dark .qin,body.dark .fa,body.dark .addform .ai{background:#0b1220;border-color:#334155;color:#e2e8f0}
+body.dark .addq{background:#13233b;border-color:#2563eb;color:#93c5fd}
+body.dark .add-row td{background:#1e293b}
+body.dark .cal{background:#1e293b;border-color:#334155;color:#e2e8f0}
+body.dark .cal-head button{background:#334155;color:#e2e8f0}
+body.dark .cal-day:hover{background:#273449}
+body.dark .cal-foot button{background:#1e293b;border-color:#334155;color:#cbd5e1}
+body.dark .modal .card{background:#1e293b;color:#e2e8f0}
+body.dark .card p{color:#94a3b8}
+body.dark .card input{background:#0b1220;border-color:#334155;color:#e2e8f0}
+body.dark .theme{border-color:#334155}
+body.dark .theme button{background:#1e293b;color:#cbd5e1}
+body.dark .theme button.on{background:#2563eb;color:#fff}
 .ProseMirror:focus{outline:none}
 .ProseMirror>:first-child{margin-top:0}
 .ProseMirror p{margin:7px 0}
@@ -261,8 +312,8 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 </style>
 <script>__PM_JS__</script>
 </head><body>
-<div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.6.0</span></div>
+<div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system">系统</button><button data-theme="light">亮色</button><button data-theme="dark">暗色</button></span></div>
+<div class="sub"><span style="color:#9ca3af">v2.5.4</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -492,6 +543,10 @@ document.getElementById("cfgSave").onclick=async()=>{const b=document.getElement
 document.getElementById("pull").onclick=pull;
 document.getElementById("push").onclick=push;
 document.getElementById("reset").onclick=()=>{if(confirm("清空本机进度？若已配置云同步，请之后点上传覆盖云端")){state={};save();render();}};
+function applyTheme(){const m=localStorage.getItem("theme")||"system";const dark=m==="dark"||(m==="system"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);document.body.classList.toggle("dark",dark);document.querySelectorAll(".theme button").forEach(b=>b.classList.toggle("on",b.dataset.theme===m));}
+document.querySelectorAll(".theme button").forEach(b=>b.onclick=()=>{localStorage.setItem("theme",b.dataset.theme);applyTheme();});
+if(window.matchMedia)try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if((localStorage.getItem("theme")||"system")==="system")applyTheme();});}catch(e){}
+applyTheme();
 loadStuck();buildFilters();render();
 if(cfg){setPill("正在拉取…","busy");pull();}else{setPill("未配置云同步");}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")autoSync();});
