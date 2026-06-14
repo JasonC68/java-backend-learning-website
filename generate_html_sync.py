@@ -234,6 +234,12 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 .tui{border:1px solid #e5e7eb;border-radius:8px;background:#fff;overflow:hidden}
 .tui .ProseMirror{outline:none;min-height:180px;padding:12px 16px;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:15px;line-height:1.85;color:#1f2937;overflow-wrap:break-word;word-break:break-word}
 .ProseMirror img{max-width:100%;height:auto;border-radius:6px}
+.ebtn{border:1px solid #d1d5db;background:#fff;border-radius:6px;padding:2px 10px;font-size:12px;cursor:pointer;margin-right:6px}
+.ebtn:hover{background:#f3f4f6}
+.tui-memo{border:1px solid #fde68a;border-radius:8px;background:#fffbeb;margin-bottom:8px;overflow:hidden}
+.tui-memo .ProseMirror{outline:none;min-height:70px;padding:10px 14px;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7;color:#1f2937;overflow-wrap:break-word;word-break:break-word}
+.memo-label{font-size:12px;color:#b45309;margin:0 0 4px;font-weight:600}
+.note-hidden{font-size:13px;color:#9ca3af;padding:10px 4px}
 .ProseMirror:focus{outline:none}
 .ProseMirror>:first-child{margin-top:0}
 .ProseMirror p{margin:7px 0}
@@ -256,7 +262,7 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.5.1</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.6.0</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -435,18 +441,24 @@ function render(){const tb=document.getElementById("tb");
       tb.appendChild(tr);
       if(opened){
         const er=document.createElement("tr");er.className="ed-row";
-        const td=document.createElement("td");td.colSpan=6;
-        td.innerHTML='<div class="ehint"><button class="del">🗑 删除</button></div><div class="tui"></div>';
-        const host=td.querySelector(".tui");
+        const td=document.createElement("td");td.colSpan=6;const o=st;
+        let bar='<div class="ehint">';
+        bar+=(!o.memoOn)?'<button class="ebtn addmemo">＋ 助记</button>':'<button class="ebtn tgmemo">'+(o.memoHide?'显示助记':'隐藏助记')+'</button><button class="ebtn delmemo">删除助记</button>';
+        bar+='<button class="ebtn tgnote">'+(o.noteHide?'显示答案':'隐藏答案')+'</button>';
+        bar+='<button class="del">🗑 删除</button></div>';
+        let body='';
+        if(o.memoOn&&!o.memoHide)body+='<div class="memo-label">💡 助记</div><div class="tui-memo"></div>';
+        body+=o.noteHide?'<div class="note-hidden">（答案已隐藏，点"显示答案"查看）</div>':'<div class="tui"></div>';
+        td.innerHTML=bar+body;
+        const addb=td.querySelector(".addmemo");if(addb)addb.onclick=()=>{o.memoOn=true;o.memoHide=false;save();render();};
+        const tgm=td.querySelector(".tgmemo");if(tgm)tgm.onclick=()=>{o.memoHide=!o.memoHide;save();render();};
+        const dm=td.querySelector(".delmemo");if(dm)dm.onclick=()=>{if(confirm("删除助记？")){o.memoOn=false;delete o.memo;o.memoHide=false;save();render();}};
+        td.querySelector(".tgnote").onclick=()=>{o.noteHide=!o.noteHide;save();render();};
         td.querySelector(".del").onclick=()=>{get(it.id).del=true;openIds.delete(it.id);save();render();};
         er.appendChild(td);tb.appendChild(er);
-        if(window.MDEditor){
-          const ed=window.MDEditor(host, st.note||"", (mdstr)=>{st.note=mdstr;save();});
-          editors.push(ed);
-        }else{
-          host.innerHTML='<textarea class="fa" placeholder="# 在这里写你总结的答案…"></textarea>';
-          const ta=host.querySelector(".fa");ta.value=st.note||"";ta.oninput=()=>{st.note=ta.value;save();};
-        }
+        const mount=(host,getv,setv,ph)=>{if(window.MDEditor){editors.push(window.MDEditor(host,getv()||"",(html)=>{setv(html);save();}));}else{host.innerHTML='<textarea class="fa" placeholder="'+(ph||"")+'"></textarea>';const ta=host.querySelector(".fa");ta.value=getv()||"";ta.oninput=()=>{setv(ta.value);save();};}};
+        if(o.memoOn&&!o.memoHide)mount(td.querySelector(".tui-memo"),()=>o.memo,v=>o.memo=v,"写助记/口诀…");
+        if(!o.noteHide)mount(td.querySelector(".tui"),()=>st.note,v=>st.note=v,"# 在这里写你总结的答案…");
       }});
     if(lvlFilter==="all"&&dateFilter==="all"&&!starOnly){
       const ar=document.createElement("tr");ar.className="add-row";const td=document.createElement("td");td.colSpan=6;
