@@ -21281,7 +21281,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.6.8</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.6.9</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -21564,7 +21564,7 @@ document.querySelectorAll("#trimModal [data-trim]").forEach(btn=>btn.onclick=()=
   const frac=parseFloat(btn.dataset.trim),N={"0.25":2,"0.5":4,"0.75":6}[btn.dataset.trim]||2;
   const list=todayTaskItems(),total=list.length,toMove=Math.round(total*frac);
   if(toMove<=0){alert("今天没有可缩减的未完成任务");return;}
-  const moving=list.slice(total-toMove);
+  const moving=[];for(let j=0;j<toMove;j++)moving.push(list[Math.floor((j+0.5)*total/toMove)]);  // 整列等距采样，各类型均匀缩减
   moving.forEach((m,k)=>{const off=(k%N)+1,o=get(m.id);if(m.reviewDue)o.next=addDays(todayIso(),off);else o.date=addDays(todayIso(),off);});
   save();render();trimModal.classList.remove("show");
 });
