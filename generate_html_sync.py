@@ -240,7 +240,7 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.4.0</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.4.1</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -368,8 +368,8 @@ function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const
 function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const reviewDue=!!o.next&&o.next<=ti;if(d&&d>ti)return reviewDue;const studyDue=!!d&&d<=ti&&!(o.cnt>0);const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
-  ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso});});
-  customList().forEach(c=>{(map[c.sec]||(map[c.sec]=[])).push({id:c.id,sec:c.sec,q:c.q,baseIso:"",custom:true});});
+  ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso,tags:it.tags});});
+  customList().forEach(c=>{(map[c.sec]||(map[c.sec]=[])).push({id:c.id,sec:c.sec,q:c.q,baseIso:"",custom:true,tags:[]});});
   Object.keys(map).forEach(s=>map[s].forEach((it,i)=>it.idx=i+1));return map;}
 function itemDate(it){const o=get(it.id);return (o.date!==undefined&&o.date!=="")?o.date:(it.baseIso||"");}
 function render(){const tb=document.getElementById("tb");
