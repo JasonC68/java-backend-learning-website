@@ -331,7 +331,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.6.6</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.6.8</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -339,11 +339,11 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
   <span style="font-size:12px;color:#6b7280">按日期：</span>
   <span class="chip active" data-date="all">全部</span>
   <span class="chip" data-date="todayall" title="今天要打卡的（点 ＋ 算完成）+ 之前没完成顺延的 + 今天到期/逾期要复习的">📌 今天任务</span>
+  <button class="btn" id="trimBtn" title="把今天未完成的一部分任务挪到未来" style="margin-left:2px">✂️ 缩减</button>
   <span class="chip" data-date="today">📅 今天打卡</span>
   <span class="chip" data-date="tomorrow">明天</span>
   <span class="chip" data-date="review" title="按艾宾浩斯遗忘曲线，到期/逾期需复习的题">🔁 今日复习</span>
-  <span style="font-size:12px;color:#6b7280;margin-left:8px">或指定日期：</span>
-  <span class="pickwrap"><button class="pickbtn" id="pickBtn">📅 选择日期</button></span>
+  <span class="pickwrap" style="margin-left:8px"><button class="pickbtn" id="pickBtn">📅 选择日期</button></span>
 </div>
 <div class="toolbar">
   <span style="font-size:12px;color:#6b7280">按掌握程度：</span>
@@ -351,7 +351,8 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
   <span class="chip" data-lvl="0">未开始</span><span class="chip" data-lvl="1">眼熟</span>
   <span class="chip" data-lvl="2">能讲框架</span><span class="chip" data-lvl="3">能扛追问</span>
   <span class="chip" id="starFilter" style="margin-left:8px">⭐ 仅看收藏</span>
-  <span class="spacer"></span>
+</div>
+<div class="toolbar">
   <button class="btn pri" id="cfgBtn">☁️ 云同步设置</button>
   <button class="btn" id="pull">⬇️ 手动拉取</button>
   <button class="btn" id="push">⬆️ 手动上传</button>
@@ -365,20 +366,30 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 </tr></thead><tbody id="tb"></tbody></table>
 
 <div class="cal" id="cal"></div>
+<div class="modal" id="trimModal"><div class="card" style="max-width:430px">
+  <h3>缩减今日任务</h3>
+  <p style="font-size:13px;color:#6b7280;margin-bottom:12px">把今天<b>未完成</b>的一部分任务均匀挪到未来，减轻当天负担。已完成的不动。</p>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <button class="btn" data-trim="0.25">缩减 1/4　·　分散到未来 2 天</button>
+    <button class="btn" data-trim="0.5">缩减 1/2　·　分散到未来 4 天</button>
+    <button class="btn" data-trim="0.75">缩减 3/4　·　分散到未来 6 天</button>
+  </div>
+  <div class="acts"><button class="btn" id="trimCancel">取消</button></div>
+</div></div>
 <div class="modal" id="bkModal"><div class="card" style="max-width:560px">
   <h3>进度备份</h3>
-  <p style="font-size:12px;color:#6b7280;margin-bottom:10px">恢复会覆盖当前进度（建议先新建一个备份）。云端备份跨设备可见；本地备份只在本设备。</p>
+  <p style="font-size:12px;color:#6b7280;margin-bottom:10px">恢复会覆盖当前进度。云端备份跨设备可见，本地备份只在本设备。</p>
   <div style="display:flex;gap:8px;margin-bottom:10px">
-    <input id="bkLabel" placeholder="备注（可选）" style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
+    <input id="bkLabel" placeholder="备注" style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
     <button class="btn" id="bkNew">💾 本地备份</button>
     <button class="btn pri" id="bkNewCloud">☁️ 云端备份</button>
   </div>
-  <div style="font-size:12px;color:#6b7280;margin:6px 0 4px">☁️ 云端备份（跨设备）</div>
+  <div style="font-size:12px;color:#6b7280;margin:6px 0 4px">☁️ 云端备份</div>
   <div id="bkCloudList" style="max-height:200px;overflow:auto"></div>
-  <div style="font-size:12px;color:#6b7280;margin:10px 0 4px">💾 本地备份（本设备）</div>
+  <div style="font-size:12px;color:#6b7280;margin:10px 0 4px">💾 本地备份</div>
   <div id="bkList" style="max-height:200px;overflow:auto"></div>
   <div class="acts">
-    <label class="btn" style="cursor:pointer">导入文件<input type="file" id="bkImport" accept="application/json" style="display:none"></label>
+    <button class="btn" id="bkImportBtn">导入文件</button><input type="file" id="bkImport" accept="application/json" style="display:none">
     <button class="btn" id="bkClose">关闭</button>
   </div>
 </div></div>
@@ -592,6 +603,21 @@ function renderBackups(){const a=loadBackups(),box=document.getElementById("bkLi
   box.querySelectorAll(".db").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,a=loadBackups();a.splice(i,1);saveBackups(a);renderBackups();});
   box.querySelectorAll(".xb").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,a=loadBackups();const blob=new Blob([a[i].data],{type:"application/json"});const x=document.createElement("a");x.href=URL.createObjectURL(blob);x.download="打卡备份-"+a[i].ts+".json";x.click();});
 }
+// ---- 缩减今日任务：把未完成的一部分挪到未来 ----
+function todayTaskItems(){const ti=todayIso();const res=[];
+  const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=(o.date&&o.date!=="")?o.date:baseIso;if(d&&d>ti)return;const reviewDue=!!o.next&&o.next<=ti;const studyDue=!!d&&d<=ti&&!(o.cnt>0);if(studyDue||reviewDue)res.push({id:id,reviewDue:reviewDue});};
+  ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return res;}
+const trimModal=document.getElementById("trimModal");
+document.getElementById("trimBtn").onclick=()=>trimModal.classList.add("show");
+document.getElementById("trimCancel").onclick=()=>trimModal.classList.remove("show");
+document.querySelectorAll("#trimModal [data-trim]").forEach(btn=>btn.onclick=()=>{
+  const frac=parseFloat(btn.dataset.trim),N={"0.25":2,"0.5":4,"0.75":6}[btn.dataset.trim]||2;
+  const list=todayTaskItems(),total=list.length,toMove=Math.round(total*frac);
+  if(toMove<=0){alert("今天没有可缩减的未完成任务");return;}
+  const moving=list.slice(total-toMove);
+  moving.forEach((m,k)=>{const off=(k%N)+1,o=get(m.id);if(m.reviewDue)o.next=addDays(todayIso(),off);else o.date=addDays(todayIso(),off);});
+  save();render();trimModal.classList.remove("show");
+});
 const bkModal=document.getElementById("bkModal");
 // ---- 云端备份：每个备份单独一个小仓库，主进度只存索引（不会撑爆主仓库）----
 function bkIndex(){return state.__bkIndex||(state.__bkIndex=[]);}
@@ -605,6 +631,7 @@ function renderCloud(){const box=document.getElementById("bkCloudList");
 }
 document.getElementById("backupBtn").onclick=()=>{renderBackups();renderCloud();bkModal.classList.add("show");};
 document.getElementById("bkClose").onclick=()=>bkModal.classList.remove("show");
+document.getElementById("bkImportBtn").onclick=()=>document.getElementById("bkImport").click();
 document.getElementById("bkNew").onclick=()=>{const a=loadBackups();a.unshift({ts:Date.now(),label:document.getElementById("bkLabel").value.trim(),data:JSON.stringify(state)});if(a.length>30)a.length=30;saveBackups(a);document.getElementById("bkLabel").value="";renderBackups();};
 document.getElementById("bkNewCloud").onclick=async()=>{if(!cfg){alert("请先配置「☁️ 云同步」");return;}const btn=document.getElementById("bkNewCloud");btn.disabled=true;btn.textContent="备份中…";
   try{const snap=Object.assign({},state);delete snap.__bkIndex;delete snap.__backups;
