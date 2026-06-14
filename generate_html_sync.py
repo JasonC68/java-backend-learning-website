@@ -160,6 +160,9 @@ td.date input[type=date]{width:108px;box-sizing:border-box;font-size:12px;paddin
 .addq:hover{background:#eff6ff}
 .del{float:right;margin-right:8px;border:1px solid #fca5a5;background:#fff;color:#b91c1c;border-radius:6px;padding:2px 10px;font-size:12px;cursor:pointer}
 .del:hover{background:#fef2f2}
+.restore,.purge{border:1px solid #d1d5db;background:#fff;border-radius:6px;padding:3px 12px;font-size:12px;cursor:pointer}
+.restore{color:#2563eb;border-color:#93c5fd}.restore:hover{background:#eff6ff}
+.purge{color:#b91c1c;border-color:#fca5a5}.purge:hover{background:#fef2f2}
 .pickwrap{position:relative;display:inline-block}
 .pickbtn{font-size:12px;padding:4px 10px;border:1px solid #d1d5db;border-radius:16px;background:#fff;cursor:pointer}
 .pickbtn:hover{background:#f3f4f6}
@@ -253,7 +256,7 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.4.3</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.5.0</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -277,6 +280,7 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
   <button class="btn pri" id="cfgBtn">☁️ 云同步设置</button>
   <button class="btn" id="pull">⬇️ 手动拉取</button>
   <button class="btn" id="push">⬆️ 手动上传</button>
+  <button class="btn" id="recycleBtn">🗑 回收站</button>
   <button class="btn" id="reset">清空</button>
 </div>
 <table><thead><tr>
@@ -312,7 +316,9 @@ window.IMG_UPLOADER=function(dataUrl){
   return fetch("https://api.imgbb.com/1/upload?key="+encodeURIComponent(imgKey),{method:"POST",body:fd})
     .then(r=>r.json()).then(j=>{if(j&&j.success&&j.data&&(j.data.display_url||j.data.url))return j.data.display_url||j.data.url;throw new Error("upload failed");});
 };
-let secFilter="all",lvlFilter="all",dateFilter="all",pickedDate="",starOnly=false,timer=null,openIds=new Set(),editors=[],dirty=false,retryTimer=null,stuckToday=new Set(),stuckDay="";
+let secFilter="all",lvlFilter="all",dateFilter="all",pickedDate="",starOnly=false,recycleMode=false,timer=null,openIds=new Set(),editors=[],dirty=false,retryTimer=null,stuckToday=new Set(),stuckDay="";
+function isDeleted(id){return !!get(id).del;}
+function isPurged(id){return !!get(id).purged;}
 function isoOf(dt){return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");}
 function todayIso(){return isoOf(new Date());}
 function tomorrowIso(){const d=new Date();d.setDate(d.getDate()+1);return isoOf(d);}
@@ -377,7 +383,8 @@ pickBtn.onclick=e=>{e.stopPropagation();if(calBox.classList.contains("show")){ca
 document.addEventListener("click",e=>{if(!calBox.contains(e.target)&&e.target!==pickBtn)calBox.classList.remove("show");});
 document.querySelectorAll('[data-date]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-date]').forEach(x=>x.classList.remove("active"));c.classList.add("active");dateFilter=c.dataset.date;pickedDate="";updatePickBtn();render();});
 document.getElementById("starFilter").onclick=function(){starOnly=!starOnly;this.classList.toggle("active",starOnly);render();};
-function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);const d=(o.date&&o.date!=="")?o.date:baseIso;const rd=!!o.next&&o.next<=ti;if(d&&d>ti){if(rd)n++;return;}const sd=!!d&&d<=ti&&!(o.cnt>0);const dt=o.last===today();if(sd||rd||dt)n++;};ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
+document.getElementById("recycleBtn").onclick=function(){recycleMode=!recycleMode;this.classList.toggle("pri",recycleMode);render();};
+function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=(o.date&&o.date!=="")?o.date:baseIso;const rd=!!o.next&&o.next<=ti;if(d&&d>ti){if(rd)n++;return;}const sd=!!d&&d<=ti&&!(o.cnt>0);const dt=o.last===today();if(sd||rd||dt)n++;};ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
 function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const reviewDue=!!o.next&&o.next<=ti;if(d&&d>ti)return reviewDue;const studyDue=!!d&&d<=ti&&!(o.cnt>0);const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
@@ -392,9 +399,20 @@ function render(){const tb=document.getElementById("tb");
   const map=sectionMap();
   const secs=Object.keys(map).filter(s=>secFilter==="all"||s===secFilter);
   secs.forEach(s=>{
-    const list=map[s].filter(it=>(lvlFilter==="all"||get(it.id).lvl==lvlFilter)&&passDate(it)&&(!starOnly||get(it.id).star));
-    if(list.length===0&&(lvlFilter!=="all"||dateFilter!=="all"||starOnly))return;
+    let list;
+    if(recycleMode){ list=map[s].filter(it=>isDeleted(it.id)&&!isPurged(it.id)); if(list.length===0)return; }
+    else { list=map[s].filter(it=>!isDeleted(it.id)&&!isPurged(it.id)&&(lvlFilter==="all"||get(it.id).lvl==lvlFilter)&&passDate(it)&&(!starOnly||get(it.id).star));
+           if(list.length===0&&(lvlFilter!=="all"||dateFilter!=="all"||starOnly))return; }
     const sr=document.createElement("tr");sr.className="sec-row";sr.innerHTML='<td colspan="6">'+esc(s)+'</td>';tb.appendChild(sr);
+    if(recycleMode){
+      list.forEach(it=>{const tr=document.createElement("tr");
+        tr.innerHTML='<td class="c">'+it.idx+'</td><td class="c hide-sm date"></td><td class="q">'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</td>'+
+          '<td class="c" colspan="3"><button class="restore">↩ 恢复</button> <button class="purge">🗑 永久删除</button></td>';
+        tr.querySelector(".restore").onclick=()=>{delete get(it.id).del;save();render();};
+        tr.querySelector(".purge").onclick=()=>{if(confirm("永久删除这道题？不可恢复")){if(it.custom){state.__custom=customList().filter(c=>c.id!==it.id);delete state[it.id];}else{const o=get(it.id);delete o.del;o.purged=true;}save();render();}};
+        tb.appendChild(tr);});
+      return;
+    }
     list.forEach(it=>{const st=get(it.id);
       const opened=openIds.has(it.id), hasNote=st.note&&st.note.trim();
       const tr=document.createElement("tr");
@@ -418,10 +436,9 @@ function render(){const tb=document.getElementById("tb");
       if(opened){
         const er=document.createElement("tr");er.className="ed-row";
         const td=document.createElement("td");td.colSpan=6;
-        td.innerHTML=(it.custom?'<div class="ehint"><button class="del">🗑 删除此题</button></div>':'')+'<div class="tui"></div>';
+        td.innerHTML='<div class="ehint"><button class="del">🗑 删除（移到回收站）</button></div><div class="tui"></div>';
         const host=td.querySelector(".tui");
-        const del=td.querySelector(".del");
-        if(del)del.onclick=()=>{if(confirm("删除这道自建题？")){state.__custom=customList().filter(c=>c.id!==it.id);delete state[it.id];openIds.delete(it.id);save();render();}};
+        td.querySelector(".del").onclick=()=>{get(it.id).del=true;openIds.delete(it.id);save();render();};
         er.appendChild(td);tb.appendChild(er);
         if(window.MDEditor){
           const ed=window.MDEditor(host, st.note||"", (mdstr)=>{st.note=mdstr;save();});
@@ -443,7 +460,7 @@ function render(){const tb=document.getElementById("tb");
         inp.onkeydown=e=>{if(e.key==="Enter")add();if(e.key==="Escape")render();};};
       ar.appendChild(td);tb.appendChild(ar);}
   });
-  let base=[];SECTIONS.forEach(s=>base=base.concat(map[s]||[]));
+  let base=[];SECTIONS.forEach(s=>base=base.concat((map[s]||[]).filter(it=>!isDeleted(it.id)&&!isPurged(it.id))));
   let done=0;base.forEach(it=>{if(get(it.id).lvl>=2)done++;});
   const tot=base.length,pct=tot?Math.round(done/tot*100):0;
   document.getElementById("pbar").style.width=pct+"%";
