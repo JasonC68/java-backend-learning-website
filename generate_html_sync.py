@@ -331,7 +331,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.6.4</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.6.5</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -409,7 +409,7 @@ window.IMG_UPLOADER=function(dataUrl){
   return fetch("https://api.imgbb.com/1/upload?key="+encodeURIComponent(imgKey),{method:"POST",body:fd})
     .then(r=>r.json()).then(j=>{if(j&&j.success&&j.data&&(j.data.display_url||j.data.url))return j.data.display_url||j.data.url;throw new Error("upload failed");});
 };
-let secFilter="all",lvlFilter="all",dateFilter="all",pickedDate="",starOnly=false,recycleMode=false,timer=null,openIds=new Set(),editors=[],dirty=false,retryTimer=null,stuckToday=new Set(),stuckDay="";
+let secFilter="all",lvlFilter="all",dateFilter="all",pickedDate="",starOnly=false,recycleMode=false,timer=null,openIds=new Set(),editors=[],dirty=false,retryTimer=null,stuckToday=new Set(),stuckDay="",restoring=false;
 function isDeleted(id){return !!get(id).del;}
 function isPurged(id){return !!get(id).purged;}
 function isoOf(dt){return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");}
@@ -436,8 +436,8 @@ function clearRetry(){if(retryTimer){clearTimeout(retryTimer);retryTimer=null;}}
 function save(){if(state.__backups)delete state.__backups;localStorage.setItem(KEY,JSON.stringify(state));if(cfg){dirty=true;setPill("待同步…","busy");clearTimeout(timer);timer=setTimeout(push,1200);} }
 async function push(){if(!cfg)return;try{setPill("同步中…","busy");await cloudPut();dirty=false;clearRetry();setPill("已同步 "+nowt(),"ok");}catch(e){setPill("同步失败，10秒后重试","warn");scheduleRetry();}}
 function isEditing(){const a=document.activeElement;return !!(a&&(a.isContentEditable||a.tagName==="INPUT"||a.tagName==="TEXTAREA"));}
-function autoSync(){if(!cfg)return;if(dirty){push();return;}if(isEditing()){scheduleRetry();return;}pull();}
-async function pull(){if(!cfg){alert("请先配置云同步");return;}if(isEditing()){scheduleRetry();return;}try{setPill("拉取中…","busy");const c=await cloudGet();if(c&&typeof c==="object"){state=c;localStorage.setItem(KEY,JSON.stringify(state));render();}clearRetry();setPill("已拉取 "+nowt(),"ok");}catch(e){setPill("拉取失败，10秒后重试","warn");scheduleRetry();}}
+function autoSync(){if(!cfg||restoring)return;if(dirty){push();return;}if(isEditing()){scheduleRetry();return;}pull();}
+async function pull(){if(restoring)return;if(!cfg){alert("请先配置云同步");return;}if(isEditing()){scheduleRetry();return;}try{setPill("拉取中…","busy");const c=await cloudGet();if(c&&typeof c==="object"){state=c;localStorage.setItem(KEY,JSON.stringify(state));render();}clearRetry();setPill("已拉取 "+nowt(),"ok");}catch(e){setPill("拉取失败，10秒后重试","warn");scheduleRetry();}}
 function buildFilters(){const f=document.getElementById("filters");f.innerHTML='<span style="font-size:12px;color:#6b7280">板块：</span>';
   const mk=(t,v)=>{const s=document.createElement("span");s.className="chip"+(v===secFilter?" active":"");s.textContent=t;s.onclick=()=>{secFilter=v;buildFilters();render();};return s;};
   f.appendChild(mk("全部","all"));SECTIONS.forEach(s=>f.appendChild(mk(s,s)));}
@@ -588,7 +588,7 @@ function progCount(s){try{return Object.keys(JSON.parse(s)).filter(k=>!k.startsW
 function renderBackups(){const a=loadBackups(),box=document.getElementById("bkList");
   if(!a.length){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">还没有备份，点上面「新建备份」</div>';return;}
   box.innerHTML=a.map((b,i)=>'<div class="bk-item"><div class="meta"><div>'+(esc(b.label)||"备份")+'</div><div class="t">'+fmtTs(b.ts)+' · '+progCount(b.data)+' 题有记录</div></div><button class="rb" data-i="'+i+'">恢复</button><button class="xb" data-i="'+i+'">导出</button><button class="db" data-i="'+i+'">删除</button></div>').join("");
-  box.querySelectorAll(".rb").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,a=loadBackups();if(confirm("恢复到这个备份？当前进度会被覆盖")){try{state=JSON.parse(a[i].data);save();render();bkModal.classList.remove("show");}catch(e){alert("备份损坏");}}});
+  box.querySelectorAll(".rb").forEach(b=>b.onclick=async()=>{const i=+b.dataset.i,a=loadBackups();if(!confirm("恢复到这个备份？当前进度会被覆盖"))return;restoring=true;try{state=JSON.parse(a[i].data);localStorage.setItem(KEY,JSON.stringify(state));render();bkModal.classList.remove("show");clearTimeout(timer);if(cfg){await cloudPut();dirty=false;setPill("已恢复 "+nowt(),"ok");}}catch(e){alert("备份损坏");}restoring=false;});
   box.querySelectorAll(".db").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,a=loadBackups();a.splice(i,1);saveBackups(a);renderBackups();});
   box.querySelectorAll(".xb").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,a=loadBackups();const blob=new Blob([a[i].data],{type:"application/json"});const x=document.createElement("a");x.href=URL.createObjectURL(blob);x.download="打卡备份-"+a[i].ts+".json";x.click();});
 }
@@ -600,7 +600,7 @@ function renderCloud(){const box=document.getElementById("bkCloudList");
   const a=bkIndex();
   if(!a.length){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">还没有云端备份，点上方「☁️ 云端备份」创建</div>';return;}
   box.innerHTML=a.map((b,i)=>'<div class="bk-item"><div class="meta"><div>'+(esc(b.label)||"备份")+'</div><div class="t">'+fmtTs(b.ts)+'</div></div><button class="rb" data-i="'+i+'">恢复</button><button class="db" data-i="'+i+'">删除</button></div>').join("");
-  box.querySelectorAll(".rb").forEach(btn=>btn.onclick=async()=>{const i=+btn.dataset.i,b=bkIndex()[i];if(!confirm("恢复到这个云端备份？当前进度会被覆盖"))return;try{const r=await fetch("https://api.jsonbin.io/v3/b/"+b.bin+"/latest",{headers:{"X-Master-Key":cfg.key}});if(!r.ok)throw 0;const j=await r.json();const snap=j.record;snap.__bkIndex=bkIndex();state=snap;save();render();bkModal.classList.remove("show");}catch(e){alert("恢复失败，检查网络");}});
+  box.querySelectorAll(".rb").forEach(btn=>btn.onclick=async()=>{const i=+btn.dataset.i,b=bkIndex()[i];if(!confirm("恢复到这个云端备份？当前进度会被覆盖"))return;restoring=true;try{const r=await fetch("https://api.jsonbin.io/v3/b/"+b.bin+"/latest",{headers:{"X-Master-Key":cfg.key}});if(!r.ok)throw 0;const j=await r.json();const snap=j.record;snap.__bkIndex=bkIndex();state=snap;localStorage.setItem(KEY,JSON.stringify(state));render();bkModal.classList.remove("show");clearTimeout(timer);if(cfg){await cloudPut();dirty=false;setPill("已恢复 "+nowt(),"ok");}}catch(e){alert("恢复失败，检查网络");}restoring=false;});
   box.querySelectorAll(".db").forEach(btn=>btn.onclick=async()=>{const i=+btn.dataset.i,b=bkIndex()[i];bkIndex().splice(i,1);save();renderCloud();try{await fetch("https://api.jsonbin.io/v3/b/"+b.bin,{method:"DELETE",headers:{"X-Master-Key":cfg.key}});}catch(e){}});
 }
 document.getElementById("backupBtn").onclick=()=>{renderBackups();renderCloud();bkModal.classList.add("show");};
