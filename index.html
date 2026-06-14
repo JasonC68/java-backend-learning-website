@@ -79,7 +79,7 @@ td.date input[type=date]{width:108px;box-sizing:border-box;font-size:12px;paddin
 .star{cursor:pointer;color:#d1d5db;margin-right:7px;font-size:15px;user-select:none}
 .star.on{color:#f59e0b}
 .star:hover{color:#f59e0b}
-.qedit{cursor:pointer;color:#cbd5e1;margin-left:8px;font-size:13px}
+.qedit{cursor:pointer;color:#d4d4d4;margin-left:8px;font-size:13px}
 .qedit:hover{color:#2563eb}
 .qin{width:92%;height:24px;line-height:22px;padding:0 8px;border:1px solid #93c5fd;border-radius:6px;font-size:13px;box-sizing:border-box;vertical-align:middle}
 .tag{display:inline-block;font-size:11px;color:#3730a3;background:#eef2ff;border:1px solid #e0e7ff;border-radius:10px;padding:0 7px;margin-left:6px;vertical-align:middle;white-space:nowrap}
@@ -198,55 +198,58 @@ img.ProseMirror-separator {
 .memo-label{font-size:12px;color:#b45309;margin:0 0 4px;font-weight:600}
 .note-hidden{font-size:13px;color:#9ca3af;padding:10px 4px}
 .theme{display:inline-flex;border:1px solid #d1d5db;border-radius:8px;overflow:hidden}
-.theme button{border:none;background:#fff;color:#374151;font-size:12px;padding:4px 10px;cursor:pointer}
+.theme button{border:none;background:#fff;color:#6b7280;padding:5px 9px;cursor:pointer;display:inline-flex;align-items:center}
+.theme button:hover{color:#111827}
+.theme button svg{width:15px;height:15px;display:block}
 .theme button.on{background:#2563eb;color:#fff}
 /* ====== 暗色模式 ====== */
-body.dark{background:#0f172a;color:#e2e8f0}
-body.dark .bar{background:#334155}
-body.dark .statline{color:#cbd5e1}
-body.dark .pill{background:#334155;color:#cbd5e1}
-body.dark .chip{background:#1e293b;border-color:#334155;color:#cbd5e1}
+body.dark{background:#1a1a1a;color:#e5e5e5}
+body.dark .bar{background:#3a3a3a}
+body.dark .statline{color:#d4d4d4}
+body.dark .pill{background:#3a3a3a;color:#d4d4d4}
+body.dark .chip{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
 body.dark .chip.active{background:#2563eb;color:#fff;border-color:#2563eb}
-body.dark .btn{background:#1e293b;border-color:#334155;color:#cbd5e1}
-body.dark .btn:hover{background:#273449}
+body.dark .btn{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
+body.dark .btn:hover{background:#303030}
 body.dark .btn.pri{background:#2563eb;color:#fff;border-color:#2563eb}
-body.dark .pickbtn{background:#1e293b;border-color:#334155;color:#cbd5e1}
-body.dark table{background:#1e293b;box-shadow:none}
-body.dark th,body.dark td{border-color:#334155}
-body.dark tr.sec-row td{background:#27314a;color:#c7d2fe}
+body.dark .pickbtn{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
+body.dark table{background:#262626;box-shadow:none}
+body.dark th,body.dark td{border-color:#3a3a3a}
+body.dark tr.sec-row td{background:#2e2e2e;color:#c7d2fe}
 body.dark td.date{color:#94a3b8}
-body.dark td.date:hover{background:#273449}
+body.dark td.date:hover{background:#303030}
 body.dark .last{color:#94a3b8}
-body.dark .cnt button{background:#1e293b;border-color:#334155;color:#e2e8f0}
-body.dark .cnt button:hover{background:#273449}
+body.dark .cnt button{background:#262626;border-color:#3a3a3a;color:#e5e5e5}
+body.dark .cnt button:hover{background:#303030}
 body.dark .qedit{color:#475569}
-body.dark .tag{background:#1e293b;color:#a5b4fc;border-color:#334155}
-body.dark .tui{background:#0b1220;border-color:#334155}
-body.dark .tui .ProseMirror{color:#e2e8f0}
-body.dark .ProseMirror code{background:#334155;color:#fca5a5}
-body.dark .ProseMirror pre{background:#0b1220}
-body.dark .ProseMirror pre code{color:#e2e8f0}
-body.dark .ProseMirror blockquote{background:#16233a;border-left-color:#3b4a63;color:#cbd5e1}
+body.dark .tag{background:#262626;color:#a5b4fc;border-color:#3a3a3a}
+body.dark .tui{background:#121212;border-color:#3a3a3a}
+body.dark .tui .ProseMirror{color:#e5e5e5}
+body.dark .ProseMirror code{background:#3a3a3a;color:#fca5a5}
+body.dark .ProseMirror pre{background:#121212}
+body.dark .ProseMirror pre code{color:#e5e5e5}
+body.dark .ProseMirror blockquote{background:#262626;border-left-color:#4a4a4a;color:#d4d4d4}
 body.dark .ProseMirror strong{color:#f1f5f9}
 body.dark .ProseMirror li::marker{color:#94a3b8}
 body.dark .ProseMirror a{color:#60a5fa}
 body.dark .tui-memo{background:#2b240a;border-color:#a16207}
 body.dark .memo-label{color:#fcd34d}
 body.dark .note-hidden{color:#64748b}
-body.dark .ebtn{background:#1e293b;border-color:#334155;color:#cbd5e1}
-body.dark .ebtn:hover{background:#273449}
-body.dark .qin,body.dark .fa,body.dark .addform .ai{background:#0b1220;border-color:#334155;color:#e2e8f0}
-body.dark .addq{background:#13233b;border-color:#2563eb;color:#93c5fd}
-body.dark .add-row td{background:#1e293b}
-body.dark .cal{background:#1e293b;border-color:#334155;color:#e2e8f0}
-body.dark .cal-head button{background:#334155;color:#e2e8f0}
-body.dark .cal-day:hover{background:#273449}
-body.dark .cal-foot button{background:#1e293b;border-color:#334155;color:#cbd5e1}
-body.dark .modal .card{background:#1e293b;color:#e2e8f0}
+body.dark .ebtn{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
+body.dark .ebtn:hover{background:#303030}
+body.dark .qin,body.dark .fa,body.dark .addform .ai{background:#121212;border-color:#3a3a3a;color:#e5e5e5}
+body.dark .addq{background:#2a2a2a;border-color:#2563eb;color:#93c5fd}
+body.dark .add-row td{background:#262626}
+body.dark .cal{background:#262626;border-color:#3a3a3a;color:#e5e5e5}
+body.dark .cal-head button{background:#3a3a3a;color:#e5e5e5}
+body.dark .cal-day:hover{background:#303030}
+body.dark .cal-foot button{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
+body.dark .modal .card{background:#262626;color:#e5e5e5}
 body.dark .card p{color:#94a3b8}
-body.dark .card input{background:#0b1220;border-color:#334155;color:#e2e8f0}
-body.dark .theme{border-color:#334155}
-body.dark .theme button{background:#1e293b;color:#cbd5e1}
+body.dark .card input{background:#121212;border-color:#3a3a3a;color:#e5e5e5}
+body.dark .theme{border-color:#3a3a3a}
+body.dark .theme button{background:#262626;color:#d4d4d4}
+body.dark .theme button:hover{color:#fff}
 body.dark .theme button.on{background:#2563eb;color:#fff}
 .ProseMirror:focus{outline:none}
 .ProseMirror>:first-child{margin-top:0}
@@ -21262,8 +21265,8 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 })();
 </script>
 </head><body>
-<div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system">系统</button><button data-theme="light">亮色</button><button data-theme="dark">暗色</button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.5.4</span></div>
+<div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
+<div class="sub"><span style="color:#9ca3af">v2.5.7</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
