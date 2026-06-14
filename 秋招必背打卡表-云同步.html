@@ -21281,7 +21281,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.6.1</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.6.2</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -21545,15 +21545,15 @@ function renderBackups(){const a=loadBackups(),box=document.getElementById("bkLi
 const bkModal=document.getElementById("bkModal");
 // ---- 云端备份（独立 Bin，自动创建，跨设备）----
 async function ensureBkBin(){if(state.__bkBin)return state.__bkBin;
-  const r=await fetch("https://api.jsonbin.io/v3/b",{method:"POST",headers:{"Content-Type":"application/json","X-Master-Key":cfg.key,"X-Bin-Name":"打卡备份","X-Bin-Private":"true"},body:JSON.stringify({backups:[]})});
+  const r=await fetch("https://api.jsonbin.io/v3/b",{method:"POST",headers:{"Content-Type":"application/json","X-Master-Key":cfg.key,"X-Bin-Name":"checkin-backups"},body:JSON.stringify({backups:[]})});
   if(!r.ok)throw 0;const j=await r.json();state.__bkBin=j.metadata.id;save();return state.__bkBin;}
-async function cloudBkGet(){const id=await ensureBkBin();const r=await fetch("https://api.jsonbin.io/v3/b/"+id+"/latest",{headers:{"X-Master-Key":cfg.key}});if(!r.ok)throw 0;const j=await r.json();return (j.record&&j.record.backups)||[];}
+async function cloudBkGet(){if(!state.__bkBin)return [];const r=await fetch("https://api.jsonbin.io/v3/b/"+state.__bkBin+"/latest",{headers:{"X-Master-Key":cfg.key}});if(!r.ok)throw 0;const j=await r.json();return (j.record&&j.record.backups)||[];}
 async function cloudBkPut(arr){const id=await ensureBkBin();const r=await fetch("https://api.jsonbin.io/v3/b/"+id,{method:"PUT",headers:{"Content-Type":"application/json","X-Master-Key":cfg.key},body:JSON.stringify({backups:arr})});if(!r.ok)throw 0;}
 async function renderCloud(){const box=document.getElementById("bkCloudList");
   if(!cfg){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">配置「☁️ 云同步」后可用</div>';return;}
   box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">加载中…</div>';
   let a;try{a=await cloudBkGet();}catch(e){box.innerHTML='<div style="color:#dc2626;font-size:13px;padding:8px">云端读取失败，检查网络/配置</div>';return;}
-  if(!a.length){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">还没有云端备份</div>';return;}
+  if(!a.length){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">还没有云端备份，点上方「☁️ 云端备份」创建</div>';return;}
   box.innerHTML=a.map((b,i)=>'<div class="bk-item"><div class="meta"><div>'+(esc(b.label)||"备份")+'</div><div class="t">'+fmtTs(b.ts)+' · '+progCount(b.data)+' 题有记录</div></div><button class="rb" data-i="'+i+'">恢复</button><button class="db" data-i="'+i+'">删除</button></div>').join("");
   box.querySelectorAll(".rb").forEach(btn=>btn.onclick=async()=>{const i=+btn.dataset.i;if(confirm("恢复到这个云端备份？当前进度会被覆盖")){try{const arr=await cloudBkGet();state=JSON.parse(arr[i].data);save();render();bkModal.classList.remove("show");}catch(e){alert("恢复失败");}}});
   box.querySelectorAll(".db").forEach(btn=>btn.onclick=async()=>{const i=+btn.dataset.i;try{const arr=await cloudBkGet();arr.splice(i,1);await cloudBkPut(arr);renderCloud();}catch(e){alert("删除失败");}});
