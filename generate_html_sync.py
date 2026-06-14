@@ -52,6 +52,60 @@ for rank,rec in enumerate(spread_order): rec["_day"]=rank*num_days//spread_total
 for rec in items:
     d=START+timedelta(days=rec.pop("_day"))
     rec["date"]=fmt_d(d); rec["iso"]=d.isoformat()
+
+# ===== 自动归纳标签：关键词 -> 标签（顺序：越具体越靠前）=====
+TAG_RULES=[
+  ("ConcurrentHashMap","ConcurrentHashMap"),("Hashtable","Hashtable"),("HashMap","HashMap"),
+  ("ArrayList","List"),("LinkedList","List"),("Vector","List"),("List","List"),("Set","Set"),
+  ("扩容","扩容"),("红黑树","底层结构"),("AVL","底层结构"),("哈希冲突","哈希"),("负载因子","容量/负载"),("n 次方","容量/负载"),
+  ("equals","equals/hashCode"),("hashCode","equals/hashCode"),
+  ("ABA","CAS"),("CAS","CAS"),("volatile","volatile"),("锁升级","synchronized"),("synchronized","synchronized"),
+  ("JMM","JMM"),("内存模型","JMM"),("AQS","AQS/Lock"),("ReentrantLock","AQS/Lock"),("线程池","线程池"),
+  ("sleep","线程基础"),("wait","线程基础"),("notify","线程基础"),("线程的创建","线程基础"),("线程的六种状态","线程基础"),("BLOCKED","线程基础"),("如何停止线程","线程基础"),("多线程安全","线程安全"),
+  ("双亲委派","类加载"),("类加载","类加载"),("类加载器","类加载"),
+  ("垃圾回收","GC"),("回收器","GC"),("CMS","GC"),("G1","GC"),("MinorGC","GC"),("FullGC","GC"),("判断垃圾","GC"),("回收算法","GC"),
+  ("引用类型","引用"),("四种引用","引用"),("创建对象","对象"),("内存泄漏","内存问题"),("内存溢出","内存问题"),
+  ("程序计数器","内存区域"),("运行时数据区","内存区域"),("堆和栈","内存区域"),("堆怎么分","内存区域"),
+  ("最左匹配","索引"),("联合索引","索引"),("聚簇","索引"),("覆盖索引","索引"),("回表","索引"),("B+","索引"),("索引","索引"),("explain","索引"),
+  ("MVCC","事务"),("隔离级别","事务"),("幻读","事务"),("ACID","事务"),("事务","事务"),
+  ("redo","日志"),("undo","日志"),("binlog","日志"),
+  ("间隙锁","锁"),("InnoDB","存储引擎"),("MyISAM","存储引擎"),("慢查询","优化"),("SQL 的执行","优化"),
+  ("跳表","数据结构"),("ZSet","数据结构"),("数据类型","数据结构"),
+  ("RDB","持久化"),("AOF","持久化"),("淘汰","内存管理"),("过期","内存管理"),
+  ("雪崩","缓存问题"),("击穿","缓存问题"),("穿透","缓存问题"),("布隆","缓存问题"),("一致性","缓存一致性"),
+  ("分布式锁","分布式锁"),("大 Key","大Key/热Key"),("热 Key","大Key/热Key"),("主从","高可用"),("哨兵","高可用"),("Redis 为什么快","原理"),("原子","原理"),
+  ("三次握手","TCP"),("四次挥手","TCP"),("拥塞","TCP"),("TCP 为什么可靠","TCP"),("TCP","TCP"),("UDP","UDP"),
+  ("HTTPS","HTTPS"),("状态码","HTTP"),("GET","HTTP"),("POST","HTTP"),("长连接","HTTP"),("HTTP","HTTP"),
+  ("Cookie","会话/认证"),("Session","会话/认证"),("Token","会话/认证"),("JWT","会话/认证"),("无状态","会话/认证"),
+  ("DNS","DNS"),("WebSocket","WebSocket"),("URL","综合"),
+  ("协程","进程线程"),("进程 vs 线程","进程线程"),("进程的五种状态","进程线程"),("进程间通信","进程通信"),("线程间通信","进程通信"),
+  ("用户态","用户/内核态"),("死锁","死锁"),("乐观锁","锁"),("自旋","锁"),
+  ("虚拟内存","内存管理"),("页面置换","内存管理"),("内存布局","内存管理"),
+  ("epoll","IO"),("多路复用","IO"),("零拷贝","IO"),("进程切换","调度"),
+  ("IoC","IoC/DI"),("DI ","IoC/DI"),("循环依赖","循环依赖"),("三级缓存","循环依赖"),("AOP","AOP"),
+  ("传播行为","事务"),("事务失效","事务"),("Transactional","事务"),("Bean","Bean"),
+  ("Spring MVC","SpringMVC"),("自动装配","SpringBoot"),("注解","注解"),
+  ("MyBatis","MyBatis"),("MQ","消息队列"),("消息","消息队列"),("CAP","分布式理论"),("BASE","分布式理论"),
+  ("分布式事务","分布式事务"),("分布式 ID","分布式ID"),("限流","限流"),
+  ("ReAct","推理范式"),("Plan-and-Execute","推理范式"),("Reflection","推理范式"),("推理模式","推理范式"),("反思","反思"),
+  ("记忆","记忆"),("规划","规划"),("任务拆分","规划"),("Multi-Agent","多Agent"),("多 Agent","多Agent"),("手搓","工程"),("Agent","Agent"),
+  ("RAG","RAG"),("微调","微调对比"),("Chunking","分块"),("切割","分块"),("切断","分块"),("Embedding","Embedding"),("向量","向量库"),
+  ("Query","检索"),("召回","检索"),("检索","检索"),("幻觉","幻觉"),("评测","评估"),("量化 你的 RAG","评估"),
+  ("Function Calling","FunctionCalling"),("MCP","MCP"),("Skill","Skill"),("A2A","A2A"),("SSE","通信协议"),("WebRTC","通信协议"),("网关","网关"),
+  ("大语言模型","基础"),("Transformer","Transformer"),("KV Cache","推理优化"),("Prompt Caching","推理优化"),("Prompt","Prompt工程"),("CoT","Prompt工程"),("Top-P","采样参数"),("温度","采样参数"),("模型选型","选型"),("MoE","架构"),
+]
+SEC_DEFAULT={"集合":"集合","并发/多线程":"并发","MySQL":"MySQL","JVM":"JVM","Spring":"Spring","计算机网络":"网络","Redis":"Redis","扩展(MyBatis/MQ/分布式)":"分布式","操作系统":"操作系统","Java基础":"Java基础","AI·Agent":"Agent","AI·RAG":"RAG","AI·工具调用":"工具调用","AI·大模型基础":"大模型"}
+def tags_for(sec,q):
+    out=[]
+    for kw,tag in TAG_RULES:
+        if kw in q and tag not in out:   # 区分大小写，避免 get/GET 之类误匹配
+            out.append(tag)
+        if len(out)>=2: break
+    if not out: out=[SEC_DEFAULT.get(sec,sec)]
+    return out
+for rec in items:
+    rec["tags"]=tags_for(rec["sec"],rec["q"])
+
 JS=json.dumps(items,ensure_ascii=False); SEC=json.dumps(list(data.keys()),ensure_ascii=False)
 
 html = '''<!DOCTYPE html>
@@ -135,6 +189,7 @@ td.date input[type=date]{width:108px;box-sizing:border-box;font-size:12px;paddin
 .qedit{cursor:pointer;color:#cbd5e1;margin-left:8px;font-size:13px}
 .qedit:hover{color:#2563eb}
 .qin{width:92%;height:24px;line-height:22px;padding:0 8px;border:1px solid #93c5fd;border-radius:6px;font-size:13px;box-sizing:border-box;vertical-align:middle}
+.tag{display:inline-block;font-size:11px;color:#3730a3;background:#eef2ff;border:1px solid #e0e7ff;border-radius:10px;padding:0 7px;margin-left:6px;vertical-align:middle;white-space:nowrap}
 tbody tr:not(.sec-row):not(.ed-row):not(.add-row)>td{height:24px}
 .qbtn{cursor:pointer;display:inline-block}
 .qbtn:hover{color:#2563eb}
@@ -185,7 +240,7 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.3.5</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.4.0</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -332,7 +387,7 @@ function render(){const tb=document.getElementById("tb");
       const tr=document.createElement("tr");
       tr.innerHTML='<td class="c">'+it.idx+'</td>'+
         '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
-        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</span><span class="qedit" title="编辑题目">✎</span></td>'+
+        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+'<span class="qedit" title="编辑题目">✎</span></td>'+
         '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
         '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
         '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span style="font-size:11px;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
