@@ -21072,6 +21072,24 @@ img.ProseMirror-separator {
     }
     return null;
   }
+  function parseInitial(s) {
+    s = s || "";
+    if (/^\s*</.test(s)) {
+      try {
+        const div = document.createElement("div");
+        div.innerHTML = s;
+        return DOMParser.fromSchema(schema).parse(div);
+      } catch (e) {
+      }
+    }
+    return defaultMarkdownParser.parse(s);
+  }
+  function docToHTML(doc3) {
+    const frag = DOMSerializer.fromSchema(schema).serializeFragment(doc3.content);
+    const div = document.createElement("div");
+    div.appendChild(frag);
+    return div.innerHTML;
+  }
   function doInsert(view, src) {
     try {
       const node = schema.nodes.image.create({ src });
@@ -21139,7 +21157,7 @@ img.ProseMirror-separator {
     return null;
   }
   window.MDEditor = function(el, initial, onChange) {
-    const state = EditorState.create({ doc: defaultMarkdownParser.parse(initial || ""), plugins: [extraKeys].concat(exampleSetup({ schema, menuBar: false })) });
+    const state = EditorState.create({ doc: parseInitial(initial), plugins: [extraKeys].concat(exampleSetup({ schema, menuBar: false })) });
     const view = new EditorView(el, {
       state,
       handlePaste(view2, event) {
@@ -21172,7 +21190,7 @@ img.ProseMirror-separator {
       dispatchTransaction(tr) {
         const ns = view.state.apply(tr);
         view.updateState(ns);
-        if (tr.docChanged && onChange) onChange(defaultMarkdownSerializer.serialize(ns.doc));
+        if (tr.docChanged && onChange) onChange(docToHTML(ns.doc));
       }
     });
     return { destroy() {
@@ -21185,7 +21203,7 @@ img.ProseMirror-separator {
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.4.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.4.3</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
