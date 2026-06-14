@@ -227,7 +227,34 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 .preview pre code{background:none;padding:0}
 .preview blockquote{border-left:3px solid #d1d5db;margin:5px 0;padding-left:10px;color:#4b5563}
 .preview table{border:1px solid #e5e7eb;box-shadow:none;margin:5px 0}.preview th{position:static}
-@media(max-width:640px){.hide-sm{display:none}th,td{padding:7px 5px;font-size:12px}.editor{flex-direction:column}}
+@media(max-width:640px){
+  body{padding:10px}
+  h1{font-size:18px}
+  .hide-sm{display:none}
+  /* 筛选行：横向滑动，不再平铺多行 */
+  .toolbar{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding-bottom:3px}
+  .toolbar::-webkit-scrollbar{display:none}
+  .toolbar{scrollbar-width:none}
+  .toolbar>*{flex:0 0 auto}
+  .toolbar .spacer{display:none}
+  /* 表格改成卡片式 */
+  thead{display:none}
+  table{display:block;box-shadow:none;border-radius:0;background:transparent}
+  tbody{display:block}
+  tr.sec-row{display:block}
+  tr.sec-row td{display:block;width:auto;border-radius:6px}
+  tbody tr:not(.sec-row){display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:9px 6px}
+  tbody tr:not(.sec-row)>td{display:block;border:none;padding:0;height:auto!important;width:auto!important;max-width:none!important;text-align:left}
+  tr:not(.sec-row)>td.c:first-child{order:0;color:#9ca3af;font-size:12px;min-width:16px}
+  td.q{order:1;flex:1 1 62%;font-size:14px}
+  td:nth-child(4){order:2}
+  td:nth-child(5){order:3}
+  tr.ed-row{display:block}
+  tr.ed-row>td{display:block;width:100%!important}
+  tr.add-row{display:block}
+  tr.add-row>td{display:block;width:100%!important}
+  .card{width:94%}
+}
 </style>
 <style>__PM_CSS__</style>
 <style>
@@ -254,7 +281,8 @@ body.dark #bkLabel{background:#121212;border-color:#3a3a3a;color:#e5e5e5}
 .theme button:hover{color:#111827}
 .theme button svg{width:15px;height:15px;display:block}
 .theme button.on{background:#2563eb;color:#fff}
-#toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(16px);background:#1f2937;color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.25s;z-index:100}
+#cfModal{z-index:200}
+#toast{z-index:300;position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(16px);background:#1f2937;color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.25s;z-index:100}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 /* ====== 暗色模式 ====== */
 body.dark{background:#1a1a1a;color:#e5e5e5}
@@ -333,7 +361,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.6.10</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.6.11</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
