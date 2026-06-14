@@ -21078,10 +21078,19 @@ img.ProseMirror-separator {
     } catch (e) {
     }
   }
+  function readDataURL(file, cb) {
+    const r = new FileReader();
+    r.onload = () => cb(r.result);
+    r.onerror = () => cb(null);
+    r.readAsDataURL(file);
+  }
   function compress(file, cb) {
     const type = (file.type || "").toLowerCase(), keepAlpha = /png|gif|webp|svg/.test(type);
-    const reader = new FileReader();
-    reader.onload = () => {
+    readDataURL(file, (durl) => {
+      if (!durl) {
+        cb(null);
+        return;
+      }
       const img = new Image();
       img.onload = () => {
         const MAX = 800;
@@ -21098,22 +21107,28 @@ img.ProseMirror-separator {
         try {
           data = keepAlpha ? c.toDataURL("image/png") : c.toDataURL("image/jpeg", 0.7);
         } catch (e) {
-          data = reader.result;
+          data = durl;
         }
         cb(data);
       };
-      img.onerror = () => cb(reader.result);
-      img.src = reader.result;
-    };
-    reader.readAsDataURL(file);
+      img.onerror = () => cb(durl);
+      img.src = durl;
+    });
   }
   function insertImage(view, file) {
-    compress(file, (data) => {
-      const up = window.IMG_UPLOADER;
-      if (up) {
-        up(data).then((url) => doInsert(view, url || data)).catch(() => doInsert(view, data));
-      } else doInsert(view, data);
-    });
+    const up = window.IMG_UPLOADER;
+    if (up) {
+      readDataURL(file, (durl) => {
+        if (!durl) return;
+        up(durl).then((url) => doInsert(view, url || durl)).catch(() => compress(file, (d) => {
+          if (d) doInsert(view, d);
+        }));
+      });
+    } else {
+      compress(file, (d) => {
+        if (d) doInsert(view, d);
+      });
+    }
   }
   function pickImage(list2) {
     if (!list2) return null;
@@ -21169,7 +21184,7 @@ img.ProseMirror-separator {
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.3.4</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.3.5</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
