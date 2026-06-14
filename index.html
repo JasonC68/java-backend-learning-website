@@ -21206,7 +21206,7 @@ img.ProseMirror-separator {
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span></div>
-<div class="sub"><span style="color:#9ca3af">v2.5.0</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.5.1</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -21386,7 +21386,7 @@ function render(){const tb=document.getElementById("tb");
       if(opened){
         const er=document.createElement("tr");er.className="ed-row";
         const td=document.createElement("td");td.colSpan=6;
-        td.innerHTML='<div class="ehint"><button class="del">🗑 删除（移到回收站）</button></div><div class="tui"></div>';
+        td.innerHTML='<div class="ehint"><button class="del">🗑 删除</button></div><div class="tui"></div>';
         const host=td.querySelector(".tui");
         td.querySelector(".del").onclick=()=>{get(it.id).del=true;openIds.delete(it.id);save();render();};
         er.appendChild(td);tb.appendChild(er);
