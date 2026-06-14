@@ -267,7 +267,8 @@ body.dark .cnt button:hover{background:#303030}
 body.dark .qedit{color:#475569}
 body.dark .tag{background:#262626;color:#a5b4fc;border-color:#3a3a3a}
 body.dark .tui{background:#121212;border-color:#3a3a3a}
-body.dark .tui .ProseMirror{color:#e5e5e5}
+body.dark .ProseMirror{color:#e5e5e5}
+body.dark .tui-memo{background:#2a2410;border-color:#a16207}
 body.dark .ProseMirror code{background:#3a3a3a;color:#fca5a5}
 body.dark .ProseMirror pre{background:#121212}
 body.dark .ProseMirror pre code{color:#e5e5e5}
@@ -316,7 +317,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.5.7</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.5.8</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
