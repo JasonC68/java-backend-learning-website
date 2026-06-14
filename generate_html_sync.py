@@ -254,6 +254,8 @@ body.dark #bkLabel{background:#121212;border-color:#3a3a3a;color:#e5e5e5}
 .theme button:hover{color:#111827}
 .theme button svg{width:15px;height:15px;display:block}
 .theme button.on{background:#2563eb;color:#fff}
+#toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(16px);background:#1f2937;color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.25s;z-index:100}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 /* ====== 暗色模式 ====== */
 body.dark{background:#1a1a1a;color:#e5e5e5}
 body.dark .bar{background:#3a3a3a}
@@ -331,7 +333,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 <script>__PM_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.6.9</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.6.10</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -366,6 +368,11 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 </tr></thead><tbody id="tb"></tbody></table>
 
 <div class="cal" id="cal"></div>
+<div class="modal" id="cfModal"><div class="card" style="max-width:380px">
+  <p id="cfMsg" style="font-size:14px;line-height:1.6;margin-bottom:16px"></p>
+  <div class="acts"><button class="btn" id="cfNo">取消</button><button class="btn pri" id="cfYes">确定</button></div>
+</div></div>
+<div id="toast"></div>
 <div class="modal" id="trimModal"><div class="card" style="max-width:430px">
   <h3>缩减今日任务</h3>
   <p style="font-size:13px;color:#6b7280;margin-bottom:12px">把今天<b>未完成</b>的一部分任务均匀挪到未来，减轻当天负担。已完成的不动。</p>
@@ -434,6 +441,9 @@ function saveStuck(){try{localStorage.setItem("stuck_v1",JSON.stringify({day:stu
 function get(id){return state[id]||(state[id]={lvl:0,cnt:0,last:""});}
 function qText(it){const o=get(it.id);return (o.q!==undefined&&o.q!=="")?o.q:it.q;}
 function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+let cfCb=null;
+function confirmDlg(msg,cb){document.getElementById("cfMsg").textContent=msg;cfCb=cb;document.getElementById("cfModal").classList.add("show");}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200);}
 function md(t){return (window.marked?marked.parse(t||""):"<pre>"+esc(t)+"</pre>");}
 function fmtIso(iso){if(!iso)return"";const d=new Date(iso+"T00:00:00");if(isNaN(d))return iso;const wk=["日","一","二","三","四","五","六"];return (d.getMonth()+1+"").padStart(2,"0")+"-"+(d.getDate()+"").padStart(2,"0")+" 周"+wk[d.getDay()];}
 function today(){const d=new Date();return (d.getMonth()+1+"").padStart(2,"0")+"-"+(d.getDate()+"").padStart(2,"0");}
@@ -448,7 +458,7 @@ function save(){if(state.__backups)delete state.__backups;localStorage.setItem(K
 async function push(){if(!cfg)return;try{setPill("同步中…","busy");await cloudPut();dirty=false;clearRetry();setPill("已同步 "+nowt(),"ok");}catch(e){setPill("同步失败，10秒后重试","warn");scheduleRetry();}}
 function isEditing(){const a=document.activeElement;return !!(a&&(a.isContentEditable||a.tagName==="INPUT"||a.tagName==="TEXTAREA"));}
 function autoSync(){if(!cfg||restoring)return;if(dirty){push();return;}if(isEditing()){scheduleRetry();return;}pull();}
-async function pull(){if(restoring)return;if(!cfg){alert("请先配置云同步");return;}if(isEditing()){scheduleRetry();return;}try{setPill("拉取中…","busy");const c=await cloudGet();if(c&&typeof c==="object"){state=c;localStorage.setItem(KEY,JSON.stringify(state));render();}clearRetry();setPill("已拉取 "+nowt(),"ok");}catch(e){setPill("拉取失败，10秒后重试","warn");scheduleRetry();}}
+async function pull(){if(restoring)return;if(!cfg){toast("请先配置云同步");return;}if(isEditing()){scheduleRetry();return;}try{setPill("拉取中…","busy");const c=await cloudGet();if(c&&typeof c==="object"){state=c;localStorage.setItem(KEY,JSON.stringify(state));render();}clearRetry();setPill("已拉取 "+nowt(),"ok");}catch(e){setPill("拉取失败，10秒后重试","warn");scheduleRetry();}}
 function buildFilters(){const f=document.getElementById("filters");f.innerHTML='<span style="font-size:12px;color:#6b7280">板块：</span>';
   const mk=(t,v)=>{const s=document.createElement("span");s.className="chip"+(v===secFilter?" active":"");s.textContent=t;s.onclick=()=>{secFilter=v;buildFilters();render();};return s;};
   f.appendChild(mk("全部","all"));SECTIONS.forEach(s=>f.appendChild(mk(s,s)));}
@@ -513,7 +523,7 @@ function render(){const tb=document.getElementById("tb");
         tr.innerHTML='<td class="c">'+it.idx+'</td><td class="c hide-sm date"></td><td class="q">'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</td>'+
           '<td class="c" colspan="3"><button class="restore">↩ 恢复</button> <button class="purge">🗑 永久删除</button></td>';
         tr.querySelector(".restore").onclick=()=>{delete get(it.id).del;save();render();};
-        tr.querySelector(".purge").onclick=()=>{if(confirm("永久删除这道题？不可恢复")){if(it.custom){state.__custom=customList().filter(c=>c.id!==it.id);delete state[it.id];}else{const o=get(it.id);delete o.del;o.purged=true;}save();render();}};
+        tr.querySelector(".purge").onclick=()=>{confirmDlg("永久删除这道题？不可恢复",()=>{if(it.custom){state.__custom=customList().filter(c=>c.id!==it.id);delete state[it.id];}else{const o=get(it.id);delete o.del;o.purged=true;}save();render();});};
         tb.appendChild(tr);});
       return;
     }
@@ -550,7 +560,7 @@ function render(){const tb=document.getElementById("tb");
         td.innerHTML=bar+body;
         const addb=td.querySelector(".addmemo");if(addb)addb.onclick=()=>{o.memoOn=true;o.memoHide=false;save();render();};
         const tgm=td.querySelector(".tgmemo");if(tgm)tgm.onclick=()=>{o.memoHide=!o.memoHide;save();render();};
-        const dm=td.querySelector(".delmemo");if(dm)dm.onclick=()=>{if(confirm("删除助记？")){o.memoOn=false;delete o.memo;o.memoHide=false;save();render();}};
+        const dm=td.querySelector(".delmemo");if(dm)dm.onclick=()=>{confirmDlg("删除助记？",()=>{o.memoOn=false;delete o.memo;o.memoHide=false;save();render();});};
         td.querySelector(".tgnote").onclick=()=>{o.noteHide=!o.noteHide;save();render();};
         td.querySelector(".del").onclick=()=>{get(it.id).del=true;openIds.delete(it.id);save();render();};
         er.appendChild(td);tb.appendChild(er);
@@ -585,21 +595,21 @@ document.getElementById("cfgClear").onclick=()=>{cfg=null;localStorage.removeIte
 document.getElementById("cfgSave").onclick=async()=>{const b=document.getElementById("binId").value.trim(),k=document.getElementById("binKey").value.trim(),ik=document.getElementById("imgKey").value.trim();
   imgKey=ik;if(ik)localStorage.setItem("imgbb_key",ik);else localStorage.removeItem("imgbb_key");
   if(b&&k){cfg={bin:b,key:k};localStorage.setItem(CFGKEY,JSON.stringify(cfg));modal.classList.remove("show");await pull();await push();return;}
-  if(b||k){alert("Bin ID 和 Master Key 需要一起填写");return;}
+  if(b||k){toast("Bin ID 和 Master Key 需要一起填写");return;}
   modal.classList.remove("show");};
 document.getElementById("pull").onclick=pull;
 document.getElementById("push").onclick=push;
-document.getElementById("reset").onclick=()=>{if(confirm("清空本机进度？若已配置云同步，请之后点上传覆盖云端")){state={};save();render();}};
+document.getElementById("reset").onclick=()=>{confirmDlg("清空本机进度？若已配置云同步，请之后点上传覆盖云端",()=>{state={};save();render();});};
 // ===== 进度备份（本设备）=====
 const BKEY="backups_v1";
 function loadBackups(){try{return JSON.parse(localStorage.getItem(BKEY)||"[]");}catch(e){return [];}}
-function saveBackups(a){try{localStorage.setItem(BKEY,JSON.stringify(a));}catch(e){alert("备份存储已满，请删除旧备份或导出后删除");}}
+function saveBackups(a){try{localStorage.setItem(BKEY,JSON.stringify(a));}catch(e){toast("备份存储已满，请删除旧备份或导出后删除");}}
 function fmtTs(ts){const d=new Date(ts),p=n=>(n+"").padStart(2,"0");return (d.getMonth()+1)+"-"+d.getDate()+" "+p(d.getHours())+":"+p(d.getMinutes());}
 function progCount(s){try{return Object.keys(JSON.parse(s)).filter(k=>!k.startsWith("__")).length;}catch(e){return 0;}}
 function renderBackups(){const a=loadBackups(),box=document.getElementById("bkList");
   if(!a.length){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">还没有备份，点上面「新建备份」</div>';return;}
   box.innerHTML=a.map((b,i)=>'<div class="bk-item"><div class="meta"><div>'+(esc(b.label)||"备份")+'</div><div class="t">'+fmtTs(b.ts)+' · '+progCount(b.data)+' 题有记录</div></div><button class="rb" data-i="'+i+'">恢复</button><button class="xb" data-i="'+i+'">导出</button><button class="db" data-i="'+i+'">删除</button></div>').join("");
-  box.querySelectorAll(".rb").forEach(b=>b.onclick=async()=>{const i=+b.dataset.i,a=loadBackups();if(!confirm("恢复到这个备份？当前进度会被覆盖"))return;restoring=true;try{const keep=bkIndex();const snap=JSON.parse(a[i].data);snap.__bkIndex=keep;state=snap;localStorage.setItem(KEY,JSON.stringify(state));render();bkModal.classList.remove("show");clearTimeout(timer);if(cfg){await cloudPut();dirty=false;setPill("已恢复 "+nowt(),"ok");}}catch(e){alert("备份损坏");}restoring=false;});
+  box.querySelectorAll(".rb").forEach(b=>b.onclick=()=>{const i=+b.dataset.i;confirmDlg("恢复到这个备份？当前进度会被覆盖",async()=>{const a=loadBackups();restoring=true;try{const keep=bkIndex();const snap=JSON.parse(a[i].data);snap.__bkIndex=keep;state=snap;localStorage.setItem(KEY,JSON.stringify(state));render();bkModal.classList.remove("show");clearTimeout(timer);if(cfg){await cloudPut();dirty=false;setPill("已恢复 "+nowt(),"ok");}}catch(e){toast("备份损坏");}restoring=false;});});
   box.querySelectorAll(".db").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,a=loadBackups();a.splice(i,1);saveBackups(a);renderBackups();});
   box.querySelectorAll(".xb").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,a=loadBackups();const blob=new Blob([a[i].data],{type:"application/json"});const x=document.createElement("a");x.href=URL.createObjectURL(blob);x.download="打卡备份-"+a[i].ts+".json";x.click();});
 }
@@ -613,7 +623,7 @@ document.getElementById("trimCancel").onclick=()=>trimModal.classList.remove("sh
 document.querySelectorAll("#trimModal [data-trim]").forEach(btn=>btn.onclick=()=>{
   const frac=parseFloat(btn.dataset.trim),N={"0.25":2,"0.5":4,"0.75":6}[btn.dataset.trim]||2;
   const list=todayTaskItems(),total=list.length,toMove=Math.round(total*frac);
-  if(toMove<=0){alert("今天没有可缩减的未完成任务");return;}
+  if(toMove<=0){toast("今天没有可缩减的未完成任务");return;}
   const moving=[];for(let j=0;j<toMove;j++)moving.push(list[Math.floor((j+0.5)*total/toMove)]);  // 整列等距采样，各类型均匀缩减
   moving.forEach((m,k)=>{const off=(k%N)+1,o=get(m.id);if(m.reviewDue)o.next=addDays(todayIso(),off);else o.date=addDays(todayIso(),off);});
   save();render();trimModal.classList.remove("show");
@@ -626,25 +636,27 @@ function renderCloud(){const box=document.getElementById("bkCloudList");
   const a=bkIndex();
   if(!a.length){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">还没有云端备份，点上方「☁️ 云端备份」创建</div>';return;}
   box.innerHTML=a.map((b,i)=>'<div class="bk-item"><div class="meta"><div>'+(esc(b.label)||"备份")+'</div><div class="t">'+fmtTs(b.ts)+'</div></div><button class="rb" data-i="'+i+'">恢复</button><button class="db" data-i="'+i+'">删除</button></div>').join("");
-  box.querySelectorAll(".rb").forEach(btn=>btn.onclick=async()=>{const i=+btn.dataset.i,b=bkIndex()[i];if(!confirm("恢复到这个云端备份？当前进度会被覆盖"))return;restoring=true;try{const r=await fetch("https://api.jsonbin.io/v3/b/"+b.bin+"/latest",{headers:{"X-Master-Key":cfg.key}});if(!r.ok)throw 0;const j=await r.json();const snap=j.record;snap.__bkIndex=bkIndex();state=snap;localStorage.setItem(KEY,JSON.stringify(state));render();bkModal.classList.remove("show");clearTimeout(timer);if(cfg){await cloudPut();dirty=false;setPill("已恢复 "+nowt(),"ok");}}catch(e){alert("恢复失败，检查网络");}restoring=false;});
+  box.querySelectorAll(".rb").forEach(btn=>btn.onclick=()=>{const i=+btn.dataset.i,b=bkIndex()[i];confirmDlg("恢复到这个云端备份？当前进度会被覆盖",async()=>{restoring=true;try{const r=await fetch("https://api.jsonbin.io/v3/b/"+b.bin+"/latest",{headers:{"X-Master-Key":cfg.key}});if(!r.ok)throw 0;const j=await r.json();const snap=j.record;snap.__bkIndex=bkIndex();state=snap;localStorage.setItem(KEY,JSON.stringify(state));render();bkModal.classList.remove("show");clearTimeout(timer);if(cfg){await cloudPut();dirty=false;setPill("已恢复 "+nowt(),"ok");}}catch(e){toast("恢复失败，检查网络");}restoring=false;});});
   box.querySelectorAll(".db").forEach(btn=>btn.onclick=async()=>{const i=+btn.dataset.i,b=bkIndex()[i];bkIndex().splice(i,1);save();renderCloud();try{await fetch("https://api.jsonbin.io/v3/b/"+b.bin,{method:"DELETE",headers:{"X-Master-Key":cfg.key}});}catch(e){}});
 }
 document.getElementById("backupBtn").onclick=()=>{renderBackups();renderCloud();bkModal.classList.add("show");};
 document.getElementById("bkClose").onclick=()=>bkModal.classList.remove("show");
 document.getElementById("bkImportBtn").onclick=()=>document.getElementById("bkImport").click();
 document.getElementById("bkNew").onclick=()=>{const a=loadBackups();a.unshift({ts:Date.now(),label:document.getElementById("bkLabel").value.trim(),data:JSON.stringify(state)});if(a.length>30)a.length=30;saveBackups(a);document.getElementById("bkLabel").value="";renderBackups();};
-document.getElementById("bkNewCloud").onclick=async()=>{if(!cfg){alert("请先配置「☁️ 云同步」");return;}const btn=document.getElementById("bkNewCloud");btn.disabled=true;btn.textContent="备份中…";
+document.getElementById("bkNewCloud").onclick=async()=>{if(!cfg){toast("请先配置「☁️ 云同步」");return;}const btn=document.getElementById("bkNewCloud");btn.disabled=true;btn.textContent="备份中…";
   try{const snap=Object.assign({},state);delete snap.__bkIndex;delete snap.__backups;
     const r=await fetch("https://api.jsonbin.io/v3/b",{method:"POST",headers:{"Content-Type":"application/json","X-Master-Key":cfg.key},body:JSON.stringify(snap)});if(!r.ok)throw 0;const j=await r.json();
     const a=bkIndex();a.unshift({ts:Date.now(),label:document.getElementById("bkLabel").value.trim(),bin:j.metadata.id});if(a.length>15)a.length=15;
     document.getElementById("bkLabel").value="";save();renderCloud();}
-  catch(e){alert("云端备份失败，检查网络/配置");}
+  catch(e){toast("云端备份失败，检查网络/配置");}
   btn.disabled=false;btn.textContent="☁️ 云端备份";};
-document.getElementById("bkImport").onchange=function(){const f=this.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{JSON.parse(r.result);const a=loadBackups();a.unshift({ts:Date.now(),label:"导入 "+f.name,data:r.result});saveBackups(a);renderBackups();}catch(e){alert("文件格式不对");}};r.readAsText(f);this.value="";};
+document.getElementById("bkImport").onchange=function(){const f=this.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{JSON.parse(r.result);const a=loadBackups();a.unshift({ts:Date.now(),label:"导入 "+f.name,data:r.result});saveBackups(a);renderBackups();}catch(e){toast("文件格式不对");}};r.readAsText(f);this.value="";};
 function applyTheme(){const m=localStorage.getItem("theme")||"system";const dark=m==="dark"||(m==="system"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);document.body.classList.toggle("dark",dark);document.querySelectorAll(".theme button").forEach(b=>b.classList.toggle("on",b.dataset.theme===m));}
 document.querySelectorAll(".theme button").forEach(b=>b.onclick=()=>{localStorage.setItem("theme",b.dataset.theme);applyTheme();});
 if(window.matchMedia)try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if((localStorage.getItem("theme")||"system")==="system")applyTheme();});}catch(e){}
 applyTheme();
+document.getElementById("cfYes").onclick=()=>{document.getElementById("cfModal").classList.remove("show");const f=cfCb;cfCb=null;if(f)f();};
+document.getElementById("cfNo").onclick=()=>{document.getElementById("cfModal").classList.remove("show");cfCb=null;};
 loadStuck();buildFilters();render();
 if(cfg){setPill("正在拉取…","busy");pull();}else{setPill("未配置云同步");}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")autoSync();});
