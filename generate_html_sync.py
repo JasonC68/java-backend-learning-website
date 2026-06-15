@@ -266,12 +266,13 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 .tui-memo{border:1px solid #fde68a;border-radius:8px;background:#fffbeb;margin-bottom:8px;overflow:hidden}
 .tui-memo .ProseMirror{outline:none;min-height:70px;padding:10px 14px;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7;color:#1f2937;overflow-wrap:break-word;word-break:break-word}
 .memo-label{font-size:12px;color:#b45309;margin:0 0 4px;font-weight:600}
-.codebox{margin-top:6px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;background:#1e1e1e}
-.codeta{display:block;width:100%;min-height:130px;border:none;outline:none;background:#1e1e1e;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.6;padding:10px 12px;resize:vertical;tab-size:2;white-space:pre;color:#e5e5e5;box-sizing:border-box}
-.codepre{margin:0;padding:10px 12px;overflow:auto;max-height:440px;background:#1e1e1e}
-.codepre code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.6;white-space:pre;display:block}
-.codebar{padding:4px 8px;border-top:1px solid #e5e7eb;background:#fff;text-align:right}
-.codebar .ebtn{margin:0}
+.codebox{margin-top:6px}
+.codewrap{position:relative;min-height:130px;border:1px solid #e5e7eb;border-radius:8px;background:#1e1e1e;resize:vertical;overflow:hidden}
+.codewrap pre,.codewrap textarea{margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.6;padding:10px 12px;white-space:pre;tab-size:2;box-sizing:border-box}
+.codewrap pre{position:absolute;inset:0;overflow:auto;pointer-events:none}
+.codewrap pre code{font:inherit;display:block}
+.codewrap textarea{position:absolute;inset:0;width:100%;height:100%;border:none;outline:none;resize:none;background:transparent;color:transparent;caret-color:#fff;overflow:auto}
+.codewrap textarea::placeholder{color:#888}
 .hljs{color:#e1e4e8}
 .hljs-comment,.hljs-quote{color:#8b949e}
 .hljs-keyword,.hljs-selector-tag,.hljs-type,.hljs-literal{color:#ff7b72}
@@ -332,10 +333,7 @@ body.dark .ProseMirror li::marker{color:#94a3b8}
 body.dark .ProseMirror a{color:#60a5fa}
 body.dark .tui-memo{background:#2b240a;border-color:#a16207}
 body.dark .memo-label{color:#fcd34d}
-body.dark .codebox{border-color:#3a3a3a}
-body.dark .codebar{background:#262626;border-color:#3a3a3a}
-body.dark .codebar .ebtn{background:#333;border-color:#444;color:#e5e5e5}
-body.dark .codebar .ebtn:hover{background:#3d3d3d}
+body.dark .codewrap{border-color:#3a3a3a}
 body.dark .note-hidden{color:#64748b}
 body.dark .ebtn{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
 body.dark .ebtn:hover{background:#303030}
@@ -381,7 +379,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.7.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.7.3</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -500,21 +498,14 @@ function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t
 function md(t){return (window.marked?marked.parse(t||""):"<pre>"+esc(t)+"</pre>");}
 function highlightHTML(code){if(window.hljs){try{return hljs.highlightAuto(code||"").value;}catch(e){}}return esc(code);}
 function mountCode(host,getv,setv){
-  let editing=!(getv()&&getv().trim());
-  function draw(){
-    if(editing){
-      host.innerHTML='<textarea class="codeta" placeholder="粘贴代码…"></textarea><div class="codebar"><button class="ebtn codeDone">完成</button></div>';
-      const ta=host.querySelector(".codeta");ta.value=getv()||"";ta.focus();
-      ta.onkeydown=e=>{if(e.key==="Tab"){e.preventDefault();const s=ta.selectionStart,en=ta.selectionEnd;ta.value=ta.value.slice(0,s)+"  "+ta.value.slice(en);ta.selectionStart=ta.selectionEnd=s+2;setv(ta.value);save();}};
-      ta.oninput=()=>{setv(ta.value);save();};
-      host.querySelector(".codeDone").onclick=()=>{editing=false;draw();};
-    }else{
-      host.innerHTML='<pre class="codepre"><code class="hljs"></code></pre><div class="codebar"><button class="ebtn codeEdit">编辑</button></div>';
-      host.querySelector("code").innerHTML=highlightHTML(getv()||"");
-      host.querySelector(".codeEdit").onclick=()=>{editing=true;draw();};
-    }
-  }
-  draw();
+  host.innerHTML='<div class="codewrap"><pre aria-hidden="true"><code class="hljs"></code></pre><textarea spellcheck="false" placeholder="粘贴代码…"></textarea></div>';
+  const wrap=host.querySelector(".codewrap"),pre=wrap.querySelector("pre"),code=wrap.querySelector("code"),ta=wrap.querySelector("textarea");
+  function paint(){const v=ta.value;code.innerHTML=highlightHTML(v)+(v.slice(-1)==="\\n"?" ":"");}
+  function sync(){pre.scrollTop=ta.scrollTop;pre.scrollLeft=ta.scrollLeft;}
+  ta.value=getv()||"";paint();
+  ta.oninput=()=>{setv(ta.value);paint();save();};
+  ta.onscroll=sync;
+  ta.onkeydown=e=>{if(e.key==="Tab"){e.preventDefault();const s=ta.selectionStart,en=ta.selectionEnd;ta.value=ta.value.slice(0,s)+"  "+ta.value.slice(en);ta.selectionStart=ta.selectionEnd=s+2;setv(ta.value);paint();save();}};
 }
 function fmtIso(iso){if(!iso)return"";const d=new Date(iso+"T00:00:00");if(isNaN(d))return iso;const wk=["日","一","二","三","四","五","六"];return (d.getMonth()+1+"").padStart(2,"0")+"-"+(d.getDate()+"").padStart(2,"0")+" 周"+wk[d.getDay()];}
 function today(){const d=new Date();return (d.getMonth()+1+"").padStart(2,"0")+"-"+(d.getDate()+"").padStart(2,"0");}
