@@ -273,8 +273,12 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 .codewrap pre code{font:inherit;display:block;min-height:1.6em}
 .codewrap textarea{position:absolute;inset:0;width:100%;height:100%;border:none;outline:none;resize:none;background:transparent;color:transparent;caret-color:#fff;overflow:hidden}
 .codewrap textarea::placeholder{color:#888}
-.codedel{position:absolute;top:5px;right:7px;z-index:3;border:none;background:rgba(255,255,255,.08);color:#aaa;border-radius:5px;width:22px;height:22px;font-size:12px;line-height:1;cursor:pointer}
+.codedel,.codefold{position:absolute;top:5px;z-index:3;border:none;background:rgba(255,255,255,.08);color:#aaa;border-radius:5px;width:22px;height:22px;font-size:12px;line-height:1;cursor:pointer}
+.codedel{right:7px}.codefold{right:34px}
+.codefold:hover{background:rgba(255,255,255,.18);color:#fff}
 .codedel:hover{background:rgba(248,113,113,.35);color:#fff}
+.codewrap.folded{margin-bottom:6px}
+.codewrap.folded pre.foldline{min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:9px 64px 9px 14px}
 .hljs{color:#e1e4e8}
 .hljs-comment,.hljs-quote{color:#8b949e}
 .hljs-keyword,.hljs-selector-tag,.hljs-type,.hljs-literal{color:#ff7b72}
@@ -381,7 +385,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.7.5</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.7.7</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -502,14 +506,25 @@ function highlightHTML(code){if(window.hljs){try{return hljs.highlightAuto(code|
 function renderCodes(host,o){
   host.innerHTML="";
   (o.codes||[]).forEach((c,idx)=>{
-    const box=document.createElement("div");box.className="codewrap";
-    box.innerHTML='<button class="codedel" title="删除此代码块">✕</button><pre aria-hidden="true"><code class="hljs"></code></pre><textarea spellcheck="false" placeholder="粘贴代码…"></textarea>';
-    const code=box.querySelector("code"),ta=box.querySelector("textarea");
-    const paint=()=>{const v=ta.value;code.innerHTML=highlightHTML(v)+(v.slice(-1)==="\\n"?"\\n":"");};
-    ta.value=c||"";paint();
-    ta.oninput=()=>{o.codes[idx]=ta.value;paint();save();};
-    ta.onkeydown=e=>{if(e.key==="Tab"){e.preventDefault();const s=ta.selectionStart,en=ta.selectionEnd;ta.value=ta.value.slice(0,s)+"  "+ta.value.slice(en);ta.selectionStart=ta.selectionEnd=s+2;o.codes[idx]=ta.value;paint();save();}};
-    box.querySelector(".codedel").onclick=()=>{o.codes.splice(idx,1);if(!o.codes.length)delete o.codes;save();render();};
+    const box=document.createElement("div");box.className="codewrap"+(c.fold?" folded":"");
+    const btns='<button class="codefold" title="折叠/展开">'+(c.fold?"▸":"▾")+'</button><button class="codedel" title="删除此代码块">✕</button>';
+    const del=()=>{confirmDlg("删除此代码块？",()=>{o.codes.splice(idx,1);if(!o.codes.length)delete o.codes;save();render();});};
+    if(c.fold){
+      const first=(c.code||"").split("\\n")[0]||"",more=(c.code||"").indexOf("\\n")>=0;
+      box.innerHTML=btns+'<pre class="foldline"><code class="hljs"></code></pre>';
+      box.querySelector("code").innerHTML=highlightHTML(first)+(more?' <span style="color:#888">…</span>':"");
+      box.querySelector(".codefold").onclick=()=>{c.fold=false;save();render();};
+      box.querySelector(".codedel").onclick=del;
+    }else{
+      box.innerHTML=btns+'<pre aria-hidden="true"><code class="hljs"></code></pre><textarea spellcheck="false" placeholder="粘贴代码…"></textarea>';
+      const code=box.querySelector("code"),ta=box.querySelector("textarea");
+      const paint=()=>{const v=ta.value;code.innerHTML=highlightHTML(v)+(v.slice(-1)==="\\n"?"\\n":"");};
+      ta.value=c.code||"";paint();
+      ta.oninput=()=>{c.code=ta.value;paint();save();};
+      ta.onkeydown=e=>{if(e.key==="Tab"){e.preventDefault();const s=ta.selectionStart,en=ta.selectionEnd;ta.value=ta.value.slice(0,s)+"  "+ta.value.slice(en);ta.selectionStart=ta.selectionEnd=s+2;c.code=ta.value;paint();save();}};
+      box.querySelector(".codefold").onclick=()=>{c.fold=true;save();render();};
+      box.querySelector(".codedel").onclick=del;
+    }
     host.appendChild(box);
   });
 }
@@ -618,7 +633,8 @@ function render(){const tb=document.getElementById("tb");
       if(opened){
         const er=document.createElement("tr");er.className="ed-row";
         const td=document.createElement("td");td.colSpan=6;const o=st;
-        if(o.code!==undefined&&!o.codes){o.codes=o.code?[o.code]:[];delete o.code;delete o.codeOn;delete o.codeHide;}
+        if(o.code!==undefined&&!o.codes){o.codes=o.code?[{code:o.code}]:[];delete o.code;delete o.codeOn;delete o.codeHide;}
+        if(o.codes)o.codes=o.codes.map(c=>typeof c==="string"?{code:c}:c);
         let bar='<div class="ehint">';
         bar+=(!o.memoOn)?'<button class="ebtn addmemo">＋ 助记</button>':'<button class="ebtn tgmemo">'+(o.memoHide?'显示助记':'隐藏助记')+'</button><button class="ebtn delmemo">删除助记</button>';
         bar+='<button class="ebtn addcode">＋ 代码</button>';
@@ -632,7 +648,7 @@ function render(){const tb=document.getElementById("tb");
         const addb=td.querySelector(".addmemo");if(addb)addb.onclick=()=>{o.memoOn=true;o.memoHide=false;save();render();};
         const tgm=td.querySelector(".tgmemo");if(tgm)tgm.onclick=()=>{o.memoHide=!o.memoHide;save();render();};
         const dm=td.querySelector(".delmemo");if(dm)dm.onclick=()=>{confirmDlg("删除助记？",()=>{o.memoOn=false;delete o.memo;o.memoHide=false;save();render();});};
-        td.querySelector(".addcode").onclick=()=>{o.codes=o.codes||[];o.codes.push("");save();render();};
+        td.querySelector(".addcode").onclick=()=>{o.codes=o.codes||[];o.codes.push({code:""});save();render();};
         td.querySelector(".tgnote").onclick=()=>{o.noteHide=!o.noteHide;save();render();};
         td.querySelector(".del").onclick=()=>{get(it.id).del=true;openIds.delete(it.id);save();render();};
         er.appendChild(td);tb.appendChild(er);
