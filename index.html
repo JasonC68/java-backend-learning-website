@@ -224,12 +224,14 @@ img.ProseMirror-separator {
 .tui-memo .ProseMirror{outline:none;min-height:70px;padding:10px 14px;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7;color:#1f2937;overflow-wrap:break-word;word-break:break-word}
 .memo-label{font-size:12px;color:#b45309;margin:0 0 4px;font-weight:600}
 .codebox{margin-top:6px}
-.codewrap{position:relative;height:260px;min-height:130px;border:1px solid #e5e7eb;border-radius:8px;background:#1e1e1e;resize:vertical;overflow:hidden}
-.codewrap pre,.codewrap textarea{margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.6;padding:10px 12px;white-space:pre;tab-size:2;box-sizing:border-box}
-.codewrap pre{position:absolute;inset:0;overflow:auto;pointer-events:none}
-.codewrap pre code{font:inherit;display:block}
-.codewrap textarea{position:absolute;inset:0;width:100%;height:100%;border:none;outline:none;resize:none;background:transparent;color:transparent;caret-color:#fff;overflow:auto}
+.codewrap{position:relative;border:1px solid #e5e7eb;border-radius:8px;background:#1e1e1e;margin-bottom:8px;overflow:hidden}
+.codewrap pre,.codewrap textarea{margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.6;padding:12px 14px;white-space:pre-wrap;word-break:break-word;tab-size:2;box-sizing:border-box}
+.codewrap pre{min-height:88px;overflow:hidden}
+.codewrap pre code{font:inherit;display:block;min-height:1.6em}
+.codewrap textarea{position:absolute;inset:0;width:100%;height:100%;border:none;outline:none;resize:none;background:transparent;color:transparent;caret-color:#fff;overflow:hidden}
 .codewrap textarea::placeholder{color:#888}
+.codedel{position:absolute;top:5px;right:7px;z-index:3;border:none;background:rgba(255,255,255,.08);color:#aaa;border-radius:5px;width:22px;height:22px;font-size:12px;line-height:1;cursor:pointer}
+.codedel:hover{background:rgba(248,113,113,.35);color:#fff}
 .hljs{color:#e1e4e8}
 .hljs-comment,.hljs-quote{color:#8b949e}
 .hljs-keyword,.hljs-selector-tag,.hljs-type,.hljs-literal{color:#ff7b72}
@@ -35446,7 +35448,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.7.4</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.7.5</span></div>
 <div class="bar"><i id="pbar"></i></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -35564,15 +35566,19 @@ function confirmDlg(msg,cb){document.getElementById("cfMsg").textContent=msg;cfC
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200);}
 function md(t){return (window.marked?marked.parse(t||""):"<pre>"+esc(t)+"</pre>");}
 function highlightHTML(code){if(window.hljs){try{return hljs.highlightAuto(code||"").value;}catch(e){}}return esc(code);}
-function mountCode(host,getv,setv){
-  host.innerHTML='<div class="codewrap"><pre aria-hidden="true"><code class="hljs"></code></pre><textarea spellcheck="false" placeholder="粘贴代码…"></textarea></div>';
-  const wrap=host.querySelector(".codewrap"),pre=wrap.querySelector("pre"),code=wrap.querySelector("code"),ta=wrap.querySelector("textarea");
-  function paint(){const v=ta.value;code.innerHTML=highlightHTML(v)+(v.slice(-1)==="\n"?" ":"");}
-  function sync(){pre.scrollTop=ta.scrollTop;pre.scrollLeft=ta.scrollLeft;}
-  ta.value=getv()||"";paint();
-  ta.oninput=()=>{setv(ta.value);paint();save();};
-  ta.onscroll=sync;
-  ta.onkeydown=e=>{if(e.key==="Tab"){e.preventDefault();const s=ta.selectionStart,en=ta.selectionEnd;ta.value=ta.value.slice(0,s)+"  "+ta.value.slice(en);ta.selectionStart=ta.selectionEnd=s+2;setv(ta.value);paint();save();}};
+function renderCodes(host,o){
+  host.innerHTML="";
+  (o.codes||[]).forEach((c,idx)=>{
+    const box=document.createElement("div");box.className="codewrap";
+    box.innerHTML='<button class="codedel" title="删除此代码块">✕</button><pre aria-hidden="true"><code class="hljs"></code></pre><textarea spellcheck="false" placeholder="粘贴代码…"></textarea>';
+    const code=box.querySelector("code"),ta=box.querySelector("textarea");
+    const paint=()=>{const v=ta.value;code.innerHTML=highlightHTML(v)+(v.slice(-1)==="\n"?"\n":"");};
+    ta.value=c||"";paint();
+    ta.oninput=()=>{o.codes[idx]=ta.value;paint();save();};
+    ta.onkeydown=e=>{if(e.key==="Tab"){e.preventDefault();const s=ta.selectionStart,en=ta.selectionEnd;ta.value=ta.value.slice(0,s)+"  "+ta.value.slice(en);ta.selectionStart=ta.selectionEnd=s+2;o.codes[idx]=ta.value;paint();save();}};
+    box.querySelector(".codedel").onclick=()=>{o.codes.splice(idx,1);if(!o.codes.length)delete o.codes;save();render();};
+    host.appendChild(box);
+  });
 }
 function fmtIso(iso){if(!iso)return"";const d=new Date(iso+"T00:00:00");if(isNaN(d))return iso;const wk=["日","一","二","三","四","五","六"];return (d.getMonth()+1+"").padStart(2,"0")+"-"+(d.getDate()+"").padStart(2,"0")+" 周"+wk[d.getDay()];}
 function today(){const d=new Date();return (d.getMonth()+1+"").padStart(2,"0")+"-"+(d.getDate()+"").padStart(2,"0");}
@@ -35679,29 +35685,28 @@ function render(){const tb=document.getElementById("tb");
       if(opened){
         const er=document.createElement("tr");er.className="ed-row";
         const td=document.createElement("td");td.colSpan=6;const o=st;
+        if(o.code!==undefined&&!o.codes){o.codes=o.code?[o.code]:[];delete o.code;delete o.codeOn;delete o.codeHide;}
         let bar='<div class="ehint">';
         bar+=(!o.memoOn)?'<button class="ebtn addmemo">＋ 助记</button>':'<button class="ebtn tgmemo">'+(o.memoHide?'显示助记':'隐藏助记')+'</button><button class="ebtn delmemo">删除助记</button>';
-        bar+=(!o.codeOn)?'<button class="ebtn addcode">＋ 代码</button>':'<button class="ebtn tgcode">'+(o.codeHide?'显示代码':'隐藏代码')+'</button><button class="ebtn delcode">删除代码</button>';
+        bar+='<button class="ebtn addcode">＋ 代码</button>';
         bar+='<button class="ebtn tgnote">'+(o.noteHide?'显示答案':'隐藏答案')+'</button>';
         bar+='<button class="del">🗑 删除</button></div>';
         let body='';
         if(o.memoOn&&!o.memoHide)body+='<div class="memo-label">💡 助记</div><div class="tui-memo"></div>';
         body+=o.noteHide?'<div class="note-hidden">答案已隐藏，点"显示答案"查看</div>':'<div class="tui"></div>';
-        if(o.codeOn&&!o.codeHide)body+='<div class="codebox"></div>';
+        if(o.codes&&o.codes.length)body+='<div class="codebox"></div>';
         td.innerHTML=bar+body;
         const addb=td.querySelector(".addmemo");if(addb)addb.onclick=()=>{o.memoOn=true;o.memoHide=false;save();render();};
         const tgm=td.querySelector(".tgmemo");if(tgm)tgm.onclick=()=>{o.memoHide=!o.memoHide;save();render();};
         const dm=td.querySelector(".delmemo");if(dm)dm.onclick=()=>{confirmDlg("删除助记？",()=>{o.memoOn=false;delete o.memo;o.memoHide=false;save();render();});};
-        const addcb=td.querySelector(".addcode");if(addcb)addcb.onclick=()=>{o.codeOn=true;o.codeHide=false;save();render();};
-        const tgcb=td.querySelector(".tgcode");if(tgcb)tgcb.onclick=()=>{o.codeHide=!o.codeHide;save();render();};
-        const dcb=td.querySelector(".delcode");if(dcb)dcb.onclick=()=>{confirmDlg("删除代码？",()=>{o.codeOn=false;delete o.code;o.codeHide=false;save();render();});};
+        td.querySelector(".addcode").onclick=()=>{o.codes=o.codes||[];o.codes.push("");save();render();};
         td.querySelector(".tgnote").onclick=()=>{o.noteHide=!o.noteHide;save();render();};
         td.querySelector(".del").onclick=()=>{get(it.id).del=true;openIds.delete(it.id);save();render();};
         er.appendChild(td);tb.appendChild(er);
         const mount=(host,getv,setv,ph)=>{if(window.MDEditor){editors.push(window.MDEditor(host,getv()||"",(html)=>{setv(html);save();}));}else{host.innerHTML='<textarea class="fa" placeholder="'+(ph||"")+'"></textarea>';const ta=host.querySelector(".fa");ta.value=getv()||"";ta.oninput=()=>{setv(ta.value);save();};}};
         if(o.memoOn&&!o.memoHide)mount(td.querySelector(".tui-memo"),()=>o.memo,v=>o.memo=v,"写助记/口诀…");
         if(!o.noteHide)mount(td.querySelector(".tui"),()=>st.note,v=>st.note=v,"# 在这里写你总结的答案…");
-        if(o.codeOn&&!o.codeHide)mountCode(td.querySelector(".codebox"),()=>o.code,v=>o.code=v);
+        if(o.codes&&o.codes.length)renderCodes(td.querySelector(".codebox"),o);
       }});
     if(lvlFilter==="all"&&dateFilter==="all"&&!starOnly){
       const ar=document.createElement("tr");ar.className="add-row";const td=document.createElement("td");td.colSpan=6;
