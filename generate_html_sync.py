@@ -388,7 +388,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.8.0</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.8.1</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -464,7 +464,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
   <h3>云同步设置</h3>
   <p>用免费的 <b>Supabase</b> 存进度：建一个项目和 <code>checkin</code> 表，把 <b>Project URL</b> 和 <b>anon key</b> 填到下面。每台设备填一次即可互通。建表 SQL 见配套说明文件。</p>
   <label>Project URL</label><input id="supaUrl" placeholder="https://xxxx.supabase.co">
-  <label>anon key（eyJ... 开头）</label><input id="supaKey" placeholder="Project Settings → API → anon public">
+  <label>anon / publishable key</label><input id="supaKey" placeholder="eyJ... 或 sb_publishable_...">
   <label>图床 API Key（ImgBB，贴图用，可留空）</label><input id="imgKey" placeholder="到 api.imgbb.com 注册免费获取">
   <p style="font-size:12px;color:#6b7280;margin:6px 0 0">填了图床 Key 后，粘贴/拖入的图片会自动上传图床，笔记里只存链接，进度不会再被图片撑爆。</p>
   <div class="acts">
@@ -537,7 +537,7 @@ function today(){const d=new Date();return (d.getMonth()+1+"").padStart(2,"0")+"
 function nowt(){const d=new Date();return (d.getHours()+"").padStart(2,"0")+":"+(d.getMinutes()+"").padStart(2,"0");}
 function setPill(t,cls){const p=document.getElementById("syncPill");p.textContent=t;p.className="pill"+(cls?" "+cls:"");}
 function api(p){return cfg.url.replace(/\\/$/,"")+"/rest/v1/"+p;}
-function H(extra){return Object.assign({apikey:cfg.key,Authorization:"Bearer "+cfg.key},extra||{});}
+function H(extra){const h=Object.assign({apikey:cfg.key},extra||{});if(/^eyJ/.test(cfg.key))h.Authorization="Bearer "+cfg.key;return h;}
 async function cloudGet(){const r=await fetch(api("checkin?id=eq.main&select=data"),{headers:H()});if(!r.ok)throw 0;const a=await r.json();return a.length?a[0].data:null;}
 async function cloudPut(){const r=await fetch(api("checkin?on_conflict=id"),{method:"POST",headers:H({"Content-Type":"application/json","Prefer":"resolution=merge-duplicates,return=minimal"}),body:JSON.stringify([{id:"main",kind:"main",data:state}])});if(!r.ok)throw 0;}
 function scheduleRetry(){if(retryTimer)return;retryTimer=setTimeout(()=>{retryTimer=null;autoSync();},10000);}

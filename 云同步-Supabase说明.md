@@ -23,11 +23,12 @@ alter table checkin disable row level security;
 ```
 
 ### 3. 拿 URL + key 填进网页
-左侧 **Project Settings → API**：
-- **Project URL**（形如 `https://xxxx.supabase.co`）
-- **anon public** key（`eyJ...` 开头那串长 key）
+- **Project URL**：左侧 **Data API** 页顶部，或顶部绿色 **Connect** 按钮里，形如 `https://xxxx.supabase.co`。
+- **key**（两种任选其一，代码都兼容）：
+  - **Settings → API Keys → Publishable key**：`sb_publishable_...`（新版，可公开）。
+  - 或点 **Legacy anon, service_role API keys** 标签里的 `anon` key：`eyJ...` 开头。
 
-打开网页 → 「☁️ 云同步设置」→ 填 Project URL + anon key → 保存并同步。每台设备填一次就互通。
+打开网页 → 「☁️ 云同步设置」→ 填 Project URL + key → 保存并同步。每台设备填一次就互通。
 
 ## 说明
 - 主进度存在表里 `id='main'` 这一行；每次改动自动 upsert 覆盖。
