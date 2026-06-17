@@ -18,8 +18,14 @@ create table if not exists checkin (
   data jsonb,
   created_at timestamptz not null default now()
 );
--- 个人自用、key 只存在自己浏览器，关掉行级安全即可读写
-alter table checkin disable row level security;
+-- 把表权限授予 anon 角色，否则会 permission denied(42501)
+grant all on table public.checkin to anon, authenticated;
+-- 开启 RLS 并加一条「全放行」策略（个人自用、key 只存自己浏览器）
+alter table public.checkin enable row level security;
+drop policy if exists "checkin all" on public.checkin;
+create policy "checkin all" on public.checkin
+  for all to anon, authenticated
+  using (true) with check (true);
 ```
 
 ### 3. 拿 URL + key 填进网页
