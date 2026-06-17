@@ -276,6 +276,15 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 .memodel:hover{background:rgba(220,38,38,.18);color:#b91c1c}
 .memo-folded{position:relative;border:1px solid #fde68a;background:#fffbeb;border-radius:8px;margin-bottom:8px;padding:10px 64px 10px 14px;font-size:13px;color:#92700e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .memo-folded:hover{background:#fef9ec}
+.notewrap{position:relative}
+.notebtn{position:absolute;top:6px;right:8px;z-index:3;border:none;background:rgba(0,0,0,.06);color:#6b7280;border-radius:5px;width:22px;height:22px;font-size:12px;line-height:1;cursor:pointer}
+.notebtn:hover{background:rgba(0,0,0,.12);color:#374151}
+.note-folded{position:relative;border:1px solid #e5e7eb;background:#fff;border-radius:8px;padding:10px 40px 10px 14px;font-size:13px;color:#6b7280;cursor:pointer}
+.note-folded:hover{background:#f9fafb}
+body.dark .notebtn{background:rgba(255,255,255,.08);color:#94a3b8}
+body.dark .notebtn:hover{background:rgba(255,255,255,.16);color:#e5e5e5}
+body.dark .note-folded{background:#262626;border-color:#3a3a3a;color:#94a3b8}
+body.dark .note-folded:hover{background:#2e2e2e}
 body.dark .memobtn{background:rgba(255,255,255,.08);color:#fcd34d}
 body.dark .memobtn:hover{background:rgba(255,255,255,.16)}
 body.dark .memo-folded{background:#2b240a;border-color:#a16207;color:#fcd34d}
@@ -401,7 +410,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.9.1</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.9.2</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -658,14 +667,14 @@ function render(){const tb=document.getElementById("tb");
         let bar='<div class="ehint">';
         bar+=(!o.memoOn)?'<button class="ebtn addmemo">＋ 助记</button>':'';
         bar+='<button class="ebtn addcode">＋ 代码</button>';
-        bar+='<button class="ebtn tgnote">'+(o.noteHide?'显示答案':'隐藏答案')+'</button>';
         bar+='<button class="del">🗑 删除</button></div>';
         let body='';
         if(o.memoOn){
           if(o.memoHide){const mf=plainFirstLine(o.memo);body+='<div class="memo-folded"><button class="memofold memobtn">▸</button><button class="memodel memobtn">✕</button>💡 助记'+(mf?'：'+esc(mf):'')+'</div>';}
           else body+='<div class="memo-label">💡 助记</div><div class="memowrap"><button class="memofold memobtn" title="隐藏助记">▾</button><button class="memodel memobtn" title="删除助记">✕</button><div class="tui-memo"></div></div>';
         }
-        body+=o.noteHide?'<div class="note-hidden">答案已隐藏，点"显示答案"查看</div>':'<div class="tui"></div>';
+        if(o.noteHide)body+='<div class="note-folded"><button class="notefold notebtn" title="显示答案">▸</button>📝 答案已隐藏</div>';
+        else body+='<div class="notewrap"><button class="notefold notebtn" title="隐藏答案">▾</button><div class="tui"></div></div>';
         if(o.codes&&o.codes.length)body+='<div class="codebox"></div>';
         td.innerHTML=bar+body;
         const addb=td.querySelector(".addmemo");if(addb)addb.onclick=()=>{o.memoOn=true;o.memoHide=false;save();render();};
@@ -675,7 +684,8 @@ function render(){const tb=document.getElementById("tb");
         const mfold=td.querySelector(".memo-folded");
         if(mfold){mfold.querySelector(".memodel").onclick=e=>{e.stopPropagation();delMemo();};mfold.onclick=e=>{if(e.target.closest(".memodel"))return;o.memoHide=false;save();render();};}
         td.querySelector(".addcode").onclick=()=>{o.codes=o.codes||[];o.codes.push({code:""});save();render();};
-        td.querySelector(".tgnote").onclick=()=>{o.noteHide=!o.noteHide;save();render();};
+        const nw=td.querySelector(".notewrap");if(nw)nw.querySelector(".notefold").onclick=e=>{e.stopPropagation();o.noteHide=true;save();render();};
+        const nfold=td.querySelector(".note-folded");if(nfold)nfold.onclick=()=>{o.noteHide=false;save();render();};
         td.querySelector(".del").onclick=()=>{get(it.id).del=true;openIds.delete(it.id);save();render();};
         er.appendChild(td);tb.appendChild(er);
         const mount=(host,getv,setv,ph)=>{if(window.MDEditor){editors.push(window.MDEditor(host,getv()||"",(html)=>{setv(html);save();}));}else{host.innerHTML='<textarea class="fa" placeholder="'+(ph||"")+'"></textarea>';const ta=host.querySelector(".fa");ta.value=getv()||"";ta.oninput=()=>{setv(ta.value);save();};}};

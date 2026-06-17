@@ -20,9 +20,14 @@
 - **艾宾浩斯复习**：每次点「复习 +1」按 1/2/4/7/15/30/60 天自动排下次复习，到期标红。
 - **多维筛选**：按板块、掌握程度、收藏；日期维度有「今天任务 / 今天打卡 / 明天 / 今日复习」，以及带小红点的自定义日历选任意一天。
 - **⭐ 收藏**：给题目加星，一键筛出所有收藏。
-- **所见即所得 Markdown 编辑器**（基于 ProseMirror，离线内嵌）：展开任意题写自己的答案，`- `→列表、`# `→标题、`> `→引用，边打边渲染；支持粘贴 markdown 自动解析、Tab 缩进、Cmd±调标题级别、插图。
+- **所见即所得 Markdown 编辑器**（基于 ProseMirror，离线内嵌）：展开任意题写自己的答案，`- `→列表、`# `→标题、`> `→引用，边打边渲染；支持粘贴 markdown 自动解析、Tab 缩进、Cmd±调标题级别、插图。选中文字按 **⌘/Ctrl+E** 可高亮，再按取消。
+- **💡 助记框 + 代码框**：答案区可加助记口诀框、多个可独立折叠/删除的代码框（语法高亮）；助记、代码、答案三类框的折叠/删除按钮都在框右上角，折叠后点击该区域任意位置即可展开。
+- **隐藏答案自测**：把答案框折叠起来只看助记背诵，记不住再点开。
+- **今天任务剩余计数**：「📌 今天任务」实时显示当天还剩多少题没完成，完成一题数字减一；可一键「✂️ 缩减」把当天部分任务挪到未来。
+- **🗑 回收站 + 💾 备份**：删除可恢复；进度可存多份本地与云端备份，随时恢复/导出/导入。
+- **暗色模式**：跟随系统 / 亮 / 暗三档。
 - **自建题目**：每个板块可随时添加自己的问题。
-- **跨设备云同步**：进度与笔记通过 JSONBin 在所有设备间自动同步（打开/切回/每 60 秒自动拉取，失败每 10 秒重试）。
+- **跨设备云同步**：进度与笔记通过 **Supabase** 在所有设备间自动同步（打开/切回/每 60 秒自动拉取，失败每 10 秒重试）；图片可选填 ImgBB 图床自动上传。
 
 ---
 
@@ -33,8 +38,7 @@
 | `秋招必背打卡表-云同步.html` | **主程序**。单文件、自包含（编辑器内核已内嵌），浏览器打开即用，可直接部署 |
 | `generate_html_sync.py` | 生成上面 HTML 的脚本（题库、计划、功能都在这里改） |
 | `秋招后端八股「必背清单」（基于小林coding）.md` | 分档清单（⭐必背 / 🔸次要 / ⬜可跳过） |
-| `云同步-部署说明.md` | 跨设备同步的部署步骤 |
-| `打卡表-按钮设置说明.md` | Excel 版打卡表的宏按钮设置说明 |
+| `云同步-Supabase说明.md` | 跨设备同步的部署步骤（含建表 SQL） |
 | `秋招必背打卡表.xlsx` | Excel 版打卡表（早期版本，可离线用） |
 | `build_checklist.py` | 生成 Excel 打卡表的脚本 |
 
@@ -46,11 +50,11 @@
 
 直接双击 `秋招必背打卡表-云同步.html` 用浏览器打开即可本地使用（进度存在本浏览器）。
 
-要**跨设备同步**，按 `云同步-部署说明.md` 三步走（约 10 分钟，全免费）：
+要**跨设备同步**，按 `云同步-Supabase说明.md` 三步走（约 10 分钟，全免费）：
 
-1. 在 [JSONBin](https://jsonbin.io) 建一个 Bin 存进度，拿到 Bin ID + Master Key；
+1. 在 [Supabase](https://supabase.com) 建一个项目，用 SQL Editor 跑一段建表 SQL（见说明文件，含 `checkin` 表 + 授权 + 全放行策略）；
 2. 把 HTML 部署到任意静态托管拿一个网址（Netlify Drop / GitHub Pages / Cloudflare Pages 均可）；
-3. 每台设备打开网址 → 「☁️ 云同步设置」填入 Bin ID + Master Key。
+3. 每台设备打开网址 → 「☁️ 云同步设置」填入 **Project URL** + **anon/publishable key**。
 
 ### 用 GitHub Pages 托管（可选）
 
@@ -60,15 +64,19 @@
 
 ## 🛠 重新生成 HTML（开发者）
 
-编辑器内核基于 ProseMirror，用 esbuild 打包成自包含文件后内嵌进 HTML。`generate_html_sync.py` 会读取打包产物（`/tmp/tui/md.bundle.js` 与 prosemirror 的 CSS）。如需改题库或功能后重新生成：
+编辑器内核基于 ProseMirror，代码语法高亮基于 highlight.js，均用 esbuild 打包成自包含文件后内嵌进 HTML。`generate_html_sync.py` 会读取打包产物（`/tmp/tui/md.bundle.js`、`/tmp/tui/hl.bundle.js` 与 prosemirror 的 CSS）。如需改题库或功能后重新生成：
 
 ```bash
 # 1) 准备编辑器内核（首次或临时环境被清空后）
 cd /tmp && mkdir -p tui && cd tui && npm init -y
 npm install prosemirror-model prosemirror-state prosemirror-view prosemirror-markdown \
-  prosemirror-example-setup prosemirror-keymap prosemirror-commands prosemirror-schema-list esbuild
-# 写入 mdentry.js（编辑器入口，含标题快捷键/粘贴解析/Tab 缩进），再打包：
+  prosemirror-example-setup prosemirror-keymap prosemirror-commands prosemirror-schema-list \
+  prosemirror-gapcursor highlight.js esbuild
+# 写入 mdentry.js（编辑器入口：在 prosemirror-markdown schema 上加 highlight 高亮 mark + ⌘/Ctrl+E 快捷键、
+#   标题快捷键、粘贴 markdown 解析、Tab 缩进、图片粘贴/拖入；笔记存 HTML），再打包：
 ./node_modules/.bin/esbuild mdentry.js --bundle --format=iife --outfile=md.bundle.js
+# 写入 hlentry.js（import hljs from 'highlight.js/lib/common'; window.hljs=hljs;），打包代码高亮：
+./node_modules/.bin/esbuild hlentry.js --bundle --format=iife --outfile=hl.bundle.js
 
 # 2) 生成 HTML
 python3 generate_html_sync.py
