@@ -1,0 +1,35 @@
+# 云同步部署（Supabase）
+
+进度同步从 JSONBin 换成了 **Supabase**：一个项目、一张表搞定，不会再冒出一堆乱七八糟的 bin。
+
+## 三步走
+
+### 1. 建项目
+到 [supabase.com](https://supabase.com) 注册，New project，记下密码，等它初始化好（约 1～2 分钟）。
+
+### 2. 建表（粘 SQL 即可）
+左侧 **SQL Editor** → New query，把下面整段贴进去 Run：
+
+```sql
+create table if not exists checkin (
+  id text primary key,
+  kind text not null default 'main',
+  label text,
+  data jsonb,
+  created_at timestamptz not null default now()
+);
+-- 个人自用、key 只存在自己浏览器，关掉行级安全即可读写
+alter table checkin disable row level security;
+```
+
+### 3. 拿 URL + key 填进网页
+左侧 **Project Settings → API**：
+- **Project URL**（形如 `https://xxxx.supabase.co`）
+- **anon public** key（`eyJ...` 开头那串长 key）
+
+打开网页 → 「☁️ 云同步设置」→ 填 Project URL + anon key → 保存并同步。每台设备填一次就互通。
+
+## 说明
+- 主进度存在表里 `id='main'` 这一行；每次改动自动 upsert 覆盖。
+- 云端备份各占一行（`kind='backup'`），删除备份会真删除那一行，不再像以前那样堆 bin。
+- anon key 只保存在你自己浏览器的 localStorage，不写进公开的 HTML。配合上面「关闭 RLS」，等于这把 key 能读写该表——个人自用没问题；若担心，可改成带 RLS 的策略。

@@ -35455,7 +35455,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.7.9</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.8.0</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -35529,9 +35529,9 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 </div></div>
 <div class="modal" id="modal"><div class="card">
   <h3>云同步设置</h3>
-  <p>用免费的 <b>JSONBin.io</b> 存进度：注册后新建一个 Bin（内容填 <code>{}</code>），把 <b>Bin ID</b> 和 <b>Master Key</b> 填到下面。每台设备填一次即可互通。详见配套说明文件。</p>
-  <label>Bin ID</label><input id="binId" placeholder="例如 6650a1b2ac...">
-  <label>Master Key（$2a$10$... 开头）</label><input id="binKey" placeholder="X-Master-Key">
+  <p>用免费的 <b>Supabase</b> 存进度：建一个项目和 <code>checkin</code> 表，把 <b>Project URL</b> 和 <b>anon key</b> 填到下面。每台设备填一次即可互通。建表 SQL 见配套说明文件。</p>
+  <label>Project URL</label><input id="supaUrl" placeholder="https://xxxx.supabase.co">
+  <label>anon key（eyJ... 开头）</label><input id="supaKey" placeholder="Project Settings → API → anon public">
   <label>图床 API Key（ImgBB，贴图用，可留空）</label><input id="imgKey" placeholder="到 api.imgbb.com 注册免费获取">
   <p style="font-size:12px;color:#6b7280;margin:6px 0 0">填了图床 Key 后，粘贴/拖入的图片会自动上传图床，笔记里只存链接，进度不会再被图片撑爆。</p>
   <div class="acts">
@@ -35546,6 +35546,7 @@ const KEY="review_tracker_v2", CFGKEY="sync_cfg_v1";
 const LVLS=["未开始","眼熟","能讲框架","能扛追问"];
 let state=JSON.parse(localStorage.getItem(KEY)||"{}");
 let cfg=JSON.parse(localStorage.getItem(CFGKEY)||"null");
+if(cfg&&!cfg.url){cfg=null;localStorage.removeItem(CFGKEY);}   // 旧 JSONBin 配置作废，需重填 Supabase
 let imgKey=localStorage.getItem("imgbb_key")||"";
 window.IMG_UPLOADER=function(dataUrl){
   if(!imgKey) return Promise.reject(new Error("no imgbb key"));
@@ -35602,9 +35603,10 @@ function fmtIso(iso){if(!iso)return"";const d=new Date(iso+"T00:00:00");if(isNaN
 function today(){const d=new Date();return (d.getMonth()+1+"").padStart(2,"0")+"-"+(d.getDate()+"").padStart(2,"0");}
 function nowt(){const d=new Date();return (d.getHours()+"").padStart(2,"0")+":"+(d.getMinutes()+"").padStart(2,"0");}
 function setPill(t,cls){const p=document.getElementById("syncPill");p.textContent=t;p.className="pill"+(cls?" "+cls:"");}
-function url(){return "https://api.jsonbin.io/v3/b/"+cfg.bin;}
-async function cloudGet(){const r=await fetch(url()+"/latest",{headers:{"X-Master-Key":cfg.key}});if(!r.ok)throw 0;return (await r.json()).record;}
-async function cloudPut(){const r=await fetch(url(),{method:"PUT",headers:{"Content-Type":"application/json","X-Master-Key":cfg.key},body:JSON.stringify(state)});if(!r.ok)throw 0;}
+function api(p){return cfg.url.replace(/\/$/,"")+"/rest/v1/"+p;}
+function H(extra){return Object.assign({apikey:cfg.key,Authorization:"Bearer "+cfg.key},extra||{});}
+async function cloudGet(){const r=await fetch(api("checkin?id=eq.main&select=data"),{headers:H()});if(!r.ok)throw 0;const a=await r.json();return a.length?a[0].data:null;}
+async function cloudPut(){const r=await fetch(api("checkin?on_conflict=id"),{method:"POST",headers:H({"Content-Type":"application/json","Prefer":"resolution=merge-duplicates,return=minimal"}),body:JSON.stringify([{id:"main",kind:"main",data:state}])});if(!r.ok)throw 0;}
 function scheduleRetry(){if(retryTimer)return;retryTimer=setTimeout(()=>{retryTimer=null;autoSync();},10000);}
 function clearRetry(){if(retryTimer){clearTimeout(retryTimer);retryTimer=null;}}
 function save(){if(state.__backups)delete state.__backups;localStorage.setItem(KEY,JSON.stringify(state));if(cfg){dirty=true;setPill("待同步…","busy");clearTimeout(timer);timer=setTimeout(push,1200);} }
@@ -35750,13 +35752,13 @@ function render(){const tb=document.getElementById("tb");
   {const tc=document.querySelector('[data-date="todayall"]');if(tc)tc.textContent="📌 今天任务："+todayCount();}
   window.scrollTo(0,_sy);requestAnimationFrame(()=>window.scrollTo(0,_sy));}
 const modal=document.getElementById("modal");
-document.getElementById("cfgBtn").onclick=()=>{if(cfg){document.getElementById("binId").value=cfg.bin;document.getElementById("binKey").value=cfg.key;}document.getElementById("imgKey").value=imgKey;modal.classList.add("show");};
+document.getElementById("cfgBtn").onclick=()=>{if(cfg){document.getElementById("supaUrl").value=cfg.url;document.getElementById("supaKey").value=cfg.key;}document.getElementById("imgKey").value=imgKey;modal.classList.add("show");};
 document.getElementById("cfgCancel").onclick=()=>modal.classList.remove("show");
 document.getElementById("cfgClear").onclick=()=>{cfg=null;localStorage.removeItem(CFGKEY);setPill("未配置云同步");modal.classList.remove("show");};
-document.getElementById("cfgSave").onclick=async()=>{const b=document.getElementById("binId").value.trim(),k=document.getElementById("binKey").value.trim(),ik=document.getElementById("imgKey").value.trim();
+document.getElementById("cfgSave").onclick=async()=>{const b=document.getElementById("supaUrl").value.trim().replace(/\/$/,""),k=document.getElementById("supaKey").value.trim(),ik=document.getElementById("imgKey").value.trim();
   imgKey=ik;if(ik)localStorage.setItem("imgbb_key",ik);else localStorage.removeItem("imgbb_key");
-  if(b&&k){cfg={bin:b,key:k};localStorage.setItem(CFGKEY,JSON.stringify(cfg));modal.classList.remove("show");await pull();await push();return;}
-  if(b||k){toast("Bin ID 和 Master Key 需要一起填写");return;}
+  if(b&&k){cfg={url:b,key:k};localStorage.setItem(CFGKEY,JSON.stringify(cfg));modal.classList.remove("show");await pull();await push();return;}
+  if(b||k){toast("Project URL 和 anon key 需要一起填写");return;}
   modal.classList.remove("show");};
 document.getElementById("pull").onclick=pull;
 document.getElementById("push").onclick=push;
@@ -35802,8 +35804,8 @@ function renderCloud(){const box=document.getElementById("bkCloudList");
   const a=bkIndex();
   if(!a.length){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">还没有云端备份，点上方「☁️ 云端备份」创建</div>';return;}
   box.innerHTML=a.map((b,i)=>'<div class="bk-item"><div class="meta"><div>'+(esc(b.label)||"备份")+'</div><div class="t">'+fmtTs(b.ts)+'</div></div><button class="rb" data-i="'+i+'">恢复</button><button class="db" data-i="'+i+'">删除</button></div>').join("");
-  box.querySelectorAll(".rb").forEach(btn=>btn.onclick=()=>{const i=+btn.dataset.i,b=bkIndex()[i];confirmDlg("恢复到这个云端备份？当前进度会被覆盖",async()=>{restoring=true;try{const r=await fetch("https://api.jsonbin.io/v3/b/"+b.bin+"/latest",{headers:{"X-Master-Key":cfg.key}});if(!r.ok)throw 0;const j=await r.json();const snap=j.record;snap.__bkIndex=bkIndex();state=snap;localStorage.setItem(KEY,JSON.stringify(state));render();bkModal.classList.remove("show");clearTimeout(timer);if(cfg){await cloudPut();dirty=false;setPill("已恢复 "+nowt(),"ok");}}catch(e){toast("恢复失败，检查网络");}restoring=false;});});
-  box.querySelectorAll(".db").forEach(btn=>btn.onclick=async()=>{const i=+btn.dataset.i,b=bkIndex()[i];bkIndex().splice(i,1);save();renderCloud();try{await fetch("https://api.jsonbin.io/v3/b/"+b.bin,{method:"DELETE",headers:{"X-Master-Key":cfg.key}});}catch(e){}});
+  box.querySelectorAll(".rb").forEach(btn=>btn.onclick=()=>{const i=+btn.dataset.i,b=bkIndex()[i];confirmDlg("恢复到这个云端备份？当前进度会被覆盖",async()=>{restoring=true;try{const r=await fetch(api("checkin?id=eq."+encodeURIComponent(b.bin)+"&select=data"),{headers:H()});if(!r.ok)throw 0;const a=await r.json();if(!a.length)throw 0;const snap=a[0].data;snap.__bkIndex=bkIndex();state=snap;localStorage.setItem(KEY,JSON.stringify(state));render();bkModal.classList.remove("show");clearTimeout(timer);if(cfg){await cloudPut();dirty=false;setPill("已恢复 "+nowt(),"ok");}}catch(e){toast("恢复失败，检查网络");}restoring=false;});});
+  box.querySelectorAll(".db").forEach(btn=>btn.onclick=async()=>{const i=+btn.dataset.i,b=bkIndex()[i];bkIndex().splice(i,1);save();renderCloud();try{await fetch(api("checkin?id=eq."+encodeURIComponent(b.bin)),{method:"DELETE",headers:H()});}catch(e){}});
 }
 document.getElementById("backupBtn").onclick=()=>{renderBackups();renderCloud();bkModal.classList.add("show");};
 document.getElementById("bkClose").onclick=()=>bkModal.classList.remove("show");
@@ -35811,8 +35813,9 @@ document.getElementById("bkImportBtn").onclick=()=>document.getElementById("bkIm
 document.getElementById("bkNew").onclick=()=>{const a=loadBackups();a.unshift({ts:Date.now(),label:document.getElementById("bkLabel").value.trim(),data:JSON.stringify(state)});if(a.length>30)a.length=30;saveBackups(a);document.getElementById("bkLabel").value="";renderBackups();};
 document.getElementById("bkNewCloud").onclick=async()=>{if(!cfg){toast("请先配置「☁️ 云同步」");return;}const btn=document.getElementById("bkNewCloud");btn.disabled=true;btn.textContent="备份中…";
   try{const snap=Object.assign({},state);delete snap.__bkIndex;delete snap.__backups;
-    const r=await fetch("https://api.jsonbin.io/v3/b",{method:"POST",headers:{"Content-Type":"application/json","X-Master-Key":cfg.key},body:JSON.stringify(snap)});if(!r.ok)throw 0;const j=await r.json();
-    const a=bkIndex();a.unshift({ts:Date.now(),label:document.getElementById("bkLabel").value.trim(),bin:j.metadata.id});if(a.length>15)a.length=15;
+    const rid="bk_"+Date.now();
+    const r=await fetch(api("checkin"),{method:"POST",headers:H({"Content-Type":"application/json","Prefer":"return=minimal"}),body:JSON.stringify([{id:rid,kind:"backup",label:document.getElementById("bkLabel").value.trim(),data:snap}])});if(!r.ok)throw 0;
+    const a=bkIndex();a.unshift({ts:Date.now(),label:document.getElementById("bkLabel").value.trim(),bin:rid});if(a.length>15)a.length=15;
     document.getElementById("bkLabel").value="";save();renderCloud();}
   catch(e){toast("云端备份失败，检查网络/配置");}
   btn.disabled=false;btn.textContent="☁️ 云端备份";};
