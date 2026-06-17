@@ -269,6 +269,17 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 .tui-memo{border:1px solid #fde68a;border-radius:8px;background:#fffbeb;margin-bottom:8px;overflow:hidden}
 .tui-memo .ProseMirror{outline:none;min-height:70px;padding:10px 14px;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7;color:#1f2937;overflow-wrap:break-word;word-break:break-word}
 .memo-label{font-size:12px;color:#b45309;margin:0 0 4px;font-weight:600}
+.memowrap{position:relative}
+.memobtn{position:absolute;top:6px;z-index:3;border:none;background:rgba(120,80,0,.10);color:#92700e;border-radius:5px;width:22px;height:22px;font-size:12px;line-height:1;cursor:pointer}
+.memofold{right:34px}.memodel{right:8px}
+.memobtn:hover{background:rgba(120,80,0,.2)}
+.memodel:hover{background:rgba(220,38,38,.18);color:#b91c1c}
+.memo-folded{position:relative;border:1px solid #fde68a;background:#fffbeb;border-radius:8px;margin-bottom:8px;padding:10px 64px 10px 14px;font-size:13px;color:#92700e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.memo-folded:hover{background:#fef9ec}
+body.dark .memobtn{background:rgba(255,255,255,.08);color:#fcd34d}
+body.dark .memobtn:hover{background:rgba(255,255,255,.16)}
+body.dark .memo-folded{background:#2b240a;border-color:#a16207;color:#fcd34d}
+body.dark .memo-folded:hover{background:#332a0c}
 .codebox{margin-top:6px}
 .codewrap{position:relative;border:1px solid #e5e7eb;border-radius:8px;background:#1e1e1e;margin-bottom:8px;overflow:hidden}
 .codewrap pre,.codewrap textarea{margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.6;padding:12px 14px;white-space:pre-wrap;word-break:break-word;tab-size:2;box-sizing:border-box}
@@ -382,13 +393,15 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 .ProseMirror blockquote{border-left:3px solid #c7d2fe;background:#f8faff;color:#475569;padding:4px 12px;margin:8px 0}
 .ProseMirror strong{color:#111827}
 .ProseMirror a{color:#2563eb}
+.ProseMirror mark,.preview mark{background:#fef08a;color:inherit;border-radius:2px;padding:0 1px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fef9c3}
 .ProseMirror hr{border:none;border-top:1px solid #e5e7eb;margin:12px 0}
 </style>
 <script>__PM_JS__</script>
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.8.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.9.1</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -502,6 +515,7 @@ function saveStuck(){try{localStorage.setItem("stuck_v1",JSON.stringify({day:stu
 function get(id){return state[id]||(state[id]={lvl:0,cnt:0,last:""});}
 function qText(it){const o=get(it.id);return (o.q!==undefined&&o.q!=="")?o.q:it.q;}
 function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function plainFirstLine(html){const d=document.createElement("div");d.innerHTML=html||"";const t=(d.textContent||"").replace(/\\u00a0/g," ").trim();return (t.split("\\n")[0]||"").slice(0,60);}
 let cfCb=null;
 function confirmDlg(msg,cb){document.getElementById("cfMsg").textContent=msg;cfCb=cb;document.getElementById("cfModal").classList.add("show");}
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200);}
@@ -517,8 +531,9 @@ function renderCodes(host,o){
       const first=(c.code||"").split("\\n")[0]||"",more=(c.code||"").indexOf("\\n")>=0;
       box.innerHTML=btns+'<pre class="foldline"><code class="hljs"></code></pre>';
       box.querySelector("code").innerHTML=highlightHTML(first)+(more?' <span style="color:#888">…</span>':"");
-      box.querySelector(".codefold").onclick=()=>{c.fold=false;save();render();};
-      box.querySelector(".codedel").onclick=del;
+      box.style.cursor="pointer";
+      box.onclick=e=>{if(e.target.closest(".codedel"))return;c.fold=false;save();render();};
+      box.querySelector(".codedel").onclick=e=>{e.stopPropagation();del();};
     }else{
       box.innerHTML=btns+'<pre aria-hidden="true"><code class="hljs"></code></pre><textarea spellcheck="false" placeholder="粘贴代码…"></textarea>';
       const code=box.querySelector("code"),ta=box.querySelector("textarea");
@@ -641,18 +656,24 @@ function render(){const tb=document.getElementById("tb");
         if(o.code!==undefined&&!o.codes){o.codes=o.code?[{code:o.code}]:[];delete o.code;delete o.codeOn;delete o.codeHide;}
         if(o.codes)o.codes=o.codes.map(c=>typeof c==="string"?{code:c}:c);
         let bar='<div class="ehint">';
-        bar+=(!o.memoOn)?'<button class="ebtn addmemo">＋ 助记</button>':'<button class="ebtn tgmemo">'+(o.memoHide?'显示助记':'隐藏助记')+'</button><button class="ebtn delmemo">删除助记</button>';
+        bar+=(!o.memoOn)?'<button class="ebtn addmemo">＋ 助记</button>':'';
         bar+='<button class="ebtn addcode">＋ 代码</button>';
         bar+='<button class="ebtn tgnote">'+(o.noteHide?'显示答案':'隐藏答案')+'</button>';
         bar+='<button class="del">🗑 删除</button></div>';
         let body='';
-        if(o.memoOn&&!o.memoHide)body+='<div class="memo-label">💡 助记</div><div class="tui-memo"></div>';
+        if(o.memoOn){
+          if(o.memoHide){const mf=plainFirstLine(o.memo);body+='<div class="memo-folded"><button class="memofold memobtn">▸</button><button class="memodel memobtn">✕</button>💡 助记'+(mf?'：'+esc(mf):'')+'</div>';}
+          else body+='<div class="memo-label">💡 助记</div><div class="memowrap"><button class="memofold memobtn" title="隐藏助记">▾</button><button class="memodel memobtn" title="删除助记">✕</button><div class="tui-memo"></div></div>';
+        }
         body+=o.noteHide?'<div class="note-hidden">答案已隐藏，点"显示答案"查看</div>':'<div class="tui"></div>';
         if(o.codes&&o.codes.length)body+='<div class="codebox"></div>';
         td.innerHTML=bar+body;
         const addb=td.querySelector(".addmemo");if(addb)addb.onclick=()=>{o.memoOn=true;o.memoHide=false;save();render();};
-        const tgm=td.querySelector(".tgmemo");if(tgm)tgm.onclick=()=>{o.memoHide=!o.memoHide;save();render();};
-        const dm=td.querySelector(".delmemo");if(dm)dm.onclick=()=>{confirmDlg("删除助记？",()=>{o.memoOn=false;delete o.memo;o.memoHide=false;save();render();});};
+        const delMemo=()=>confirmDlg("删除助记？",()=>{o.memoOn=false;delete o.memo;o.memoHide=false;save();render();});
+        const mw=td.querySelector(".memowrap");
+        if(mw){mw.querySelector(".memofold").onclick=e=>{e.stopPropagation();o.memoHide=true;save();render();};mw.querySelector(".memodel").onclick=e=>{e.stopPropagation();delMemo();};}
+        const mfold=td.querySelector(".memo-folded");
+        if(mfold){mfold.querySelector(".memodel").onclick=e=>{e.stopPropagation();delMemo();};mfold.onclick=e=>{if(e.target.closest(".memodel"))return;o.memoHide=false;save();render();};}
         td.querySelector(".addcode").onclick=()=>{o.codes=o.codes||[];o.codes.push({code:""});save();render();};
         td.querySelector(".tgnote").onclick=()=>{o.noteHide=!o.noteHide;save();render();};
         td.querySelector(".del").onclick=()=>{get(it.id).del=true;openIds.delete(it.id);save();render();};

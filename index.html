@@ -226,6 +226,17 @@ img.ProseMirror-separator {
 .tui-memo{border:1px solid #fde68a;border-radius:8px;background:#fffbeb;margin-bottom:8px;overflow:hidden}
 .tui-memo .ProseMirror{outline:none;min-height:70px;padding:10px 14px;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7;color:#1f2937;overflow-wrap:break-word;word-break:break-word}
 .memo-label{font-size:12px;color:#b45309;margin:0 0 4px;font-weight:600}
+.memowrap{position:relative}
+.memobtn{position:absolute;top:6px;z-index:3;border:none;background:rgba(120,80,0,.10);color:#92700e;border-radius:5px;width:22px;height:22px;font-size:12px;line-height:1;cursor:pointer}
+.memofold{right:34px}.memodel{right:8px}
+.memobtn:hover{background:rgba(120,80,0,.2)}
+.memodel:hover{background:rgba(220,38,38,.18);color:#b91c1c}
+.memo-folded{position:relative;border:1px solid #fde68a;background:#fffbeb;border-radius:8px;margin-bottom:8px;padding:10px 64px 10px 14px;font-size:13px;color:#92700e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.memo-folded:hover{background:#fef9ec}
+body.dark .memobtn{background:rgba(255,255,255,.08);color:#fcd34d}
+body.dark .memobtn:hover{background:rgba(255,255,255,.16)}
+body.dark .memo-folded{background:#2b240a;border-color:#a16207;color:#fcd34d}
+body.dark .memo-folded:hover{background:#332a0c}
 .codebox{margin-top:6px}
 .codewrap{position:relative;border:1px solid #e5e7eb;border-radius:8px;background:#1e1e1e;margin-bottom:8px;overflow:hidden}
 .codewrap pre,.codewrap textarea{margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.6;padding:12px 14px;white-space:pre-wrap;word-break:break-word;tab-size:2;box-sizing:border-box}
@@ -339,6 +350,8 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 .ProseMirror blockquote{border-left:3px solid #c7d2fe;background:#f8faff;color:#475569;padding:4px 12px;margin:8px 0}
 .ProseMirror strong{color:#111827}
 .ProseMirror a{color:#2563eb}
+.ProseMirror mark,.preview mark{background:#fef08a;color:inherit;border-radius:2px;padding:0 1px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fef9c3}
 .ProseMirror hr{border:none;border-top:1px solid #e5e7eb;margin:12px 0}
 </style>
 <script>(() => {
@@ -782,12 +795,12 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     Deserialize a fragment from its JSON representation.
     */
-    static fromJSON(schema2, value) {
+    static fromJSON(schema3, value) {
       if (!value)
         return _Fragment.empty;
       if (!Array.isArray(value))
         throw new RangeError("Invalid input for Fragment.fromJSON");
-      return _Fragment.fromArray(value.map(schema2.nodeFromJSON));
+      return _Fragment.fromArray(value.map(schema3.nodeFromJSON));
     }
     /**
     Build a fragment from an array of nodes. Ensures that adjacent
@@ -942,10 +955,10 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     Deserialize a mark from JSON.
     */
-    static fromJSON(schema2, json) {
+    static fromJSON(schema3, json) {
       if (!json)
         throw new RangeError("Invalid input for Mark.fromJSON");
-      let type = schema2.marks[json.type];
+      let type = schema3.marks[json.type];
       if (!type)
         throw new RangeError(`There is no mark type ${json.type} in this schema`);
       let mark = type.create(json.attrs);
@@ -1047,13 +1060,13 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     Deserialize a slice from its JSON representation.
     */
-    static fromJSON(schema2, json) {
+    static fromJSON(schema3, json) {
       if (!json)
         return _Slice.empty;
       let openStart = json.openStart || 0, openEnd = json.openEnd || 0;
       if (typeof openStart != "number" || typeof openEnd != "number")
         throw new RangeError("Invalid input for Slice.fromJSON");
-      return new _Slice(Fragment.fromJSON(schema2, json.content), openStart, openEnd);
+      return new _Slice(Fragment.fromJSON(schema3, json.content), openStart, openEnd);
     }
     /**
     Create a slice from a fragment by taking the maximum possible
@@ -1147,7 +1160,8 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
       addNode($end.nodeBefore, target);
   }
   function close(node, content) {
-    node.type.checkContent(content);
+    if (!node.type.validContent(content))
+      throw new ReplaceError("Invalid content for node " + node.type.name);
     return node.copy(content);
   }
   function replaceThreeWay($from, $start, $end, $to, depth) {
@@ -1895,22 +1909,22 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     Deserialize a node from its JSON representation.
     */
-    static fromJSON(schema2, json) {
+    static fromJSON(schema3, json) {
       if (!json)
         throw new RangeError("Invalid input for Node.fromJSON");
       let marks = void 0;
       if (json.marks) {
         if (!Array.isArray(json.marks))
           throw new RangeError("Invalid mark data for Node.fromJSON");
-        marks = json.marks.map(schema2.markFromJSON);
+        marks = json.marks.map(schema3.markFromJSON);
       }
       if (json.type == "text") {
         if (typeof json.text != "string")
           throw new RangeError("Invalid text node in JSON");
-        return schema2.text(json.text, marks);
+        return schema3.text(json.text, marks);
       }
-      let content = Fragment.fromJSON(schema2, json.content);
-      let node = schema2.nodeType(json.type).create(json.attrs, content, marks);
+      let content = Fragment.fromJSON(schema3, json.content);
+      let node = schema3.nodeType(json.type).create(json.attrs, content, marks);
       node.type.checkAttrs(node.attrs);
       return node;
     }
@@ -2414,9 +2428,9 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     @internal
     */
-    constructor(name, schema2, spec) {
+    constructor(name, schema3, spec) {
       this.name = name;
-      this.schema = schema2;
+      this.schema = schema3;
       this.spec = spec;
       this.markSet = null;
       this.groups = spec.group ? spec.group.split(" ") : [];
@@ -2602,10 +2616,10 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     @internal
     */
-    static compile(nodes, schema2) {
+    static compile(nodes, schema3) {
       let result = /* @__PURE__ */ Object.create(null);
-      nodes.forEach((name, spec) => result[name] = new _NodeType(name, schema2, spec));
-      let topType = schema2.spec.topNode || "doc";
+      nodes.forEach((name, spec) => result[name] = new _NodeType(name, schema3, spec));
+      let topType = schema3.spec.topNode || "doc";
       if (!result[topType])
         throw new RangeError("Schema is missing its top node type ('" + topType + "')");
       if (!result.text)
@@ -2637,10 +2651,10 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     @internal
     */
-    constructor(name, rank, schema2, spec) {
+    constructor(name, rank, schema3, spec) {
       this.name = name;
       this.rank = rank;
-      this.schema = schema2;
+      this.schema = schema3;
       this.spec = spec;
       this.attrs = initAttrs(name, spec.attrs);
       this.excluded = null;
@@ -2660,9 +2674,9 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     @internal
     */
-    static compile(marks, schema2) {
+    static compile(marks, schema3) {
       let result = /* @__PURE__ */ Object.create(null), rank = 0;
-      marks.forEach((name, spec) => result[name] = new _MarkType(name, rank++, schema2, spec));
+      marks.forEach((name, spec) => result[name] = new _MarkType(name, rank++, schema3, spec));
       return result;
     }
     /**
@@ -2777,15 +2791,15 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
       return found2;
     }
   };
-  function gatherMarks(schema2, marks) {
+  function gatherMarks(schema3, marks) {
     let found2 = [];
     for (let i2 = 0; i2 < marks.length; i2++) {
-      let name = marks[i2], mark = schema2.marks[name], ok = mark;
+      let name = marks[i2], mark = schema3.marks[name], ok = mark;
       if (mark) {
         found2.push(mark);
       } else {
-        for (let prop in schema2.marks) {
-          let mark2 = schema2.marks[prop];
+        for (let prop in schema3.marks) {
+          let mark2 = schema3.marks[prop];
           if (name == "_" || mark2.spec.group && mark2.spec.group.split(" ").indexOf(name) > -1)
             found2.push(ok = mark2);
         }
@@ -2806,8 +2820,8 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     Create a parser that targets the given schema, using the given
     parsing rules.
     */
-    constructor(schema2, rules) {
-      this.schema = schema2;
+    constructor(schema3, rules) {
+      this.schema = schema3;
       this.rules = rules;
       this.tags = [];
       this.styles = [];
@@ -2825,7 +2839,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
       this.normalizeLists = !this.tags.some((r) => {
         if (!/^(ul|ol)\b/.test(r.tag) || !r.node)
           return false;
-        let node = schema2.nodes[r.node];
+        let node = schema3.nodes[r.node];
         return node.contentMatch.matchType(node);
       });
     }
@@ -2890,7 +2904,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     @internal
     */
-    static schemaRules(schema2) {
+    static schemaRules(schema3) {
       let result = [];
       function insert(rule) {
         let priority = rule.priority == null ? 50 : rule.priority, i2 = 0;
@@ -2901,8 +2915,8 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
         }
         result.splice(i2, 0, rule);
       }
-      for (let name in schema2.marks) {
-        let rules = schema2.marks[name].spec.parseDOM;
+      for (let name in schema3.marks) {
+        let rules = schema3.marks[name].spec.parseDOM;
         if (rules)
           rules.forEach((rule) => {
             insert(rule = copy(rule));
@@ -2910,8 +2924,8 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
               rule.mark = name;
           });
       }
-      for (let name in schema2.nodes) {
-        let rules = schema2.nodes[name].spec.parseDOM;
+      for (let name in schema3.nodes) {
+        let rules = schema3.nodes[name].spec.parseDOM;
         if (rules)
           rules.forEach((rule) => {
             insert(rule = copy(rule));
@@ -2926,8 +2940,8 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     schema's [node specs](https://prosemirror.net/docs/ref/#model.NodeSpec.parseDOM), reordered by
     [priority](https://prosemirror.net/docs/ref/#model.GenericParseRule.priority).
     */
-    static fromSchema(schema2) {
-      return schema2.cached.domParser || (schema2.cached.domParser = new _DOMParser(schema2, _DOMParser.schemaRules(schema2)));
+    static fromSchema(schema3) {
+      return schema3.cached.domParser || (schema3.cached.domParser = new _DOMParser(schema3, _DOMParser.schemaRules(schema3)));
     }
   };
   var blockTags = {
@@ -3069,7 +3083,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     addTextNode(dom, marks) {
       let value = dom.nodeValue;
       let top = this.top, preserveWS = top.options & OPT_PRESERVE_WS_FULL ? "full" : this.localPreserveWS || (top.options & OPT_PRESERVE_WS) > 0;
-      let { schema: schema2 } = this.parser;
+      let { schema: schema3 } = this.parser;
       if (preserveWS === "full" || top.inlineContext(dom) || /[^ \t\r\n\u000c]/.test(value)) {
         if (!preserveWS) {
           value = value.replace(/[ \t\r\n\u000c]+/g, " ");
@@ -3081,20 +3095,20 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
           }
         } else if (preserveWS === "full") {
           value = value.replace(/\r\n?/g, "\n");
-        } else if (schema2.linebreakReplacement && /[\r\n]/.test(value) && this.top.findWrapping(schema2.linebreakReplacement.create())) {
+        } else if (schema3.linebreakReplacement && /[\r\n]/.test(value) && this.top.findWrapping(schema3.linebreakReplacement.create())) {
           let lines = value.split(/\r?\n|\r/);
           for (let i2 = 0; i2 < lines.length; i2++) {
             if (i2)
-              this.insertNode(schema2.linebreakReplacement.create(), marks, true);
+              this.insertNode(schema3.linebreakReplacement.create(), marks, true);
             if (lines[i2])
-              this.insertNode(schema2.text(lines[i2]), marks, !/\S/.test(lines[i2]));
+              this.insertNode(schema3.text(lines[i2]), marks, !/\S/.test(lines[i2]));
           }
           value = "";
         } else {
           value = value.replace(/\r?\n|\r/g, " ");
         }
         if (value)
-          this.insertNode(schema2.text(value), marks, !/\S/.test(value));
+          this.insertNode(schema3.text(value), marks, !/\S/.test(value));
         this.findInText(dom);
       } else {
         this.findInside(dom);
@@ -3569,15 +3583,15 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     Build a serializer using the [`toDOM`](https://prosemirror.net/docs/ref/#model.NodeSpec.toDOM)
     properties in a schema's node and mark specs.
     */
-    static fromSchema(schema2) {
-      return schema2.cached.domSerializer || (schema2.cached.domSerializer = new _DOMSerializer(this.nodesFromSchema(schema2), this.marksFromSchema(schema2)));
+    static fromSchema(schema3) {
+      return schema3.cached.domSerializer || (schema3.cached.domSerializer = new _DOMSerializer(this.nodesFromSchema(schema3), this.marksFromSchema(schema3)));
     }
     /**
     Gather the serializers in a schema's node specs into an object.
     This can be useful as a base to build a custom serializer from.
     */
-    static nodesFromSchema(schema2) {
-      let result = gatherToDOM(schema2.nodes);
+    static nodesFromSchema(schema3) {
+      let result = gatherToDOM(schema3.nodes);
       if (!result.text)
         result.text = (node) => node.text;
       return result;
@@ -3585,8 +3599,8 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     Gather the serializers in a schema's mark specs into an object.
     */
-    static marksFromSchema(schema2) {
-      return gatherToDOM(schema2.marks);
+    static marksFromSchema(schema3) {
+      return gatherToDOM(schema3.marks);
     }
   };
   function gatherToDOM(obj) {
@@ -3987,13 +4001,13 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     Deserialize a step from its JSON representation. Will call
     through to the step class' own implementation of this method.
     */
-    static fromJSON(schema2, json) {
+    static fromJSON(schema3, json) {
       if (!json || !json.stepType)
         throw new RangeError("Invalid input for Step.fromJSON");
       let type = stepsByID[json.stepType];
       if (!type)
         throw new RangeError(`No step type ${json.stepType} defined`);
-      return type.fromJSON(schema2, json);
+      return type.fromJSON(schema3, json);
     }
     /**
     To be able to serialize steps to JSON, each step needs a string
@@ -4101,10 +4115,10 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     @internal
     */
-    static fromJSON(schema2, json) {
+    static fromJSON(schema3, json) {
       if (typeof json.from != "number" || typeof json.to != "number")
         throw new RangeError("Invalid input for AddMarkStep.fromJSON");
-      return new _AddMarkStep(json.from, json.to, schema2.markFromJSON(json.mark));
+      return new _AddMarkStep(json.from, json.to, schema3.markFromJSON(json.mark));
     }
   };
   Step.jsonID("addMark", AddMarkStep);
@@ -4150,10 +4164,10 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     @internal
     */
-    static fromJSON(schema2, json) {
+    static fromJSON(schema3, json) {
       if (typeof json.from != "number" || typeof json.to != "number")
         throw new RangeError("Invalid input for RemoveMarkStep.fromJSON");
-      return new _RemoveMarkStep(json.from, json.to, schema2.markFromJSON(json.mark));
+      return new _RemoveMarkStep(json.from, json.to, schema3.markFromJSON(json.mark));
     }
   };
   Step.jsonID("removeMark", RemoveMarkStep);
@@ -4196,10 +4210,10 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     @internal
     */
-    static fromJSON(schema2, json) {
+    static fromJSON(schema3, json) {
       if (typeof json.pos != "number")
         throw new RangeError("Invalid input for AddNodeMarkStep.fromJSON");
-      return new _AddNodeMarkStep(json.pos, schema2.markFromJSON(json.mark));
+      return new _AddNodeMarkStep(json.pos, schema3.markFromJSON(json.mark));
     }
   };
   Step.jsonID("addNodeMark", AddNodeMarkStep);
@@ -4235,10 +4249,10 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     @internal
     */
-    static fromJSON(schema2, json) {
+    static fromJSON(schema3, json) {
       if (typeof json.pos != "number")
         throw new RangeError("Invalid input for RemoveNodeMarkStep.fromJSON");
-      return new _RemoveNodeMarkStep(json.pos, schema2.markFromJSON(json.mark));
+      return new _RemoveNodeMarkStep(json.pos, schema3.markFromJSON(json.mark));
     }
   };
   Step.jsonID("removeNodeMark", RemoveNodeMarkStep);
@@ -4301,10 +4315,10 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     @internal
     */
-    static fromJSON(schema2, json) {
+    static fromJSON(schema3, json) {
       if (typeof json.from != "number" || typeof json.to != "number")
         throw new RangeError("Invalid input for ReplaceStep.fromJSON");
-      return new _ReplaceStep(json.from, json.to, Slice.fromJSON(schema2, json.slice), !!json.structure);
+      return new _ReplaceStep(json.from, json.to, Slice.fromJSON(schema3, json.slice), !!json.structure);
     }
   };
   ReplaceStep.MAP_BIAS = 1;
@@ -4377,10 +4391,10 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     /**
     @internal
     */
-    static fromJSON(schema2, json) {
+    static fromJSON(schema3, json) {
       if (typeof json.from != "number" || typeof json.to != "number" || typeof json.gapFrom != "number" || typeof json.gapTo != "number" || typeof json.insert != "number")
         throw new RangeError("Invalid input for ReplaceAroundStep.fromJSON");
-      return new _ReplaceAroundStep(json.from, json.to, json.gapFrom, json.gapTo, Slice.fromJSON(schema2, json.slice), json.insert, !!json.structure);
+      return new _ReplaceAroundStep(json.from, json.to, json.gapFrom, json.gapTo, Slice.fromJSON(schema3, json.slice), json.insert, !!json.structure);
     }
   };
   Step.jsonID("replaceAround", ReplaceAroundStep);
@@ -5213,7 +5227,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     toJSON() {
       return { stepType: "attr", pos: this.pos, attr: this.attr, value: this.value };
     }
-    static fromJSON(schema2, json) {
+    static fromJSON(schema3, json) {
       if (typeof json.pos != "number" || typeof json.attr != "string")
         throw new RangeError("Invalid input for AttrStep.fromJSON");
       return new _AttrStep(json.pos, json.attr, json.value);
@@ -5249,7 +5263,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     toJSON() {
       return { stepType: "docAttr", attr: this.attr, value: this.value };
     }
-    static fromJSON(schema2, json) {
+    static fromJSON(schema3, json) {
       if (typeof json.attr != "string")
         throw new RangeError("Invalid input for DocAttrStep.fromJSON");
       return new _DocAttrStep(json.attr, json.value);
@@ -6111,11 +6125,11 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     with a text node containing the given string.
     */
     insertText(text2, from2, to) {
-      let schema2 = this.doc.type.schema;
+      let schema3 = this.doc.type.schema;
       if (from2 == null) {
         if (!text2)
           return this.deleteSelection();
-        return this.replaceSelectionWith(schema2.text(text2), true);
+        return this.replaceSelectionWith(schema3.text(text2), true);
       } else {
         if (to == null)
           to = from2;
@@ -6126,7 +6140,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
           let $from = this.doc.resolve(from2);
           marks = to == from2 ? $from.marks() : $from.marksAcross(this.doc.resolve(to));
         }
-        this.replaceRangeWith(from2, to, schema2.text(text2, marks));
+        this.replaceRangeWith(from2, to, schema3.text(text2, marks));
         if (!this.selection.empty && this.selection.to == from2 + text2.length)
           this.setSelection(Selection.near(this.selection.$to));
         return this;
@@ -6215,8 +6229,8 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     })
   ];
   var Configuration = class {
-    constructor(schema2, plugins) {
-      this.schema = schema2;
+    constructor(schema3, plugins) {
+      this.schema = schema3;
       this.plugins = [];
       this.pluginsByKey = /* @__PURE__ */ Object.create(null);
       this.fields = baseFields.slice();
@@ -9006,12 +9020,12 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
         slice2 = parsed;
       } else {
         let marks = $context.marks();
-        let { schema: schema2 } = view.state, serializer = DOMSerializer.fromSchema(schema2);
+        let { schema: schema3 } = view.state, serializer = DOMSerializer.fromSchema(schema3);
         dom = document.createElement("div");
         text2.split(/(?:\r\n?|\n)+/).forEach((block2) => {
           let p = dom.appendChild(document.createElement("p"));
           if (block2)
-            p.appendChild(serializer.serializeNode(schema2.text(block2, marks)));
+            p.appendChild(serializer.serializeNode(schema3.text(block2, marks)));
         });
       }
     } else {
@@ -9181,7 +9195,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
   function addContext(slice2, context) {
     if (!slice2.size)
       return slice2;
-    let schema2 = slice2.content.firstChild.type.schema, array;
+    let schema3 = slice2.content.firstChild.type.schema, array;
     try {
       array = JSON.parse(context);
     } catch (e) {
@@ -9189,7 +9203,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     }
     let { content, openStart, openEnd } = slice2;
     for (let i2 = array.length - 2; i2 >= 0; i2 -= 2) {
-      let type = schema2.nodes[array[i2]];
+      let type = schema3.nodes[array[i2]];
       if (!type || type.hasRequiredAttrs())
         break;
       content = Fragment.from(type.create(array[i2 + 1], content));
@@ -16468,9 +16482,9 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
       "i"
     );
   }
-  function Match(text2, schema2, index, lastIndex) {
+  function Match(text2, schema3, index, lastIndex) {
     const raw = text2.slice(index, lastIndex);
-    this.schema = schema2.toLowerCase();
+    this.schema = schema3.toLowerCase();
     this.index = index;
     this.lastIndex = lastIndex;
     this.raw = raw;
@@ -16495,8 +16509,8 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     this.re = {};
     compile(this);
   }
-  LinkifyIt.prototype.add = function add(schema2, definition) {
-    this.__schemas__[schema2] = definition;
+  LinkifyIt.prototype.add = function add(schema3, definition) {
+    this.__schemas__[schema3] = definition;
     compile(this);
     return this;
   };
@@ -16537,11 +16551,11 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
   LinkifyIt.prototype.pretest = function pretest(text2) {
     return this.re.pretest.test(text2);
   };
-  LinkifyIt.prototype.testSchemaAt = function testSchemaAt(text2, schema2, pos) {
-    if (!this.__compiled__[schema2.toLowerCase()]) {
+  LinkifyIt.prototype.testSchemaAt = function testSchemaAt(text2, schema3, pos) {
+    if (!this.__compiled__[schema3.toLowerCase()]) {
       return 0;
     }
-    return this.__compiled__[schema2.toLowerCase()].validate(text2, pos, this);
+    return this.__compiled__[schema3.toLowerCase()].validate(text2, pos, this);
   };
   LinkifyIt.prototype.match = function match(text2) {
     const result = [];
@@ -17408,10 +17422,10 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
       return a.withText(a.text + b.text);
   }
   var MarkdownParseState = class {
-    constructor(schema2, tokenHandlers2) {
-      this.schema = schema2;
+    constructor(schema3, tokenHandlers2) {
+      this.schema = schema3;
       this.tokenHandlers = tokenHandlers2;
-      this.stack = [{ type: schema2.topNodeType, attrs: null, content: [], marks: Mark.none }];
+      this.stack = [{ type: schema3.topNodeType, attrs: null, content: [], marks: Mark.none }];
     }
     top() {
       return this.stack[this.stack.length - 1];
@@ -17486,12 +17500,12 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
   }
   function noOp() {
   }
-  function tokenHandlers(schema2, tokens) {
+  function tokenHandlers(schema3, tokens) {
     let handlers2 = /* @__PURE__ */ Object.create(null);
     for (let type in tokens) {
       let spec = tokens[type];
       if (spec.block) {
-        let nodeType = schema2.nodeType(spec.block);
+        let nodeType = schema3.nodeType(spec.block);
         if (noCloseToken(spec, type)) {
           handlers2[type] = (state, tok, tokens2, i2) => {
             state.openNode(nodeType, attrs(spec, tok, tokens2, i2));
@@ -17503,10 +17517,10 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
           handlers2[type + "_close"] = (state) => state.closeNode();
         }
       } else if (spec.node) {
-        let nodeType = schema2.nodeType(spec.node);
+        let nodeType = schema3.nodeType(spec.node);
         handlers2[type] = (state, tok, tokens2, i2) => state.addNode(nodeType, attrs(spec, tok, tokens2, i2));
       } else if (spec.mark) {
-        let markType = schema2.marks[spec.mark];
+        let markType = schema3.marks[spec.mark];
         if (noCloseToken(spec, type)) {
           handlers2[type] = (state, tok, tokens2, i2) => {
             state.openMark(markType.create(attrs(spec, tok, tokens2, i2)));
@@ -17542,11 +17556,11 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     what to do with them. Such a description is an object, and may
     have the following properties:
     */
-    constructor(schema2, tokenizer, tokens) {
-      this.schema = schema2;
+    constructor(schema3, tokenizer, tokens) {
+      this.schema = schema3;
       this.tokenizer = tokenizer;
       this.tokens = tokens;
-      this.tokenHandlers = tokenHandlers(schema2, tokens);
+      this.tokenHandlers = tokenHandlers(schema3, tokens);
     }
     /**
     Parse a string as [CommonMark](http://commonmark.org/) markup,
@@ -20963,53 +20977,53 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
   function wrapListItem(nodeType, options) {
     return cmdItem(wrapInList(nodeType, options.attrs), options);
   }
-  function buildMenuItems(schema2) {
+  function buildMenuItems(schema3) {
     let r = {};
     let mark;
-    if (mark = schema2.marks.strong)
+    if (mark = schema3.marks.strong)
       r.toggleStrong = markItem(mark, { title: "Toggle strong style", icon: icons.strong });
-    if (mark = schema2.marks.em)
+    if (mark = schema3.marks.em)
       r.toggleEm = markItem(mark, { title: "Toggle emphasis", icon: icons.em });
-    if (mark = schema2.marks.code)
+    if (mark = schema3.marks.code)
       r.toggleCode = markItem(mark, { title: "Toggle code font", icon: icons.code });
-    if (mark = schema2.marks.link)
+    if (mark = schema3.marks.link)
       r.toggleLink = linkItem(mark);
     let node;
-    if (node = schema2.nodes.image)
+    if (node = schema3.nodes.image)
       r.insertImage = insertImageItem(node);
-    if (node = schema2.nodes.bullet_list)
+    if (node = schema3.nodes.bullet_list)
       r.wrapBulletList = wrapListItem(node, {
         title: "Wrap in bullet list",
         icon: icons.bulletList
       });
-    if (node = schema2.nodes.ordered_list)
+    if (node = schema3.nodes.ordered_list)
       r.wrapOrderedList = wrapListItem(node, {
         title: "Wrap in ordered list",
         icon: icons.orderedList
       });
-    if (node = schema2.nodes.blockquote)
+    if (node = schema3.nodes.blockquote)
       r.wrapBlockQuote = wrapItem(node, {
         title: "Wrap in block quote",
         icon: icons.blockquote
       });
-    if (node = schema2.nodes.paragraph)
+    if (node = schema3.nodes.paragraph)
       r.makeParagraph = blockTypeItem(node, {
         title: "Change to paragraph",
         label: "Plain"
       });
-    if (node = schema2.nodes.code_block)
+    if (node = schema3.nodes.code_block)
       r.makeCodeBlock = blockTypeItem(node, {
         title: "Change to code block",
         label: "Code"
       });
-    if (node = schema2.nodes.heading)
+    if (node = schema3.nodes.heading)
       for (let i2 = 1; i2 <= 10; i2++)
         r["makeHead" + i2] = blockTypeItem(node, {
           title: "Change to heading " + i2,
           label: "Level " + i2,
           attrs: { level: i2 }
         });
-    if (node = schema2.nodes.horizontal_rule) {
+    if (node = schema3.nodes.horizontal_rule) {
       let hr2 = node;
       r.insertHorizontalRule = new MenuItem({
         title: "Insert horizontal rule",
@@ -21045,7 +21059,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     return r;
   }
   var mac5 = typeof navigator != "undefined" ? /Mac|iP(hone|[oa]d)/.test(navigator.platform) : false;
-  function buildKeymap(schema2, mapKeys) {
+  function buildKeymap(schema3, mapKeys) {
     let keys2 = {}, type;
     function bind2(key, cmd) {
       if (mapKeys) {
@@ -21066,23 +21080,23 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     bind2("Alt-ArrowDown", joinDown);
     bind2("Mod-BracketLeft", lift2);
     bind2("Escape", selectParentNode);
-    if (type = schema2.marks.strong) {
+    if (type = schema3.marks.strong) {
       bind2("Mod-b", toggleMark(type));
       bind2("Mod-B", toggleMark(type));
     }
-    if (type = schema2.marks.em) {
+    if (type = schema3.marks.em) {
       bind2("Mod-i", toggleMark(type));
       bind2("Mod-I", toggleMark(type));
     }
-    if (type = schema2.marks.code)
+    if (type = schema3.marks.code)
       bind2("Mod-`", toggleMark(type));
-    if (type = schema2.nodes.bullet_list)
+    if (type = schema3.nodes.bullet_list)
       bind2("Shift-Ctrl-8", wrapInList(type));
-    if (type = schema2.nodes.ordered_list)
+    if (type = schema3.nodes.ordered_list)
       bind2("Shift-Ctrl-9", wrapInList(type));
-    if (type = schema2.nodes.blockquote)
+    if (type = schema3.nodes.blockquote)
       bind2("Ctrl->", wrapIn(type));
-    if (type = schema2.nodes.hard_break) {
+    if (type = schema3.nodes.hard_break) {
       let br = type, cmd = chainCommands(exitCode, (state, dispatch) => {
         if (dispatch)
           dispatch(state.tr.replaceSelectionWith(br.create()).scrollIntoView());
@@ -21093,19 +21107,19 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
       if (mac5)
         bind2("Ctrl-Enter", cmd);
     }
-    if (type = schema2.nodes.list_item) {
+    if (type = schema3.nodes.list_item) {
       bind2("Enter", splitListItem(type));
       bind2("Mod-[", liftListItem(type));
       bind2("Mod-]", sinkListItem(type));
     }
-    if (type = schema2.nodes.paragraph)
+    if (type = schema3.nodes.paragraph)
       bind2("Shift-Ctrl-0", setBlockType2(type));
-    if (type = schema2.nodes.code_block)
+    if (type = schema3.nodes.code_block)
       bind2("Shift-Ctrl-\\", setBlockType2(type));
-    if (type = schema2.nodes.heading)
+    if (type = schema3.nodes.heading)
       for (let i2 = 1; i2 <= 6; i2++)
         bind2("Shift-Ctrl-" + i2, setBlockType2(type, { level: i2 }));
-    if (type = schema2.nodes.horizontal_rule) {
+    if (type = schema3.nodes.horizontal_rule) {
       let hr2 = type;
       bind2("Mod-_", (state, dispatch) => {
         if (dispatch)
@@ -21130,17 +21144,17 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
   function headingRule(nodeType, maxLevel) {
     return textblockTypeInputRule(new RegExp("^(#{1," + maxLevel + "})\\s$"), nodeType, (match2) => ({ level: match2[1].length }));
   }
-  function buildInputRules(schema2) {
+  function buildInputRules(schema3) {
     let rules = smartQuotes.concat(ellipsis, emDash), type;
-    if (type = schema2.nodes.blockquote)
+    if (type = schema3.nodes.blockquote)
       rules.push(blockQuoteRule(type));
-    if (type = schema2.nodes.ordered_list)
+    if (type = schema3.nodes.ordered_list)
       rules.push(orderedListRule(type));
-    if (type = schema2.nodes.bullet_list)
+    if (type = schema3.nodes.bullet_list)
       rules.push(bulletListRule(type));
-    if (type = schema2.nodes.code_block)
+    if (type = schema3.nodes.code_block)
       rules.push(codeBlockRule(type));
-    if (type = schema2.nodes.heading)
+    if (type = schema3.nodes.heading)
       rules.push(headingRule(type, 6));
     return inputRules({ rules });
   }
@@ -21167,9 +21181,19 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
   }
 
   // mdentry.js
+  var schema2 = new Schema({
+    nodes: schema.spec.nodes,
+    marks: schema.spec.marks.addToEnd("highlight", {
+      parseDOM: [{ tag: "mark" }],
+      toDOM() {
+        return ["mark", 0];
+      }
+    })
+  });
+  var mdParser = new MarkdownParser(schema2, defaultMarkdownParser.tokenizer, defaultMarkdownParser.tokens);
   function headingCmd(dir) {
     return (state, dispatch) => {
-      const H = schema.nodes.heading, P = schema.nodes.paragraph;
+      const H = schema2.nodes.heading, P = schema2.nodes.paragraph;
       const node = state.selection.$from.parent;
       const rank = node.type === H ? node.attrs.level : 7;
       const nr = Math.min(7, Math.max(1, rank + dir));
@@ -21180,15 +21204,18 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
       return true;
     };
   }
-  var LI = schema.nodes.list_item;
+  var LI = schema2.nodes.list_item;
   var sink = sinkListItem(LI);
   var lift3 = liftListItem(LI);
+  var toggleHL = toggleMark(schema2.marks.highlight);
   var extraKeys = keymap({
     "Mod-=": headingCmd(-1),
     "Shift-Mod-=": headingCmd(-1),
     "Mod-+": headingCmd(-1),
     "Mod--": headingCmd(1),
     "Shift-Mod-_": headingCmd(1),
+    "Mod-e": toggleHL,
+    "Mod-E": toggleHL,
     "Tab": (s, d, v) => {
       sink(s, d, v);
       return true;
@@ -21200,7 +21227,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
   });
   function mdToSlice(text2) {
     try {
-      const doc3 = defaultMarkdownParser.parse(text2);
+      const doc3 = mdParser.parse(text2);
       if (doc3) return new Slice(doc3.content, 0, 0);
     } catch (e) {
     }
@@ -21212,21 +21239,21 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
       try {
         const div = document.createElement("div");
         div.innerHTML = s;
-        return DOMParser.fromSchema(schema).parse(div);
+        return DOMParser.fromSchema(schema2).parse(div);
       } catch (e) {
       }
     }
-    return defaultMarkdownParser.parse(s);
+    return mdParser.parse(s);
   }
   function docToHTML(doc3) {
-    const frag = DOMSerializer.fromSchema(schema).serializeFragment(doc3.content);
+    const frag = DOMSerializer.fromSchema(schema2).serializeFragment(doc3.content);
     const div = document.createElement("div");
     div.appendChild(frag);
     return div.innerHTML;
   }
   function doInsert(view, src) {
     try {
-      const node = schema.nodes.image.create({ src });
+      const node = schema2.nodes.image.create({ src });
       view.dispatch(view.state.tr.replaceSelectionWith(node).scrollIntoView());
     } catch (e) {
     }
@@ -21291,7 +21318,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
     return null;
   }
   window.MDEditor = function(el, initial, onChange) {
-    const state = EditorState.create({ doc: parseInitial(initial), plugins: [extraKeys].concat(exampleSetup({ schema, menuBar: false })) });
+    const state = EditorState.create({ doc: parseInitial(initial), plugins: [extraKeys].concat(exampleSetup({ schema: schema2, menuBar: false })) });
     const view = new EditorView(el, {
       state,
       handlePaste(view2, event) {
@@ -35455,7 +35482,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.8.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.9.1</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -35569,6 +35596,7 @@ function saveStuck(){try{localStorage.setItem("stuck_v1",JSON.stringify({day:stu
 function get(id){return state[id]||(state[id]={lvl:0,cnt:0,last:""});}
 function qText(it){const o=get(it.id);return (o.q!==undefined&&o.q!=="")?o.q:it.q;}
 function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function plainFirstLine(html){const d=document.createElement("div");d.innerHTML=html||"";const t=(d.textContent||"").replace(/\u00a0/g," ").trim();return (t.split("\n")[0]||"").slice(0,60);}
 let cfCb=null;
 function confirmDlg(msg,cb){document.getElementById("cfMsg").textContent=msg;cfCb=cb;document.getElementById("cfModal").classList.add("show");}
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200);}
@@ -35584,8 +35612,9 @@ function renderCodes(host,o){
       const first=(c.code||"").split("\n")[0]||"",more=(c.code||"").indexOf("\n")>=0;
       box.innerHTML=btns+'<pre class="foldline"><code class="hljs"></code></pre>';
       box.querySelector("code").innerHTML=highlightHTML(first)+(more?' <span style="color:#888">…</span>':"");
-      box.querySelector(".codefold").onclick=()=>{c.fold=false;save();render();};
-      box.querySelector(".codedel").onclick=del;
+      box.style.cursor="pointer";
+      box.onclick=e=>{if(e.target.closest(".codedel"))return;c.fold=false;save();render();};
+      box.querySelector(".codedel").onclick=e=>{e.stopPropagation();del();};
     }else{
       box.innerHTML=btns+'<pre aria-hidden="true"><code class="hljs"></code></pre><textarea spellcheck="false" placeholder="粘贴代码…"></textarea>';
       const code=box.querySelector("code"),ta=box.querySelector("textarea");
@@ -35708,18 +35737,24 @@ function render(){const tb=document.getElementById("tb");
         if(o.code!==undefined&&!o.codes){o.codes=o.code?[{code:o.code}]:[];delete o.code;delete o.codeOn;delete o.codeHide;}
         if(o.codes)o.codes=o.codes.map(c=>typeof c==="string"?{code:c}:c);
         let bar='<div class="ehint">';
-        bar+=(!o.memoOn)?'<button class="ebtn addmemo">＋ 助记</button>':'<button class="ebtn tgmemo">'+(o.memoHide?'显示助记':'隐藏助记')+'</button><button class="ebtn delmemo">删除助记</button>';
+        bar+=(!o.memoOn)?'<button class="ebtn addmemo">＋ 助记</button>':'';
         bar+='<button class="ebtn addcode">＋ 代码</button>';
         bar+='<button class="ebtn tgnote">'+(o.noteHide?'显示答案':'隐藏答案')+'</button>';
         bar+='<button class="del">🗑 删除</button></div>';
         let body='';
-        if(o.memoOn&&!o.memoHide)body+='<div class="memo-label">💡 助记</div><div class="tui-memo"></div>';
+        if(o.memoOn){
+          if(o.memoHide){const mf=plainFirstLine(o.memo);body+='<div class="memo-folded"><button class="memofold memobtn">▸</button><button class="memodel memobtn">✕</button>💡 助记'+(mf?'：'+esc(mf):'')+'</div>';}
+          else body+='<div class="memo-label">💡 助记</div><div class="memowrap"><button class="memofold memobtn" title="隐藏助记">▾</button><button class="memodel memobtn" title="删除助记">✕</button><div class="tui-memo"></div></div>';
+        }
         body+=o.noteHide?'<div class="note-hidden">答案已隐藏，点"显示答案"查看</div>':'<div class="tui"></div>';
         if(o.codes&&o.codes.length)body+='<div class="codebox"></div>';
         td.innerHTML=bar+body;
         const addb=td.querySelector(".addmemo");if(addb)addb.onclick=()=>{o.memoOn=true;o.memoHide=false;save();render();};
-        const tgm=td.querySelector(".tgmemo");if(tgm)tgm.onclick=()=>{o.memoHide=!o.memoHide;save();render();};
-        const dm=td.querySelector(".delmemo");if(dm)dm.onclick=()=>{confirmDlg("删除助记？",()=>{o.memoOn=false;delete o.memo;o.memoHide=false;save();render();});};
+        const delMemo=()=>confirmDlg("删除助记？",()=>{o.memoOn=false;delete o.memo;o.memoHide=false;save();render();});
+        const mw=td.querySelector(".memowrap");
+        if(mw){mw.querySelector(".memofold").onclick=e=>{e.stopPropagation();o.memoHide=true;save();render();};mw.querySelector(".memodel").onclick=e=>{e.stopPropagation();delMemo();};}
+        const mfold=td.querySelector(".memo-folded");
+        if(mfold){mfold.querySelector(".memodel").onclick=e=>{e.stopPropagation();delMemo();};mfold.onclick=e=>{if(e.target.closest(".memodel"))return;o.memoHide=false;save();render();};}
         td.querySelector(".addcode").onclick=()=>{o.codes=o.codes||[];o.codes.push({code:""});save();render();};
         td.querySelector(".tgnote").onclick=()=>{o.noteHide=!o.noteHide;save();render();};
         td.querySelector(".del").onclick=()=>{get(it.id).del=true;openIds.delete(it.id);save();render();};
