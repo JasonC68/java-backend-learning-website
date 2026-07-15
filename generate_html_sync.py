@@ -182,6 +182,10 @@ td.date input[type=date]{width:108px;box-sizing:border-box;font-size:12px;paddin
 .cal-day.sel{background:#2563eb;color:#fff}
 .cal-day .dot{position:absolute;left:50%;transform:translateX(-50%);bottom:2px;width:5px;height:5px;border-radius:50%;background:#dc2626}
 .cal-day.sel .dot{background:#fff}
+.cal-quick{display:flex;gap:4px;margin-top:8px}
+.cal-quick button{flex:1;font-size:11px;border:1px solid #93c5fd;background:#eff6ff;color:#2563eb;border-radius:6px;padding:4px 0;cursor:pointer}
+.cal-quick button:hover{background:#dbeafe}
+body.dark .cal-quick button{background:#1e293b;border-color:#3a3a3a;color:#93c5fd}
 .cal-foot{display:flex;justify-content:space-between;margin-top:8px}
 .cal-foot button{font-size:11px;border:1px solid #d1d5db;background:#fff;border-radius:6px;padding:3px 10px;cursor:pointer}
 .cal-foot button:hover{background:#f3f4f6}
@@ -410,7 +414,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.9.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.9.3</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -589,12 +593,15 @@ function renderCal(){
   for(let i=0;i<startW;i++)html+='<div class="cal-day other"></div>';
   for(let d=1;d<=days;d++){const iso=isoOf(new Date(y,m,d));
     html+='<div class="cal-day'+(iso===todayIso()?" today":"")+(iso===sel?" sel":"")+'" data-iso="'+iso+'">'+d+(sset.has(iso)?'<span class="dot"></span>':'')+'</div>';}
-  html+='</div><div class="cal-foot"><button id="calToday">今天</button>'+((calCtx&&calCtx.onClear)?'<button id="calClear">'+(calCtx.clearLabel||"清除")+'</button>':'<span></span>')+'</div>';
+  html+='</div>';
+  if(calCtx&&calCtx.quick)html+='<div class="cal-quick">'+calCtx.quick.map(n=>'<button data-q="'+n+'">延后'+n+'天</button>').join('')+'</div>';
+  html+='<div class="cal-foot"><button id="calToday">今天</button>'+((calCtx&&calCtx.onClear)?'<button id="calClear">'+(calCtx.clearLabel||"清除")+'</button>':'<span></span>')+'</div>';
   calBox.innerHTML=html;
   calBox.querySelector("#calPrev").onclick=e=>{e.stopPropagation();calRef=new Date(y,m-1,1);renderCal();};
   calBox.querySelector("#calNext").onclick=e=>{e.stopPropagation();calRef=new Date(y,m+1,1);renderCal();};
   calBox.querySelector("#calToday").onclick=e=>{e.stopPropagation();calRef=new Date();renderCal();};
   const cc=calBox.querySelector("#calClear");if(cc)cc.onclick=e=>{e.stopPropagation();calBox.classList.remove("show");calCtx.onClear();};
+  calBox.querySelectorAll(".cal-quick button").forEach(b=>b.onclick=e=>{e.stopPropagation();calBox.classList.remove("show");calCtx.onQuick(+b.dataset.q);});
   calBox.querySelectorAll(".cal-day[data-iso]").forEach(el=>el.onclick=e=>{e.stopPropagation();const iso=el.dataset.iso;calBox.classList.remove("show");calCtx.onPick(iso);});
 }
 function openCal(anchor,ctx){calCtx=ctx;calRef=ctx.selected?new Date(ctx.selected+"T00:00:00"):new Date();renderCal();
@@ -647,11 +654,16 @@ function render(){const tb=document.getElementById("tb");
         '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+'<span class="qedit" title="编辑题目">✎</span></td>'+
         '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
         '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
-        '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span style="font-size:11px;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
+        '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span class="revdate" title="点击调整/延后复习" style="font-size:11px;cursor:pointer;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
       const dc=tr.querySelector(".date");
       dc.onclick=e=>{e.stopPropagation();openCal(dc,{selected:itemDate(it),dot:true,clearLabel:"恢复默认",
         onPick:iso=>{get(it.id).date=iso;save();render();},
         onClear:()=>{delete get(it.id).date;save();render();}});};
+      const rv=tr.querySelector(".revdate");
+      if(rv)rv.onclick=e=>{e.stopPropagation();openCal(rv,{selected:st.next,dot:false,clearLabel:"移出复习",quick:[3,7,14],
+        onPick:iso=>{st.next=iso;save();render();},
+        onClear:()=>{delete st.next;save();render();},
+        onQuick:n=>{st.next=addDays(st.next||todayIso(),n);save();render();}});};
       tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
       tr.querySelector(".qedit").onclick=e=>{e.stopPropagation();const cell=tr.querySelector(".q");cell.innerHTML='<input class="qin">';const inp=cell.querySelector(".qin");inp.value=qText(it);inp.focus();const commit=()=>{const v=inp.value.trim();if(v)get(it.id).q=v;save();render();};inp.onkeydown=ev=>{if(ev.key==="Enter")commit();else if(ev.key==="Escape")render();};inp.onblur=commit;};
       tr.querySelector(".qbtn").onclick=()=>{opened?openIds.delete(it.id):openIds.add(it.id);render();};
