@@ -410,7 +410,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.9.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.9.3</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -518,7 +518,7 @@ function todayIso(){return isoOf(new Date());}
 function tomorrowIso(){const d=new Date();d.setDate(d.getDate()+1);return isoOf(d);}
 const EBB=[1,2,4,7,15,30,60];   // 艾宾浩斯遗忘曲线间隔（天）
 function addDays(iso,n){const d=new Date((iso||todayIso())+"T00:00:00");d.setDate(d.getDate()+n);return isoOf(d);}
-function schedNext(cnt){const n=EBB[Math.min(Math.max(cnt,1)-1,EBB.length-1)];return addDays(todayIso(),n);}
+function schedNext(cnt,lvl){let idx=Math.min(Math.max(cnt,1)-1,EBB.length-1);const bonus=(lvl>=3?3:(lvl>=2?2:0));idx=Math.min(idx+bonus,EBB.length-1);return addDays(todayIso(),EBB[idx]);}
 function loadStuck(){try{const s=JSON.parse(localStorage.getItem("stuck_v1")||"null");if(s&&s.day===todayIso()){stuckDay=s.day;stuckToday=new Set(s.ids);}}catch(e){}}
 function saveStuck(){try{localStorage.setItem("stuck_v1",JSON.stringify({day:stuckDay,ids:[...stuckToday]}));}catch(e){}}
 function get(id){return state[id]||(state[id]={lvl:0,cnt:0,last:""});}
@@ -655,9 +655,9 @@ function render(){const tb=document.getElementById("tb");
       tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
       tr.querySelector(".qedit").onclick=e=>{e.stopPropagation();const cell=tr.querySelector(".q");cell.innerHTML='<input class="qin">';const inp=cell.querySelector(".qin");inp.value=qText(it);inp.focus();const commit=()=>{const v=inp.value.trim();if(v)get(it.id).q=v;save();render();};inp.onkeydown=ev=>{if(ev.key==="Enter")commit();else if(ev.key==="Escape")render();};inp.onblur=commit;};
       tr.querySelector(".qbtn").onclick=()=>{opened?openIds.delete(it.id):openIds.add(it.id);render();};
-      tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
-      tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNext(st.cnt);save();render();};
-      tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNext(st.cnt);else delete st.next;}save();render();};
+      tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;if(st.cnt>0)st.next=schedNext(st.cnt,st.lvl);save();render();};
+      tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNext(st.cnt,st.lvl);save();render();};
+      tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNext(st.cnt,st.lvl);else delete st.next;}save();render();};
       tb.appendChild(tr);
       if(opened){
         const er=document.createElement("tr");er.className="ed-row";

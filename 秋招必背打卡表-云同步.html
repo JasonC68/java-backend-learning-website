@@ -2958,6 +2958,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
     article: true,
     aside: true,
     blockquote: true,
+    body: true,
     canvas: true,
     dd: true,
     div: true,
@@ -6681,6 +6682,8 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
     };
   }
   function scrollRectIntoView(view, rect, startDOM) {
+    if (!nonZero(rect) && rect.left == 0)
+      return;
     let scrollThreshold = view.someProp("scrollThreshold") || 0, scrollMargin = view.someProp("scrollMargin") || 5;
     let doc3 = view.dom.ownerDocument;
     for (let parent = startDOM || view.dom; ; ) {
@@ -7635,7 +7638,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
     }
   };
   var NodeViewDesc = class _NodeViewDesc extends ViewDesc {
-    constructor(parent, node, outerDeco, innerDeco, dom, contentDOM, nodeDOM, view, pos) {
+    constructor(parent, node, outerDeco, innerDeco, dom, contentDOM, nodeDOM) {
       super(parent, [], dom, contentDOM);
       this.node = node;
       this.outerDeco = outerDeco;
@@ -7678,11 +7681,11 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
       let nodeDOM = dom;
       dom = applyOuterDeco(dom, outerDeco, node);
       if (spec)
-        return descObj = new CustomNodeViewDesc(parent, node, outerDeco, innerDeco, dom, contentDOM || null, nodeDOM, spec, view, pos + 1);
+        return descObj = new CustomNodeViewDesc(parent, node, outerDeco, innerDeco, dom, contentDOM || null, nodeDOM, spec);
       else if (node.isText)
-        return new TextViewDesc(parent, node, outerDeco, innerDeco, dom, nodeDOM, view);
+        return new TextViewDesc(parent, node, outerDeco, innerDeco, dom, nodeDOM);
       else
-        return new _NodeViewDesc(parent, node, outerDeco, innerDeco, dom, contentDOM || null, nodeDOM, view, pos + 1);
+        return new _NodeViewDesc(parent, node, outerDeco, innerDeco, dom, contentDOM || null, nodeDOM);
     }
     parseRule() {
       if (this.node.type.spec.reparseInView)
@@ -7838,14 +7841,14 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   };
   function docViewDesc(doc3, outerDeco, innerDeco, dom, view) {
     applyOuterDeco(dom, outerDeco, doc3);
-    let docView = new NodeViewDesc(void 0, doc3, outerDeco, innerDeco, dom, dom, dom, view, 0);
+    let docView = new NodeViewDesc(void 0, doc3, outerDeco, innerDeco, dom, dom, dom);
     if (docView.contentDOM)
       docView.updateChildren(view, 0);
     return docView;
   }
   var TextViewDesc = class _TextViewDesc extends NodeViewDesc {
-    constructor(parent, node, outerDeco, innerDeco, dom, nodeDOM, view) {
-      super(parent, node, outerDeco, innerDeco, dom, null, nodeDOM, view, 0);
+    constructor(parent, node, outerDeco, innerDeco, dom, nodeDOM) {
+      super(parent, node, outerDeco, innerDeco, dom, null, nodeDOM);
     }
     parseRule() {
       let skip = this.nodeDOM.parentNode;
@@ -7884,9 +7887,9 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
     ignoreMutation(mutation) {
       return mutation.type != "characterData" && mutation.type != "selection";
     }
-    slice(from2, to, view) {
+    slice(from2, to, _view) {
       let node = this.node.cut(from2, to), dom = document.createTextNode(node.text);
-      return new _TextViewDesc(this.parent, node, this.outerDeco, this.innerDeco, dom, dom, view);
+      return new _TextViewDesc(this.parent, node, this.outerDeco, this.innerDeco, dom, dom);
     }
     markDirty(from2, to) {
       super.markDirty(from2, to);
@@ -7915,8 +7918,8 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
     }
   };
   var CustomNodeViewDesc = class extends NodeViewDesc {
-    constructor(parent, node, outerDeco, innerDeco, dom, contentDOM, nodeDOM, spec, view, pos) {
-      super(parent, node, outerDeco, innerDeco, dom, contentDOM, nodeDOM, view, pos);
+    constructor(parent, node, outerDeco, innerDeco, dom, contentDOM, nodeDOM, spec) {
+      super(parent, node, outerDeco, innerDeco, dom, contentDOM, nodeDOM);
       this.spec = spec;
     }
     // A custom `update` method gets to decide whether the update goes
@@ -8131,6 +8134,14 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
           if (next.matchesMark(marks[depth]) && !this.isLocked(next.dom)) {
             found2 = i2;
             break;
+          }
+        }
+        if (found2 < 0 && this.index < this.top.children.length) {
+          let cur = this.top.children[this.index];
+          if (cur instanceof MarkViewDesc && cur.dirty != NODE_DIRTY && cur.mark.type == marks[depth].type && cur.spec.update && !this.isLocked(cur.dom) && cur.spec.update(marks[depth])) {
+            cur.mark = marks[depth];
+            found2 = this.index;
+            this.changed = true;
           }
         }
         if (found2 > -1) {
@@ -9166,9 +9177,8 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
     td: ["table", "tbody", "tr"],
     th: ["table", "tbody", "tr"]
   };
-  var _detachedDoc = null;
   function detachedDoc() {
-    return _detachedDoc || (_detachedDoc = document.implementation.createHTMLDocument("title"));
+    return document.implementation.createHTMLDocument("title");
   }
   var _policy = null;
   function maybeWrapTrusted(html) {
@@ -9183,7 +9193,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
     let metas = /^(\s*<meta [^>]*>)*/.exec(html);
     if (metas)
       html = html.slice(metas[0].length);
-    let elt = detachedDoc().createElement("div");
+    let doc3 = detachedDoc(), elt = doc3.body;
     let firstTag = /<([a-z][^>\s]+)/i.exec(html), wrap2;
     if (wrap2 = firstTag && wrapMap[firstTag[1].toLowerCase()])
       html = wrap2.map((n) => "<" + n + ">").join("") + html + wrap2.map((n) => "</" + n + ">").reverse().join("");
@@ -9191,6 +9201,17 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
     if (wrap2)
       for (let i2 = 0; i2 < wrap2.length; i2++)
         elt = elt.querySelector(wrap2[i2]) || elt;
+    for (let i2 = 0; i2 < doc3.styleSheets.length; i2++) {
+      let style = doc3.styleSheets[i2];
+      for (let j = 0; j < style.rules.length; j++) {
+        let rule = style.rules[j];
+        if (rule instanceof CSSStyleRule) {
+          let matches2 = elt.querySelectorAll(rule.selectorText);
+          for (let k = 0; k < matches2.length; k++)
+            matches2[k].style.cssText += rule.style.cssText;
+        }
+      }
+    }
     return elt;
   }
   function restoreReplacedSpaces(dom) {
@@ -15458,6 +15479,16 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
       state.pos = pos;
       return true;
     }
+    if (ch1 === 32) {
+      if (!silent) {
+        const token = state.push("text_special", "", 0);
+        token.content = "\\";
+        token.markup = "\\";
+        token.info = "escape";
+      }
+      state.pos = pos;
+      return true;
+    }
     let escapedStr = state.src[pos];
     if (ch1 >= 55296 && ch1 <= 56319 && pos + 1 < max) {
       const ch2 = state.src.charCodeAt(pos + 1);
@@ -16273,34 +16304,34 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
     re.src_ZPCc = [re.src_Z, re.src_P, re.src_Cc].join("|");
     re.src_ZCc = [re.src_Z, re.src_Cc].join("|");
     const text_separators = "[><\uFF5C]";
-    re.src_pseudo_letter = "(?:(?!" + text_separators + "|" + re.src_ZPCc + ")" + re.src_Any + ")";
+    re.src_pseudo_letter = `(?:(?!${text_separators}|${re.src_ZPCc})${re.src_Any})`;
     re.src_ip4 = "(?:(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
-    re.src_auth = "(?:(?:(?!" + re.src_ZCc + "|[@/\\[\\]()]).)+@)?";
+    re.src_auth = `(?:(?:(?!${re.src_ZCc}|[@/\\[\\]()]).){1,50}@)?`;
     re.src_port = "(?::(?:6(?:[0-4]\\d{3}|5(?:[0-4]\\d{2}|5(?:[0-2]\\d|3[0-5])))|[1-5]?\\d{1,4}))?";
-    re.src_host_terminator = "(?=$|" + text_separators + "|" + re.src_ZPCc + ")(?!" + (opts["---"] ? "-(?!--)|" : "-|") + "_|:\\d|\\.-|\\.(?!$|" + re.src_ZPCc + "))";
-    re.src_path = "(?:[/?#](?:(?!" + re.src_ZCc + "|" + text_separators + `|[()[\\]{}.,"'?!\\-;]).|\\[(?:(?!` + re.src_ZCc + "|\\]).)*\\]|\\((?:(?!" + re.src_ZCc + "|[)]).)*\\)|\\{(?:(?!" + re.src_ZCc + '|[}]).)*\\}|\\"(?:(?!' + re.src_ZCc + `|["]).)+\\"|\\'(?:(?!` + re.src_ZCc + "|[']).)+\\'|\\'(?=" + re.src_pseudo_letter + "|[-])|\\.{2,}[a-zA-Z0-9%/&]|\\.(?!" + re.src_ZCc + "|[.]|$)|" + (opts["---"] ? "\\-(?!--(?:[^-]|$))(?:-*)|" : "\\-+|") + // allow `,,,` in paths
-    ",(?!" + re.src_ZCc + "|$)|;(?!" + re.src_ZCc + "|$)|\\!+(?!" + re.src_ZCc + "|[!]|$)|\\?(?!" + re.src_ZCc + "|[?]|$))+|\\/)?";
-    re.src_email_name = '[\\-;:&=\\+\\$,\\.a-zA-Z0-9_][\\-;:&=\\+\\$,\\"\\.a-zA-Z0-9_]*';
+    re.src_host_terminator = `(?=$|${text_separators}|${re.src_ZPCc})(?!${opts["---"] ? "-(?!--)|" : "-|"}_|:\\d|\\.-|\\.(?!$|${re.src_ZPCc}))`;
+    re.src_path = `(?:[/?#](?:(?!${re.src_ZCc}|${text_separators}|[()[\\]{}.,"'?!\\-;]).|\\[(?:(?!${re.src_ZCc}|\\]).)*\\]|\\((?:(?!${re.src_ZCc}|[)]).)*\\)|\\{(?:(?!${re.src_ZCc}|[}]).)*\\}|\\"(?:(?!${re.src_ZCc}|["]).)+\\"|\\'(?:(?!${re.src_ZCc}|[']).)+\\'|\\'(?=${re.src_pseudo_letter}|[-])|\\.{2,}[a-zA-Z0-9%/&]|\\.(?!${re.src_ZCc}|[.]|$)|` + (opts["---"] ? "\\-(?!--(?:[^-]|$))(?:-*)|" : "\\-+|") + // allow `,,,` in paths
+    `,(?!${re.src_ZCc}|$)|;(?!${re.src_ZCc}|$)|\\!+(?!${re.src_ZCc}|[!]|$)|\\?(?!${re.src_ZCc}|[?]|$))+|\\/)?`;
+    re.src_email_name = '[\\-;:&=\\+\\$,\\.a-zA-Z0-9_][\\-;:&=\\+\\$,\\"\\.a-zA-Z0-9_]{0,63}';
     re.src_xn = "xn--[a-z0-9\\-]{1,59}";
     re.src_domain_root = // Allow letters & digits (http://test1)
-    "(?:" + re.src_xn + "|" + re.src_pseudo_letter + "{1,63})";
-    re.src_domain = "(?:" + re.src_xn + "|(?:" + re.src_pseudo_letter + ")|(?:" + re.src_pseudo_letter + "(?:-|" + re.src_pseudo_letter + "){0,61}" + re.src_pseudo_letter + "))";
-    re.src_host = "(?:(?:(?:(?:" + re.src_domain + ")\\.)*" + re.src_domain + "))";
-    re.tpl_host_fuzzy = "(?:" + re.src_ip4 + "|(?:(?:(?:" + re.src_domain + ")\\.)+(?:%TLDS%)))";
-    re.tpl_host_no_ip_fuzzy = "(?:(?:(?:" + re.src_domain + ")\\.)+(?:%TLDS%))";
+    "(?:" + re.src_xn + `|${re.src_pseudo_letter}{1,63})`;
+    re.src_domain = "(?:" + re.src_xn + `|(?:${re.src_pseudo_letter})|(?:${re.src_pseudo_letter}(?:-|${re.src_pseudo_letter}){0,61}${re.src_pseudo_letter}))`;
+    re.src_host = `(?:(?:(?:(?:${re.src_domain})\\.)*${re.src_domain}))`;
+    re.tpl_host_fuzzy = "(?:" + re.src_ip4 + `|(?:(?:(?:${re.src_domain})\\.)+(?:%TLDS%)))`;
+    re.tpl_host_no_ip_fuzzy = `(?:(?:(?:${re.src_domain})\\.)+(?:%TLDS%))`;
     re.src_host_strict = re.src_host + re.src_host_terminator;
     re.tpl_host_fuzzy_strict = re.tpl_host_fuzzy + re.src_host_terminator;
     re.src_host_port_strict = re.src_host + re.src_port + re.src_host_terminator;
     re.tpl_host_port_fuzzy_strict = re.tpl_host_fuzzy + re.src_port + re.src_host_terminator;
     re.tpl_host_port_no_ip_fuzzy_strict = re.tpl_host_no_ip_fuzzy + re.src_port + re.src_host_terminator;
-    re.tpl_host_fuzzy_test = "localhost|www\\.|\\.\\d{1,3}\\.|(?:\\.(?:%TLDS%)(?:" + re.src_ZPCc + "|>|$))";
-    re.tpl_email_fuzzy = "(^|" + text_separators + '|"|\\(|' + re.src_ZCc + ")(" + re.src_email_name + "@" + re.tpl_host_fuzzy_strict + ")";
+    re.tpl_host_fuzzy_test = `localhost|www\\.|\\.\\d{1,3}\\.|(?:\\.(?:%TLDS%)(?:${re.src_ZPCc}|>|$))`;
+    re.tpl_email_fuzzy = `(^|${text_separators}|"|\\(|${re.src_ZCc})(${re.src_email_name}@${re.tpl_host_fuzzy_strict})`;
     re.tpl_link_fuzzy = // Fuzzy link can't be prepended with .:/\- and non punctuation.
     // but can start with > (markdown blockquote)
-    "(^|(?![.:/\\-_@])(?:[$+<=>^`|\uFF5C]|" + re.src_ZPCc + "))((?![$+<=>^`|\uFF5C])" + re.tpl_host_port_fuzzy_strict + re.src_path + ")";
+    `(^|(?![.:/\\-_@])(?:[$+<=>^\`|\uFF5C]|${re.src_ZPCc}))((?![$+<=>^\`|\uFF5C])${re.tpl_host_port_fuzzy_strict}${re.src_path})`;
     re.tpl_link_no_ip_fuzzy = // Fuzzy link can't be prepended with .:/\- and non punctuation.
     // but can start with > (markdown blockquote)
-    "(^|(?![.:/\\-_@])(?:[$+<=>^`|\uFF5C]|" + re.src_ZPCc + "))((?![$+<=>^`|\uFF5C])" + re.tpl_host_port_no_ip_fuzzy_strict + re.src_path + ")";
+    `(^|(?![.:/\\-_@])(?:[$+<=>^\`|\uFF5C]|${re.src_ZPCc}))((?![$+<=>^\`|\uFF5C])${re.tpl_host_port_no_ip_fuzzy_strict}${re.src_path})`;
     return re;
   }
 
@@ -16351,7 +16382,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
         const tail = text2.slice(pos);
         if (!self.re.http) {
           self.re.http = new RegExp(
-            "^\\/\\/" + self.re.src_auth + self.re.src_host_port_strict + self.re.src_path,
+            `^\\/\\/${self.re.src_auth}${self.re.src_host_port_strict}${self.re.src_path}`,
             "i"
           );
         }
@@ -16370,7 +16401,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
           self.re.no_http = new RegExp(
             "^" + self.re.src_auth + // Don't allow single-level domains, because of false positives like '//test'
             // with code comments
-            "(?:localhost|(?:(?:" + self.re.src_domain + ")\\.)+" + self.re.src_domain_root + ")" + self.re.src_port + self.re.src_host_terminator + self.re.src_path,
+            `(?:localhost|(?:(?:${self.re.src_domain})\\.)+${self.re.src_domain_root})` + self.re.src_port + self.re.src_host_terminator + self.re.src_path,
             "i"
           );
         }
@@ -16391,7 +16422,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
         const tail = text2.slice(pos);
         if (!self.re.mailto) {
           self.re.mailto = new RegExp(
-            "^" + self.re.src_email_name + "@" + self.re.src_host_strict,
+            `^${self.re.src_email_name}@${self.re.src_host_strict}`,
             "i"
           );
         }
@@ -16440,7 +16471,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
     const aliases = [];
     self.__compiled__ = {};
     function schemaError(name, val) {
-      throw new Error('(LinkifyIt) Invalid schema "' + name + '": ' + val);
+      throw new Error(`(LinkifyIt) Invalid schema "${name}": ${val}`);
     }
     Object.keys(self.__schemas__).forEach(function(name) {
       const val = self.__schemas__[name];
@@ -16483,11 +16514,11 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
     const slist = Object.keys(self.__compiled__).filter(function(name) {
       return name.length > 0 && self.__compiled__[name];
     }).map(escapeRE2).join("|");
-    self.re.schema_test = RegExp("(^|(?!_)(?:[><\uFF5C]|" + re.src_ZPCc + "))(" + slist + ")", "i");
-    self.re.schema_search = RegExp("(^|(?!_)(?:[><\uFF5C]|" + re.src_ZPCc + "))(" + slist + ")", "ig");
-    self.re.schema_at_start = RegExp("^" + self.re.schema_search.source, "i");
+    self.re.schema_test = RegExp(`(^|(?!_)(?:[><\uFF5C]|${re.src_ZPCc}))(${slist})`, "i");
+    self.re.schema_search = RegExp(`(^|(?!_)(?:[><\uFF5C]|${re.src_ZPCc}))(${slist})`, "ig");
+    self.re.schema_at_start = RegExp(`^${self.re.schema_search.source}`, "i");
     self.re.pretest = RegExp(
-      "(" + self.re.schema_test.source + ")|(" + self.re.host_fuzzy_test.source + ")|@",
+      `(${self.re.schema_test.source})|(${self.re.host_fuzzy_test.source})|@`,
       "i"
     );
   }
@@ -16681,10 +16712,10 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   };
   LinkifyIt.prototype.normalize = function normalize2(match2) {
     if (!match2.schema) {
-      match2.url = "http://" + match2.url;
+      match2.url = `http://${match2.url}`;
     }
     if (match2.schema === "mailto:" && !/^mailto:/i.test(match2.url)) {
-      match2.url = "mailto:" + match2.url;
+      match2.url = `mailto:${match2.url}`;
     }
   };
   LinkifyIt.prototype.onCompile = function onCompile() {
@@ -17671,7 +17702,8 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
       state.renderList(node, "  ", () => (node.attrs.bullet || "*") + " ");
     },
     ordered_list(state, node) {
-      let start = node.attrs.order || 1;
+      var _a2;
+      let start = (_a2 = node.attrs.order) !== null && _a2 !== void 0 ? _a2 : 1;
       let maxW = String(start + node.childCount - 1).length;
       let space = state.repeat(" ", maxW + 2);
       state.renderList(node, space, (i2) => {
@@ -19354,6 +19386,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
       this.cursorPos = null;
       this.element = null;
       this.timeout = -1;
+      this.lastDragEvent = null;
       this.width = (_a2 = options.width) !== null && _a2 !== void 0 ? _a2 : 1;
       this.color = options.color === false ? void 0 : options.color || "black";
       this.class = options.class;
@@ -19370,10 +19403,15 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
     }
     update(editorView, prevState) {
       if (this.cursorPos != null && prevState.doc != editorView.state.doc) {
-        if (this.cursorPos > editorView.state.doc.content.size)
-          this.setCursor(null);
-        else
+        if (this.lastDragEvent) {
+          let target = this.computeTarget(this.lastDragEvent);
+          if (target == this.cursorPos)
+            this.updateOverlay();
+          else
+            this.setCursor(target);
+        } else {
           this.updateOverlay();
+        }
       }
     }
     setCursor(pos) {
@@ -19442,20 +19480,27 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
       clearTimeout(this.timeout);
       this.timeout = setTimeout(() => this.setCursor(null), timeout);
     }
-    dragover(event) {
-      if (!this.editorView.editable)
-        return;
+    computeTarget(event) {
       let pos = this.editorView.posAtCoords({ left: event.clientX, top: event.clientY });
       let node = pos && pos.inside >= 0 && this.editorView.state.doc.nodeAt(pos.inside);
       let disableDropCursor = node && node.type.spec.disableDropCursor;
       let disabled = typeof disableDropCursor == "function" ? disableDropCursor(this.editorView, pos, event) : disableDropCursor;
-      if (pos && !disabled) {
-        let target = pos.pos;
-        if (this.editorView.dragging && this.editorView.dragging.slice) {
-          let point = dropPoint(this.editorView.state.doc, target, this.editorView.dragging.slice);
-          if (point != null)
-            target = point;
-        }
+      if (!pos || disabled)
+        return null;
+      let target = pos.pos;
+      if (this.editorView.dragging && this.editorView.dragging.slice) {
+        let point = dropPoint(this.editorView.state.doc, target, this.editorView.dragging.slice);
+        if (point != null)
+          target = point;
+      }
+      return target;
+    }
+    dragover(event) {
+      if (!this.editorView.editable)
+        return;
+      this.lastDragEvent = event;
+      let target = this.computeTarget(event);
+      if (target != null) {
         this.setCursor(target);
         this.scheduleRemoval(5e3);
       }
@@ -35491,7 +35536,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.9.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.9.3</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -35599,7 +35644,7 @@ function todayIso(){return isoOf(new Date());}
 function tomorrowIso(){const d=new Date();d.setDate(d.getDate()+1);return isoOf(d);}
 const EBB=[1,2,4,7,15,30,60];   // 艾宾浩斯遗忘曲线间隔（天）
 function addDays(iso,n){const d=new Date((iso||todayIso())+"T00:00:00");d.setDate(d.getDate()+n);return isoOf(d);}
-function schedNext(cnt){const n=EBB[Math.min(Math.max(cnt,1)-1,EBB.length-1)];return addDays(todayIso(),n);}
+function schedNext(cnt,lvl){let idx=Math.min(Math.max(cnt,1)-1,EBB.length-1);const bonus=(lvl>=3?3:(lvl>=2?2:0));idx=Math.min(idx+bonus,EBB.length-1);return addDays(todayIso(),EBB[idx]);}
 function loadStuck(){try{const s=JSON.parse(localStorage.getItem("stuck_v1")||"null");if(s&&s.day===todayIso()){stuckDay=s.day;stuckToday=new Set(s.ids);}}catch(e){}}
 function saveStuck(){try{localStorage.setItem("stuck_v1",JSON.stringify({day:stuckDay,ids:[...stuckToday]}));}catch(e){}}
 function get(id){return state[id]||(state[id]={lvl:0,cnt:0,last:""});}
@@ -35736,9 +35781,9 @@ function render(){const tb=document.getElementById("tb");
       tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
       tr.querySelector(".qedit").onclick=e=>{e.stopPropagation();const cell=tr.querySelector(".q");cell.innerHTML='<input class="qin">';const inp=cell.querySelector(".qin");inp.value=qText(it);inp.focus();const commit=()=>{const v=inp.value.trim();if(v)get(it.id).q=v;save();render();};inp.onkeydown=ev=>{if(ev.key==="Enter")commit();else if(ev.key==="Escape")render();};inp.onblur=commit;};
       tr.querySelector(".qbtn").onclick=()=>{opened?openIds.delete(it.id):openIds.add(it.id);render();};
-      tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
-      tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNext(st.cnt);save();render();};
-      tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNext(st.cnt);else delete st.next;}save();render();};
+      tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;if(st.cnt>0)st.next=schedNext(st.cnt,st.lvl);save();render();};
+      tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNext(st.cnt,st.lvl);save();render();};
+      tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNext(st.cnt,st.lvl);else delete st.next;}save();render();};
       tb.appendChild(tr);
       if(opened){
         const er=document.createElement("tr");er.className="ed-row";
