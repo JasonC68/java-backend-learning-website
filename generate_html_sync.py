@@ -125,7 +125,14 @@ JS=json.dumps(items,ensure_ascii=False); SEC=json.dumps(list(data.keys()),ensure
 ALG_RAW=[("3","无重复字符的最长子串","滑动窗口"),("146","LRU缓存机制","哈希+双向链表"),("206","反转链表","链表"),("215","数组中的第K个最大元素","堆/快选"),("25","K 个一组翻转链表","链表"),("15","三数之和","双指针"),("53","最大子数组和","动态规划"),("补充题4","手撕快速排序","排序"),("5","最长回文子串","动态规划"),("21","合并两个有序链表","链表"),("102","二叉树的层序遍历","BFS"),("200","岛屿数量","DFS"),("33","搜索旋转排序数组","二分"),("1","两数之和","哈希"),("20","有效的括号","栈"),("46","全排列","回溯"),("88","合并两个有序数组","双指针"),("121","买卖股票的最佳时机","动态规划"),("92","反转链表 II","链表"),("103","二叉树的锯齿形层次遍历","BFS"),("300","最长上升子序列","动态规划"),("236","二叉树的最近公共祖先","二叉树"),("23","合并K个排序链表","堆"),("54","螺旋矩阵","模拟"),("143","重排链表","链表"),("141","环形链表","快慢指针"),("415","字符串相加","模拟"),("56","合并区间","排序"),("72","编辑距离","动态规划"),("160","相交链表","双指针"),("42","接雨水","双指针"),("1143","最长公共子序列","动态规划"),("82","删除排序链表中的重复元素 II","链表"),("93","复原IP地址","回溯"),("124","二叉树中的最大路径和","DFS"),("19","删除链表的倒数第N个节点","快慢指针"),("4","寻找两个正序数组的中位数","二分"),("142","环形链表 II","快慢指针"),("165","比较版本号","双指针"),("199","二叉树的右视图","BFS"),("239","滑动窗口最大值","单调队列"),("22","括号生成","回溯"),("704","二分查找","二分"),("32","最长有效括号","栈"),("69","x 的平方根","二分"),("148","排序链表","归并"),("94","二叉树的中序遍历","二叉树"),("232","用栈实现队列","栈"),("31","下一个排列","数组"),("76","最小覆盖子串","滑动窗口"),("2","两数相加","链表"),("322","零钱兑换","动态规划"),("43","字符串相乘","模拟"),("8","字符串转换整数 (atoi)","模拟"),("70","爬楼梯","动态规划"),("105","从前序与中序遍历序列构造二叉树","二叉树"),("41","缺失的第一个正数","原地哈希"),("78","子集","回溯"),("151","翻转字符串里的单词","字符串"),("34","在排序数组中查找元素的第一个和最后一个位置","二分"),("剑指Offer22","链表中倒数第k个节点","快慢指针"),("394","字符串解码","栈"),("129","求根到叶子节点数字之和","DFS"),("155","最小栈","栈"),("101","对称二叉树","二叉树"),("39","组合总和","回溯"),("64","最小路径和","动态规划"),("470","用 Rand7() 实现 Rand10()","数学"),("695","岛屿的最大面积","DFS"),("128","最长连续序列","哈希"),("122","买卖股票的最佳时机 II","贪心"),("104","二叉树的最大深度","二叉树"),("221","最大正方形","动态规划"),("110","平衡二叉树","二叉树"),("234","回文链表","快慢指针"),("152","乘积最大子数组","动态规划"),("14","最长公共前缀","字符串"),("48","旋转图像","模拟"),("240","搜索二维矩阵 II","矩阵"),("98","验证二叉搜索树","二叉树"),("144","二叉树的前序遍历","二叉树"),("179","最大数","贪心"),("662","二叉树最大宽度","BFS"),("543","二叉树的直径","DFS"),("162","寻找峰值","二分"),("62","不同路径","动态规划"),("560","和为K的子数组","前缀和"),("113","路径总和 II","DFS"),("24","两两交换链表中的节点","链表"),("209","长度最小的子数组","滑动窗口"),("198","打家劫舍","动态规划"),("112","路径总和","DFS"),("83","删除排序链表中的重复元素","链表"),("139","单词拆分","动态规划"),("227","基本计算器 II","栈"),("718","最长重复子数组","动态规划"),("226","翻转二叉树","二叉树"),("169","多数元素","摩尔投票"),("207","课程表","拓扑排序"),("283","移动零","双指针")]
 # 建议日期：从 2026-07-16 起，第一遍 30 天刷完（每天 3~4 题）；第二遍靠复习＋艾宾浩斯自然落在第二个月
 ALG_START=date(2026,7,16)
-alg_items=[{"id":"alg"+str(i),"idx":i+1,"num":n,"q":t,"tag":g,"iso":(ALG_START+timedelta(days=i*30//100)).isoformat()} for i,(n,t,g) in enumerate(ALG_RAW)]
+# 难度（来自 codetop/leetcode）：1=简单 2=中等 3=困难，顺序与 ALG_RAW 一致
+ALG_LV=[2,2,1,2,3,2,2,2,2,1,2,2,2,1,1,2,1,1,2,2,
+        2,2,3,2,2,1,1,2,3,1,3,2,2,2,3,2,3,2,2,2,
+        3,2,1,3,1,2,1,1,2,3,2,2,2,2,1,2,3,2,2,2,
+        1,2,2,1,1,2,2,2,2,2,1,1,2,1,1,2,1,2,2,2,
+        1,2,2,1,2,2,2,2,2,2,2,1,1,2,2,2,1,1,2,1]
+assert len(ALG_LV)==len(ALG_RAW)==100
+alg_items=[{"id":"alg"+str(i),"idx":i+1,"num":n,"q":t,"tag":g,"lv":ALG_LV[i],"iso":(ALG_START+timedelta(days=i*30//100)).isoformat()} for i,(n,t,g) in enumerate(ALG_RAW)]
 ALGJS=json.dumps(alg_items,ensure_ascii=False)
 
 html = '''<!DOCTYPE html>
@@ -314,6 +321,13 @@ body.dark .memo-folded:hover{background:#332a0c}
 .codewrap.folded{margin-bottom:6px}
 .codewrap.folded pre.foldline{min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:9px 64px 9px 14px}
 .codewrap.nodel .codefold{right:7px}
+.dtag{display:inline-block;font-size:11px;border-radius:10px;padding:0 7px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+.dtag.d1{background:#d9ead3;color:#256029;border:1px solid #b7dfa8}
+.dtag.d2{background:#fdebc8;color:#b45309;border:1px solid #f3d190}
+.dtag.d3{background:#fde2e2;color:#b91c1c;border:1px solid #f8b4b4}
+body.dark .dtag.d1{background:#14321c;color:#86efac;border-color:#2f6b3f}
+body.dark .dtag.d2{background:#33280a;color:#fcd34d;border-color:#7c5c12}
+body.dark .dtag.d3{background:#3a1414;color:#fca5a5;border-color:#7f1d1d}
 .hljs{color:#e1e4e8}
 .hljs-comment,.hljs-quote{color:#8b949e}
 .hljs-keyword,.hljs-selector-tag,.hljs-type,.hljs-literal{color:#ff7b72}
@@ -422,7 +436,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">📚 八股</button><button data-mode="alg">💻 算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.10.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.10.4</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -590,7 +604,7 @@ document.querySelectorAll('[data-lvl]').forEach(c=>c.onclick=()=>{document.query
 const pickBtn=document.getElementById("pickBtn"),calBox=document.getElementById("cal");
 let calRef=new Date(),calCtx=null;
 function updatePickBtn(){pickBtn.textContent=pickedDate?("📅 "+pickedDate.slice(5)):"📅 选择日期";}
-function studyDateSet(){const s=new Set();ITEMS.forEach(it=>{const o=get(it.id);s.add((o.date&&o.date!=="")?o.date:it.iso);});customList().forEach(c=>{const o=get(c.id);if(o.date)s.add(o.date);});return s;}
+function studyDateSet(){const s=new Set();if(mode==="alg"){ALG.forEach(it=>{const o=get(it.id);s.add((o.date&&o.date!=="")?o.date:it.iso);});return s;}ITEMS.forEach(it=>{const o=get(it.id);s.add((o.date&&o.date!=="")?o.date:it.iso);});customList().forEach(c=>{const o=get(c.id);if(o.date)s.add(o.date);});return s;}
 function renderCal(){
   const sset=(calCtx&&calCtx.dot)?studyDateSet():new Set();
   const sel=calCtx?calCtx.selected:"";
@@ -625,7 +639,7 @@ document.addEventListener("click",e=>{if(!calBox.contains(e.target)&&e.target!==
 document.querySelectorAll('[data-date]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-date]').forEach(x=>x.classList.remove("active"));c.classList.add("active");dateFilter=c.dataset.date;pickedDate="";updatePickBtn();render();});
 document.getElementById("starFilter").onclick=function(){starOnly=!starOnly;this.classList.toggle("active",starOnly);render();};
 document.getElementById("recycleBtn").onclick=function(){recycleMode=!recycleMode;this.classList.toggle("pri",recycleMode);render();};
-function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=(o.date&&o.date!=="")?o.date:baseIso;const rd=!!o.next&&o.next<=ti;if(d&&d>ti){if(rd)n++;return;}const sd=!!d&&d<=ti&&!(o.cnt>0);if(sd||rd)n++;};ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
+function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=(o.date&&o.date!=="")?o.date:baseIso;const rd=!!o.next&&o.next<=ti;if(d&&d>ti){if(rd)n++;return;}const sd=!!d&&d<=ti&&!(o.cnt>0);if(sd||rd)n++;};if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return n;}ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
 function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const reviewDue=!!o.next&&o.next<=ti;if(d&&d>ti)return reviewDue;const studyDue=!!d&&d<=ti&&!(o.cnt>0);const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
@@ -637,17 +651,22 @@ let mode=localStorage.getItem("mode_v1")||"gu";
 function mountEd(host,getv,setv,ph){if(window.MDEditor){editors.push(window.MDEditor(host,getv()||"",(html)=>{setv(html);save();}));}else{host.innerHTML='<textarea class="fa" placeholder="'+(ph||"")+'"></textarea>';const ta=host.querySelector(".fa");ta.value=getv()||"";ta.oninput=()=>{setv(ta.value);save();};}}
 function renderAlg(tb){
   const sr=document.createElement("tr");sr.className="sec-row";sr.innerHTML='<td colspan="6">算法 · CodeTop 高频 Top 100</td>';tb.appendChild(sr);
-  const list=ALG.filter(it=>{const o=get(it.id);if(lvlFilter!=="all"&&o.lvl!=lvlFilter)return false;if(starOnly&&!o.star)return false;return true;});
+  const DL=["","简单","中等","困难"];
+  const list=ALG.map(it=>Object.assign({},it,{baseIso:it.iso})).filter(it=>{const o=get(it.id);if(lvlFilter!=="all"&&o.lvl!=lvlFilter)return false;if(starOnly&&!o.star)return false;if(!passDate(it))return false;return true;});
   list.forEach(it=>{const st=get(it.id);
     const opened=openIds.has(it.id);
     const hasStuff=(st.codes&&st.codes.some(c=>(c.code||c)&&(c.code||c).trim&&(c.code||c).trim()))||(st.memo&&st.memo.trim());
     const tr=document.createElement("tr");
     tr.innerHTML='<td class="c">'+it.idx+'</td>'+
-      '<td class="c hide-sm date" style="cursor:default">'+fmtIso(it.iso)+'</td>'+
-      '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasStuff?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(it.q)+'</span><span class="tag">'+esc(it.tag)+'</span><span class="tag">LC '+esc(it.num)+'</span></td>'+
+      '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
+      '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasStuff?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(it.q)+'</span><span class="dtag d'+it.lv+'">'+DL[it.lv]+'</span><span class="tag">'+esc(it.tag)+'</span><span class="tag">LC '+esc(it.num)+'</span></td>'+
       '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
       '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
       '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span class="revdate" title="点击调整/延后复习" style="font-size:11px;cursor:pointer;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
+    const dc=tr.querySelector(".date");
+    dc.onclick=e=>{e.stopPropagation();openCal(dc,{selected:itemDate(it),dot:true,clearLabel:"恢复默认",
+      onPick:iso=>{get(it.id).date=iso;save();render();},
+      onClear:()=>{delete get(it.id).date;save();render();}});};
     tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
     tr.querySelector(".qbtn").onclick=()=>{opened?openIds.delete(it.id):openIds.add(it.id);render();};
     tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
@@ -822,6 +841,7 @@ function renderBackups(){const a=loadBackups(),box=document.getElementById("bkLi
 // ---- 缩减今日任务：把未完成的一部分挪到未来 ----
 function todayTaskItems(){const ti=todayIso();const res=[];
   const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=(o.date&&o.date!=="")?o.date:baseIso;if(d&&d>ti)return;const reviewDue=!!o.next&&o.next<=ti;const studyDue=!!d&&d<=ti&&!(o.cnt>0);if(studyDue||reviewDue)res.push({id:id,reviewDue:reviewDue});};
+  if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return res;}
   ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return res;}
 const trimModal=document.getElementById("trimModal");
 let trimType="all";
@@ -869,7 +889,7 @@ if(window.matchMedia)try{matchMedia("(prefers-color-scheme: dark)").addEventList
 applyTheme();
 document.getElementById("cfYes").onclick=()=>{document.getElementById("cfModal").classList.remove("show");const f=cfCb;cfCb=null;if(f)f();};
 document.getElementById("cfNo").onclick=()=>{document.getElementById("cfModal").classList.remove("show");cfCb=null;};
-function applyMode(){document.querySelectorAll("#modeSw button").forEach(b=>b.classList.toggle("on",b.dataset.mode===mode));document.getElementById("filters").style.display=mode==="alg"?"none":"";document.getElementById("dateBar").style.display=mode==="alg"?"none":"";render();}
+function applyMode(){document.querySelectorAll("#modeSw button").forEach(b=>b.classList.toggle("on",b.dataset.mode===mode));document.getElementById("filters").style.display=mode==="alg"?"none":"";render();}
 document.querySelectorAll("#modeSw button").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;localStorage.setItem("mode_v1",mode);applyMode();});
 loadStuck();buildFilters();applyMode();
 if(cfg){setPill("正在拉取…","busy");pull();}else{setPill("未配置云同步");}
