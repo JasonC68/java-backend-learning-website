@@ -286,6 +286,9 @@ body.dark .dtag.d3{background:#3a1414;color:#fca5a5;border-color:#7f1d1d}
 .bk-item .meta .t{color:#6b7280;font-size:12px}
 .bk-item button{font-size:12px;border:1px solid #d1d5db;background:#fff;border-radius:6px;padding:3px 10px;cursor:pointer}
 .bk-item .rb{color:#2563eb;border-color:#93c5fd}.bk-item .db{color:#b91c1c;border-color:#fca5a5}
+.bk-item .cvt{color:#047857;border-color:#6ee7b7}
+.bk-item .cvt:hover{background:#ecfdf5}
+body.dark .bk-item .cvt{color:#6ee7b7;border-color:#3a3a3a}
 body.dark .bk-item{border-color:#3a3a3a}
 body.dark .bk-item .meta .t{color:#94a3b8}
 body.dark .bk-item button{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
@@ -35548,7 +35551,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.10.6</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.10.7</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -35612,7 +35615,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 </div></div>
 <div class="modal" id="bkModal"><div class="card" style="max-width:560px">
   <h3>进度备份</h3>
-  <p style="font-size:12px;color:#6b7280;margin-bottom:10px">恢复会覆盖当前进度。云端备份跨设备可见，本地备份只在本设备。</p>
+  <p style="font-size:12px;color:#6b7280;margin-bottom:10px">恢复会覆盖当前进度。云端只保留 1 份、跨设备可见；本地可存多份，只在本设备。</p>
   <div style="display:flex;gap:8px;margin-bottom:10px">
     <input id="bkLabel" placeholder="备注" style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
     <button class="btn" id="bkNew">💾 本地备份</button>
@@ -35990,7 +35993,20 @@ function renderCloud(){const box=document.getElementById("bkCloudList");
   if(!cfg){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">配置「☁️ 云同步」后可用</div>';return;}
   const a=bkIndex();
   if(!a.length){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">还没有云端备份，点上方「☁️ 云端备份」创建</div>';return;}
-  box.innerHTML=a.map((b,i)=>'<div class="bk-item"><div class="meta"><div>'+(esc(b.label)||"备份")+'</div><div class="t">'+fmtTs(b.ts)+'</div></div><button class="rb" data-i="'+i+'">恢复</button><button class="db" data-i="'+i+'">删除</button></div>').join("");
+  box.innerHTML=a.map((b,i)=>'<div class="bk-item"><div class="meta"><div>'+(esc(b.label)||"备份")+'</div><div class="t">'+fmtTs(b.ts)+'</div></div><button class="rb" data-i="'+i+'">恢复</button><button class="cvt" data-i="'+i+'" title="转为本地备份，云端这份会删除">转为本地</button><button class="db" data-i="'+i+'">删除</button></div>').join("");
+  box.querySelectorAll(".cvt").forEach(btn=>btn.onclick=async()=>{const i=+btn.dataset.i,b=bkIndex()[i];
+    btn.disabled=true;btn.textContent="转换中…";
+    try{
+      const r=await fetch(api("checkin?id=eq."+encodeURIComponent(b.bin)+"&select=data"),{headers:H()});if(!r.ok)throw 0;
+      const arr=await r.json();if(!arr.length)throw 0;
+      const la=loadBackups();la.unshift({ts:b.ts,label:b.label,data:JSON.stringify(arr[0].data)});if(la.length>30)la.length=30;
+      saveBackups(la);
+      if(!loadBackups().some(x=>x.ts===b.ts)){toast("本地空间不足，转换失败");btn.disabled=false;btn.textContent="转为本地";return;}
+      bkIndex().splice(i,1);save();
+      try{await fetch(api("checkin?id=eq."+encodeURIComponent(b.bin)),{method:"DELETE",headers:H()});}catch(e){}
+      renderBackups();renderCloud();toast("已转为本地备份");
+    }catch(e){toast("转换失败，检查网络");btn.disabled=false;btn.textContent="转为本地";}
+  });
   box.querySelectorAll(".rb").forEach(btn=>btn.onclick=()=>{const i=+btn.dataset.i,b=bkIndex()[i];confirmDlg("恢复到这个云端备份？当前进度会被覆盖",async()=>{restoring=true;try{const r=await fetch(api("checkin?id=eq."+encodeURIComponent(b.bin)+"&select=data"),{headers:H()});if(!r.ok)throw 0;const a=await r.json();if(!a.length)throw 0;const snap=a[0].data;snap.__bkIndex=bkIndex();state=snap;localStorage.setItem(KEY,JSON.stringify(state));render();bkModal.classList.remove("show");clearTimeout(timer);if(cfg){await cloudPut();dirty=false;setPill("已恢复 "+nowt(),"ok");}}catch(e){toast("恢复失败，检查网络");}restoring=false;});});
   box.querySelectorAll(".db").forEach(btn=>btn.onclick=async()=>{const i=+btn.dataset.i,b=bkIndex()[i];bkIndex().splice(i,1);save();renderCloud();try{await fetch(api("checkin?id=eq."+encodeURIComponent(b.bin)),{method:"DELETE",headers:H()});}catch(e){}});
 }
@@ -35998,14 +36014,20 @@ document.getElementById("backupBtn").onclick=()=>{renderBackups();renderCloud();
 document.getElementById("bkClose").onclick=()=>bkModal.classList.remove("show");
 document.getElementById("bkImportBtn").onclick=()=>document.getElementById("bkImport").click();
 document.getElementById("bkNew").onclick=()=>{const a=loadBackups();a.unshift({ts:Date.now(),label:document.getElementById("bkLabel").value.trim(),data:JSON.stringify(state)});if(a.length>30)a.length=30;saveBackups(a);document.getElementById("bkLabel").value="";renderBackups();};
-document.getElementById("bkNewCloud").onclick=async()=>{if(!cfg){toast("请先配置「☁️ 云同步」");return;}const btn=document.getElementById("bkNewCloud");btn.disabled=true;btn.textContent="备份中…";
+async function doCloudBackup(old){const btn=document.getElementById("bkNewCloud");btn.disabled=true;btn.textContent="备份中…";
   try{const snap=Object.assign({},state);delete snap.__bkIndex;delete snap.__backups;
+    const lbl=document.getElementById("bkLabel").value.trim();
     const rid="bk_"+Date.now();
-    const r=await fetch(api("checkin"),{method:"POST",headers:H({"Content-Type":"application/json","Prefer":"return=minimal"}),body:JSON.stringify([{id:rid,kind:"backup",label:document.getElementById("bkLabel").value.trim(),data:snap}])});if(!r.ok)throw 0;
-    const a=bkIndex();a.unshift({ts:Date.now(),label:document.getElementById("bkLabel").value.trim(),bin:rid});if(a.length>15)a.length=15;
-    document.getElementById("bkLabel").value="";save();renderCloud();}
+    const r=await fetch(api("checkin"),{method:"POST",headers:H({"Content-Type":"application/json","Prefer":"return=minimal"}),body:JSON.stringify([{id:rid,kind:"backup",label:lbl,data:snap}])});if(!r.ok)throw 0;
+    if(old&&old.bin!==rid){try{await fetch(api("checkin?id=eq."+encodeURIComponent(old.bin)),{method:"DELETE",headers:H()});}catch(e){}}
+    state.__bkIndex=[{ts:Date.now(),label:lbl,bin:rid}];
+    document.getElementById("bkLabel").value="";save();renderCloud();toast(old?"已覆盖云端备份":"云端备份完成");}
   catch(e){toast("云端备份失败，检查网络/配置");}
-  btn.disabled=false;btn.textContent="☁️ 云端备份";};
+  btn.disabled=false;btn.textContent="☁️ 云端备份";}
+document.getElementById("bkNewCloud").onclick=()=>{if(!cfg){toast("请先配置「☁️ 云同步」");return;}
+  const old=bkIndex()[0];
+  if(old)confirmDlg("云端只保留 1 份备份。新建会覆盖现有的（"+fmtTs(old.ts)+"），确定吗？",()=>doCloudBackup(old));
+  else doCloudBackup(null);};
 document.getElementById("bkImport").onchange=function(){const f=this.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{JSON.parse(r.result);const a=loadBackups();a.unshift({ts:Date.now(),label:"导入 "+f.name,data:r.result});saveBackups(a);renderBackups();}catch(e){toast("文件格式不对");}};r.readAsText(f);this.value="";};
 function applyTheme(){const m=localStorage.getItem("theme")||"system";const dark=m==="dark"||(m==="system"&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);document.body.classList.toggle("dark",dark);document.querySelectorAll(".theme button").forEach(b=>b.classList.toggle("on",b.dataset.theme===m));}
 document.querySelectorAll(".theme button").forEach(b=>b.onclick=()=>{localStorage.setItem("theme",b.dataset.theme);applyTheme();});
