@@ -132,7 +132,14 @@ ALG_LV=[2,2,1,2,3,2,2,2,2,1,2,2,2,1,1,2,1,1,2,2,
         1,2,2,1,1,2,2,2,2,2,1,1,2,1,1,2,1,2,2,2,
         1,2,2,1,2,2,2,2,2,2,2,1,1,2,2,2,1,1,2,1]
 assert len(ALG_LV)==len(ALG_RAW)==100
-alg_items=[{"id":"alg"+str(i),"idx":i+1,"num":n,"q":t,"tag":g,"lv":ALG_LV[i],"iso":(ALG_START+timedelta(days=i*30//100)).isoformat()} for i,(n,t,g) in enumerate(ALG_RAW)]
+# 力扣 slug（来自 codetop 接口的 slug_title），顺序与 ALG_RAW 一致；链接 = https://leetcode.cn/problems/<slug>/
+ALG_SLUG=["longest-substring-without-repeating-characters","lru-cache","reverse-linked-list","kth-largest-element-in-an-array","reverse-nodes-in-k-group","3sum","maximum-subarray","sort-an-array","longest-palindromic-substring","merge-two-sorted-lists","binary-tree-level-order-traversal","number-of-islands","search-in-rotated-sorted-array","two-sum","valid-parentheses","permutations","merge-sorted-array","best-time-to-buy-and-sell-stock","reverse-linked-list-ii","binary-tree-zigzag-level-order-traversal",
+"longest-increasing-subsequence","lowest-common-ancestor-of-a-binary-tree","merge-k-sorted-lists","spiral-matrix","reorder-list","linked-list-cycle","add-strings","merge-intervals","edit-distance","intersection-of-two-linked-lists","trapping-rain-water","longest-common-subsequence","remove-duplicates-from-sorted-list-ii","restore-ip-addresses","binary-tree-maximum-path-sum","remove-nth-node-from-end-of-list","median-of-two-sorted-arrays","linked-list-cycle-ii","compare-version-numbers","binary-tree-right-side-view",
+"sliding-window-maximum","generate-parentheses","binary-search","longest-valid-parentheses","sqrtx","sort-list","binary-tree-inorder-traversal","implement-queue-using-stacks","next-permutation","minimum-window-substring","add-two-numbers","coin-change","multiply-strings","string-to-integer-atoi","climbing-stairs","construct-binary-tree-from-preorder-and-inorder-traversal","first-missing-positive","subsets","reverse-words-in-a-string","find-first-and-last-position-of-element-in-sorted-array",
+"lian-biao-zhong-dao-shu-di-kge-jie-dian-lcof","decode-string","sum-root-to-leaf-numbers","min-stack","symmetric-tree","combination-sum","minimum-path-sum","implement-rand10-using-rand7","max-area-of-island","longest-consecutive-sequence","best-time-to-buy-and-sell-stock-ii","maximum-depth-of-binary-tree","maximal-square","balanced-binary-tree","palindrome-linked-list","maximum-product-subarray","longest-common-prefix","rotate-image","search-a-2d-matrix-ii","validate-binary-search-tree",
+"binary-tree-preorder-traversal","largest-number","maximum-width-of-binary-tree","diameter-of-binary-tree","find-peak-element","unique-paths","subarray-sum-equals-k","path-sum-ii","swap-nodes-in-pairs","minimum-size-subarray-sum","house-robber","path-sum","remove-duplicates-from-sorted-list","word-break","basic-calculator-ii","maximum-length-of-repeated-subarray","invert-binary-tree","majority-element","course-schedule","move-zeroes"]
+assert len(ALG_SLUG)==100
+alg_items=[{"id":"alg"+str(i),"idx":i+1,"num":n,"q":t,"tag":g,"lv":ALG_LV[i],"slug":ALG_SLUG[i],"iso":(ALG_START+timedelta(days=i*30//100)).isoformat()} for i,(n,t,g) in enumerate(ALG_RAW)]
 ALGJS=json.dumps(alg_items,ensure_ascii=False)
 
 html = '''<!DOCTYPE html>
@@ -321,6 +328,9 @@ body.dark .memo-folded:hover{background:#332a0c}
 .codewrap.folded{margin-bottom:6px}
 .codewrap.folded pre.foldline{min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:9px 64px 9px 14px}
 .codewrap.nodel .codefold{right:7px}
+.tag.lc{text-decoration:none;cursor:pointer}
+.tag.lc:hover{background:#2563eb;color:#fff;border-color:#2563eb}
+body.dark .tag.lc:hover{background:#2563eb;color:#fff;border-color:#2563eb}
 .dtag{display:inline-block;font-size:11px;border-radius:10px;padding:0 7px;margin-left:6px;vertical-align:middle;white-space:nowrap}
 .dtag.d1{background:#d9ead3;color:#256029;border:1px solid #b7dfa8}
 .dtag.d2{background:#fdebc8;color:#b45309;border:1px solid #f3d190}
@@ -438,8 +448,8 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__PM_JS__</script>
 <script>__HL_JS__</script>
 </head><body>
-<div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.10.7</span></div>
+<div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
+<div class="sub"><span style="color:#9ca3af">v2.10.8</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -674,7 +684,7 @@ function renderAlg(tb){
     const tr=document.createElement("tr");
     tr.innerHTML='<td class="c">'+it.idx+'</td>'+
       '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
-      '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasStuff?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(it.q)+'</span><span class="dtag d'+it.lv+'">'+DL[it.lv]+'</span><span class="tag">'+esc(it.tag)+'</span><span class="tag">LC '+esc(it.num)+'</span></td>'+
+      '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasStuff?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(it.q)+'</span><span class="dtag d'+it.lv+'">'+DL[it.lv]+'</span><span class="tag">'+esc(it.tag)+'</span><a class="tag lc" href="https://leetcode.cn/problems/'+it.slug+'/" target="_blank" rel="noopener" title="在力扣打开这道题">LC '+esc(it.num)+' ↗</a></td>'+
       '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
       '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
       '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span class="revdate" title="点击调整/延后复习" style="font-size:11px;cursor:pointer;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
