@@ -326,6 +326,40 @@ _JVM_GC="https://javaguide.cn/java/jvm/jvm-garbage-collection.html#"
 _JVM_CLP="https://javaguide.cn/java/jvm/class-loading-process.html#"
 _JVM_CL="https://javaguide.cn/java/jvm/classloader.html#"
 _JSP="https://javaguide.cn/system-design/framework/spring/spring-knowledge-and-questions-summary.html#"
+_JMY="https://javaguide.cn/database/mysql/mysql-questions-01.html#"
+_JMYI="https://javaguide.cn/database/mysql/mysql-index.html#"
+_JMYV="https://javaguide.cn/database/mysql/innodb-implementation-of-mvcc.html#"
+_JMYL="https://javaguide.cn/database/mysql/mysql-logs.html#"
+_JRD1="https://javaguide.cn/database/redis/redis-questions-01.html#"
+_JRD2="https://javaguide.cn/database/redis/redis-questions-02.html#"
+_JNW1="https://javaguide.cn/cs-basics/network/other-network-questions.html#"
+_JNW2="https://javaguide.cn/cs-basics/network/other-network-questions2.html#"
+_JNWT="https://javaguide.cn/cs-basics/network/tcp-connection-and-disconnection.html#"
+_JNWR="https://javaguide.cn/cs-basics/network/tcp-reliability-guarantee.html#"
+_JOS1="https://javaguide.cn/cs-basics/operating-system/operating-system-basic-questions-01.html#"
+_JOS2="https://javaguide.cn/cs-basics/operating-system/operating-system-basic-questions-02.html#"
+_JMQ="https://javaguide.cn/high-performance/message-queue/message-queue.html#"
+_JCAP="https://javaguide.cn/distributed-system/protocol/cap-and-base-theorem.html#"
+_JDID="https://javaguide.cn/distributed-system/distributed-id.html#"
+_JDTX="https://javaguide.cn/distributed-system/distributed-transaction.html#"
+_JLIM="https://javaguide.cn/high-availability/limit-request.html#"
+_JAG="https://javaguide.cn/ai/agent/agent-basis.html#"
+_JAGM="https://javaguide.cn/ai/agent/agent-memory.html#"
+_JAGC="https://javaguide.cn/ai/agent/context-engineering.html#"
+_JAGP="https://javaguide.cn/ai/agent/prompt-engineering.html#"
+_JAGS="https://javaguide.cn/ai/agent/skills.html#"
+_JMCP="https://javaguide.cn/ai/agent/mcp.html#"
+_JAGW="https://javaguide.cn/ai/agent/workflow-graph-loop.html#"
+_JRG="https://javaguide.cn/ai/rag/rag-basis.html#"
+_JRGD="https://javaguide.cn/ai/rag/rag-document-processing.html#"
+_JRGV="https://javaguide.cn/ai/rag/rag-vector-store.html#"
+_JRGU="https://javaguide.cn/ai/rag/rag-knowledge-update.html#"
+_JRGO="https://javaguide.cn/ai/rag/rag-optimization.html#"
+_JLLM="https://javaguide.cn/ai/llm-basis/llm-operation-mechanism.html#"
+_JLLA="https://javaguide.cn/ai/llm-basis/llm-api-engineering.html#"
+_JLLF="https://javaguide.cn/ai/llm-basis/structured-output-function-calling.html#"
+_JLLE="https://javaguide.cn/ai/llm-basis/llm-evaluation.html#"
+_JGW="https://javaguide.cn/ai/system-design/llm-gateway.html#"
 JG_ANCHOR={
  # Java基础
  "装箱拆箱 + Integer 缓存（-128~127）":_JB1+"包装类型的缓存机制了解么",
@@ -381,6 +415,112 @@ JG_ANCHOR={
  "事务的传播行为":_JSP+"spring-事务中哪几种事务传播行为",
  "Spring MVC 请求处理流程":_JSP+"⭐️springmvc-工作原理了解吗",
  "常用注解区别（@Autowired vs @Resource 等）":_JSP+"⭐️-autowired-和-resource-的区别是什么",
+ # MySQL
+ "索引为什么用 B+ 树（vs B树/跳表/哈希）":_JMY+"mysql-索引底层数据结构是什么",
+ "聚簇索引 vs 非聚簇索引":_JMYI+"聚簇索引与非聚簇索引",
+ "联合索引 + 最左匹配原则":_JMY+"请解释一下-mysql-的联合索引及其最左前缀原则",
+ "索引失效的场景":_JMY+"索引失效的原因有哪些",
+ "回表 / 覆盖索引":_JMY+"什么是覆盖索引",
+ "事务的 ACID 及实现":_JMY+"什么是事务",
+ "事务隔离级别 + 默认级别":_JMY+"sql-标准定义了哪些事务隔离级别",
+ "RR 怎么（部分）解决幻读":_JMYV+"mvcc➕next-key-lock-防止幻读",
+ "MVCC 实现原理":_JMYV+"innodb-对-mvcc-的实现",
+ "redo log / undo log / binlog":_JMYL+"redo-log",
+ "binlog 两阶段提交":_JMYL+"两阶段提交",
+ "InnoDB vs MyISAM":_JMY+"⭐️myisam-和-innodb-有什么区别",
+ "MySQL 有哪些锁":_JMY+"表级锁和行级锁了解吗-有什么区别",
+ "explain 怎么看":_JMY+"如何分析-sql-的性能",
+ "慢查询怎么优化":_JMY+"mysql-性能怎么优化",
+ # Redis
+ "Redis 为什么快":_JRD1+"⭐️redis-为什么这么快",
+ "五种数据类型及底层实现":_JRD1+"redis-常用的数据类型有哪些",
+ "ZSet 底层 / 跳表 / 为什么不用 B+ 树":_JRD1+"redis-的有序集合底层为什么要用跳表-而不用平衡树、红黑树或者-b-树",
+ "RDB vs AOF":_JRD1+"⭐️redis-持久化机制-重要",
+ "内存淘汰策略":_JRD1+"redis-内存淘汰策略了解么",
+ "过期删除策略":_JRD1+"redis-过期-key-删除策略了解么",
+ "缓存雪崩 / 击穿 / 穿透":_JRD2+"⭐️redis-生产问题-重要",
+ "Redis 和 MySQL 缓存一致性":_JRD2+"如何保证缓存和数据库数据的一致性",
+ "Redis 分布式锁":_JRD1+"如何基于-redis-实现分布式锁",
+ "大 Key / 热 Key 问题":_JRD2+"redis-bigkey-大-key",
+ "怎么保证 Redis 操作原子性":_JRD2+"lua-脚本",
+ # 计算机网络
+ "TCP 三次握手 + 为什么三次":_JNWT+"建立连接-tcp-三次握手",
+ "TCP 四次挥手 + 为什么四次 + 2MSL":_JNWT+"断开连接-tcp-四次挥手",
+ "TCP vs UDP":_JNW2+"⭐️-tcp-与-udp-的区别-重要",
+ "TCP 为什么可靠":_JNWR+"tcp-如何保证传输的可靠性",
+ "TCP 拥塞控制":_JNWR+"tcp-的拥塞控制是怎么实现的",
+ "GET vs POST":_JNW1+"⭐️-get-和-post-的区别",
+ "HTTP 常用状态码（含 502/504）":_JNW1+"⭐️-http-状态码有哪些",
+ "HTTP vs HTTPS":_JNW1+"⭐️-http-和-https-有什么区别-重要",
+ "HTTPS 握手过程":_JNW1+"https-握手里的-rsa-和-ecdhe-到底差在哪-应用层",
+ "HTTP/1.1 vs 2.0":_JNW1+"⭐️-http-1-1-和-http-2-0-有什么区别",
+ "HTTP 无状态 / Cookie 和 Session":_JNW1+"⭐️-http-是不保存状态的协议-如何保存用户状态",
+ "Cookie / Session / Token(JWT)":_JNW1+"cookie-和-session-有什么区别",
+ "输入 URL 到页面展示发生了什么":_JNW1+"⭐️-从输入-url-到页面展示到底发生了什么-非常重要",
+ "DNS 解析流程 / TCP 还是 UDP":_JNW1+"⭐️-dns-解析的过程是什么样的",
+ "HTTP 长连接 vs WebSocket":_JNW1+"⭐️-websocket-和-http-有什么区别",
+ # 操作系统
+ "进程 vs 线程 vs 协程":_JOS1+"进程和线程的区别是什么",
+ "进程的五种状态":_JOS1+"进程有哪几种状态",
+ "进程间通信方式（IPC）":_JOS1+"进程间的通信方式有哪些",
+ "线程间通信方式":_JOS1+"线程间的同步的方式有哪些",
+ "进程切换 vs 线程切换，为什么线程快":_JOS1+"什么是上下文切换",
+ "用户态 vs 内核态":_JOS1+"什么是用户态和内核态",
+ "死锁四条件 + 如何避免":_JOS1+"产生死锁的四个必要条件是什么",
+ "虚拟内存 / 地址转换":_JOS2+"虚拟地址与物理内存地址是如何映射的",
+ "页面置换算法":_JOS2+"常见的页面置换算法有哪些",
+ "IO 多路复用 / select-poll-epoll":_JOS2+"select、poll-和-epoll-有什么区别",
+ "零拷贝":_JOS2+"什么是零拷贝",
+ # 扩展
+ "MQ 的作用（解耦/异步/削峰）":_JMQ+"消息队列有什么用",
+ "MQ 如何保证消息不丢失":_JMQ+"如何保证消息可靠性",
+ "MQ 如何保证不重复消费（幂等）":_JMQ+"如何处理重复消费和幂等",
+ "MQ 消息积压怎么处理":_JMQ+"如何处理消息积压",
+ "CAP / BASE 理论":_JCAP+"cap-理论",
+ "分布式事务方案（2PC/TCC/本地消息表）":_JDTX+"分布式事务解决方案",
+ "分布式 ID 生成方案（雪花算法）":_JDID+"snowflake-雪花算法",
+ "限流算法（漏桶/令牌桶等）":_JLIM+"常见限流算法有哪些",
+ # AI·Agent
+ "什么是 Agent？与大模型有什么本质不同？":_JAG+"什么是-ai-agent",
+ "Agent 的基本架构由哪些核心组件构成？":_JAG+"做一个-agent-系统-最少要搞定哪三层",
+ "Workflow / Agent / Tools 的概念和区别？":_JAG+"ai-工作流和-agent-到底是什么关系",
+ "Agent 推理模式有哪些？ReAct 是什么、怎么实现？":_JAG+"react",
+ "ReAct / Plan-and-Execute / Reflection 的区别与选型？":_JAG+"各范式怎么选",
+ "复杂任务怎么做任务拆分？为什么要拆分？":_JAGP+"任务分解",
+ "Agent 的记忆机制 / 记忆模块怎么设计？":_JAGM+"agent-的记忆系统是如何设计的",
+ "长短期记忆怎么存？粒度多大？怎么用？":_JAGM+"什么是长期记忆-long-term-memory",
+ "Agent 记忆压缩有哪些方法？":_JAGC+"compaction-窗口快满时压缩历史",
+ "什么是 Multi-Agent？Single vs Multi 怎么选？":_JAG+"multi-agent",
+ "多 Agent 的协作、通信与动态路由怎么设计？":_JAGW+"graph-和-loop-是什么",
+ # AI·RAG
+ "什么是 RAG？完整工作流程是怎样的？":_JRG+"rag-工作原理了解吗",
+ "RAG 解决了什么问题？RAG vs 微调如何选型？":_JRG+"rag-和微调怎么选",
+ "文档切割（Chunking）策略 / 粒度？":_JRGD+"如何选择合适的-chunking-策略",
+ "怎么规避语义被切断的问题？":_JRGD+"什么是语义丢失-为什么会发生",
+ "Embedding 是什么？怎么选和评估？":_JRG+"embedding-是什么",
+ "向量数据库是什么？怎么对比选型？":_JRGV+"向量数据库怎么选",
+ "向量检索 vs 关键词检索的区别？":_JRGV+"语义检索和关键词检索有什么不同",
+ "Query Rewrite 是什么？目的是什么？":_JRGO+"query-rewrite-先把问题变得可检索",
+ "什么是多路召回？怎么做？检索优化策略有哪些？":_JRGO+"召回优化-不要只靠向量相似度",
+ "进阶 RAG 范式（Self-RAG / Corrective RAG）了解哪些？":_JRG+"rag-有哪些演进阶段",
+ "如何规避 RAG 幻觉？怎么量化 RAG 效果？":_JRGO+"评估-不做评估-优化就是玄学",
+ "RAG 知识库如何动态与持续更新？":_JRGU+"增量更新和全量重建各适合什么场景",
+ # AI·工具调用
+ "什么是 Function Calling？原理是什么？":_JLLF+"⭐️-function-calling-到底调用了什么",
+ "什么是 MCP？由哪几部分组成？":_JMCP+"mcp-里到底有哪些东西",
+ "MCP 和 Function Calling 的区别？什么场景用哪个？":_JMCP+"mcp、function-calling、agent-到底是什么关系",
+ "Skill 是什么？和 MCP 有什么区别？":_JAGS+"skill-和-prompt、mcp、function-calling-有什么联系",
+ "Function Calling / Skill / MCP 三者的关系与区别？":_JLLF+"function-calling、mcp-tool、http-api、agent-skill-应该怎么分层",
+ "什么是 A2A 协议？和 MCP 的区别？":_JAG+"a2a-协议",
+ "MCP 通信方式 / SSE vs WebSocket 区别？":_JMCP+"stdio-和-streamable-http-怎么选",
+ "LLM 网关解决了什么问题？":_JGW+"为什么需要-llm-gateway",
+ # AI·大模型基础
+ "KV Cache 是什么？Prompt Caching 原理（省 token）？":_JLLM+"prompt-caching-的省钱逻辑",
+ "如何写好 Prompt？Prompt 工程实践经验？":_JAGP+"prompt-应该怎么写",
+ "什么是 CoT？为什么有效？有什么局限？":_JAGP+"思维链-chain-of-thought-cot",
+ "大模型为什么会幻觉？怎么缓解？":_JAGP+"减少幻觉",
+ "温度值 / Top-P / Top-K 是什么？怎么设置？":_JLLM+"⭐️-采样参数如何影响输出稳定性",
+ "项目中如何做模型选型？为什么选这个模型？":_JGW+"什么任务适合小模型-什么任务必须上强模型",
 }
 for rec in items:
     rec["anc"]=XL_ANCHOR.get(rec["q"],"")
