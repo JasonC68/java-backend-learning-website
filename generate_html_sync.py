@@ -449,7 +449,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.10.8</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.10.9</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -579,11 +579,12 @@ function confirmDlg(msg,cb){document.getElementById("cfMsg").textContent=msg;cfC
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200);}
 function md(t){return (window.marked?marked.parse(t||""):"<pre>"+esc(t)+"</pre>");}
 function highlightHTML(code){if(window.hljs){try{return hljs.highlightAuto(code||"").value;}catch(e){}}return esc(code);}
-function renderCodes(host,o,fixed){
+function renderCodes(host,o,minOne){
   host.innerHTML="";
+  const canDel=!minOne||(o.codes||[]).length>1;   // minOne：至少保留一个代码框，只剩一个时不给删
   (o.codes||[]).forEach((c,idx)=>{
-    const box=document.createElement("div");box.className="codewrap"+(c.fold?" folded":"")+(fixed?" nodel":"");
-    const btns='<button class="codefold" title="折叠/展开">'+(c.fold?"▸":"▾")+'</button>'+(fixed?'':'<button class="codedel" title="删除此代码块">✕</button>');
+    const box=document.createElement("div");box.className="codewrap"+(c.fold?" folded":"")+(canDel?"":" nodel");
+    const btns='<button class="codefold" title="折叠/展开">'+(c.fold?"▸":"▾")+'</button>'+(canDel?'<button class="codedel" title="删除此代码块">✕</button>':'');
     const del=()=>{confirmDlg("删除此代码块？",()=>{o.codes.splice(idx,1);if(!o.codes.length)delete o.codes;save();render();});};
     if(c.fold){
       const first=(c.code||"").split("\\n")[0]||"",more=(c.code||"").indexOf("\\n")>=0;
@@ -710,6 +711,7 @@ function renderAlg(tb){
       if(!o.codes||!o.codes.length)o.codes=[{code:""}];
       let bar='<div class="ehint">';
       bar+=(!o.memoOn)?'<button class="ebtn addmemo">＋ 助记</button>':'';
+      bar+='<button class="ebtn addcode">＋ 代码</button>';
       bar+='</div>';
       let body='';
       if(o.memoOn){
@@ -724,6 +726,7 @@ function renderAlg(tb){
       if(mw){mw.querySelector(".memofold").onclick=e=>{e.stopPropagation();o.memoHide=true;save();render();};mw.querySelector(".memodel").onclick=e=>{e.stopPropagation();delMemo();};}
       const mfold=td.querySelector(".memo-folded");
       if(mfold){mfold.querySelector(".memodel").onclick=e=>{e.stopPropagation();delMemo();};mfold.onclick=e=>{if(e.target.closest(".memodel"))return;o.memoHide=false;save();render();};}
+      td.querySelector(".addcode").onclick=()=>{o.codes=o.codes||[];o.codes.push({code:""});save();render();};
       er.appendChild(td);tb.appendChild(er);
       if(o.memoOn&&!o.memoHide)mountEd(td.querySelector(".tui-memo"),()=>o.memo,v=>o.memo=v,"写思路/口诀…");
       renderCodes(td.querySelector(".codebox"),o,true);
