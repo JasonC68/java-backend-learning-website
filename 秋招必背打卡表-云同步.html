@@ -35547,8 +35547,8 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 })();
 </script>
 </head><body>
-<div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">📚 八股</button><button data-mode="alg">💻 算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.10.4</span></div>
+<div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
+<div class="sub"><span style="color:#9ca3af">v2.10.5</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -35568,6 +35568,13 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   <span class="chip" data-lvl="0">未开始</span><span class="chip" data-lvl="1">眼熟</span>
   <span class="chip" data-lvl="2">能讲框架</span><span class="chip" data-lvl="3">能扛追问</span>
   <span class="chip" id="starFilter" style="margin-left:8px">⭐ 仅看收藏</span>
+</div>
+<div class="toolbar" id="diffBar">
+  <span style="font-size:12px;color:#6b7280">按难度：</span>
+  <span class="chip active" data-diff="all">全部</span>
+  <span class="chip" data-diff="1">简单</span>
+  <span class="chip" data-diff="2">中等</span>
+  <span class="chip" data-diff="3">困难</span>
 </div>
 <div class="toolbar">
   <button class="btn pri" id="cfgBtn">☁️ 云同步设置</button>
@@ -35648,7 +35655,7 @@ window.IMG_UPLOADER=function(dataUrl){
   return fetch("https://api.imgbb.com/1/upload?key="+encodeURIComponent(imgKey),{method:"POST",body:fd})
     .then(r=>r.json()).then(j=>{if(j&&j.success&&j.data&&(j.data.display_url||j.data.url))return j.data.display_url||j.data.url;throw new Error("upload failed");});
 };
-let secFilter="all",lvlFilter="all",dateFilter="all",pickedDate="",starOnly=false,recycleMode=false,timer=null,openIds=new Set(),editors=[],dirty=false,retryTimer=null,stuckToday=new Set(),stuckDay="",restoring=false;
+let secFilter="all",lvlFilter="all",diffFilter="all",dateFilter="all",pickedDate="",starOnly=false,recycleMode=false,timer=null,openIds=new Set(),editors=[],dirty=false,retryTimer=null,stuckToday=new Set(),stuckDay="",restoring=false;
 function isDeleted(id){return !!get(id).del;}
 function isPurged(id){return !!get(id).purged;}
 function isoOf(dt){return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");}
@@ -35713,6 +35720,7 @@ function buildFilters(){const f=document.getElementById("filters");f.innerHTML='
   const mk=(t,v)=>{const s=document.createElement("span");s.className="chip"+(v===secFilter?" active":"");s.textContent=t;s.onclick=()=>{secFilter=v;buildFilters();render();};return s;};
   f.appendChild(mk("全部","all"));SECTIONS.forEach(s=>f.appendChild(mk(s,s)));}
 document.querySelectorAll('[data-lvl]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-lvl]').forEach(x=>x.classList.remove("active"));c.classList.add("active");lvlFilter=c.dataset.lvl;render();});
+document.querySelectorAll('[data-diff]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-diff]').forEach(x=>x.classList.remove("active"));c.classList.add("active");diffFilter=c.dataset.diff;render();});
 const pickBtn=document.getElementById("pickBtn"),calBox=document.getElementById("cal");
 let calRef=new Date(),calCtx=null;
 function updatePickBtn(){pickBtn.textContent=pickedDate?("📅 "+pickedDate.slice(5)):"📅 选择日期";}
@@ -35764,7 +35772,8 @@ function mountEd(host,getv,setv,ph){if(window.MDEditor){editors.push(window.MDEd
 function renderAlg(tb){
   const sr=document.createElement("tr");sr.className="sec-row";sr.innerHTML='<td colspan="6">算法 · CodeTop 高频 Top 100</td>';tb.appendChild(sr);
   const DL=["","简单","中等","困难"];
-  const list=ALG.map(it=>Object.assign({},it,{baseIso:it.iso})).filter(it=>{const o=get(it.id);if(lvlFilter!=="all"&&o.lvl!=lvlFilter)return false;if(starOnly&&!o.star)return false;if(!passDate(it))return false;return true;});
+  const list=ALG.map(it=>Object.assign({},it,{baseIso:it.iso})).filter(it=>{const o=get(it.id);if(lvlFilter!=="all"&&o.lvl!=lvlFilter)return false;if(diffFilter!=="all"&&it.lv!=diffFilter)return false;if(starOnly&&!o.star)return false;if(!passDate(it))return false;return true;});
+  {const tc=document.querySelector('[data-date="todayall"]');if(tc)tc.textContent="📌 今天任务："+todayCount();}
   list.forEach(it=>{const st=get(it.id);
     const opened=openIds.has(it.id);
     const hasStuff=(st.codes&&st.codes.some(c=>(c.code||c)&&(c.code||c).trim&&(c.code||c).trim()))||(st.memo&&st.memo.trim());
@@ -36001,7 +36010,7 @@ if(window.matchMedia)try{matchMedia("(prefers-color-scheme: dark)").addEventList
 applyTheme();
 document.getElementById("cfYes").onclick=()=>{document.getElementById("cfModal").classList.remove("show");const f=cfCb;cfCb=null;if(f)f();};
 document.getElementById("cfNo").onclick=()=>{document.getElementById("cfModal").classList.remove("show");cfCb=null;};
-function applyMode(){document.querySelectorAll("#modeSw button").forEach(b=>b.classList.toggle("on",b.dataset.mode===mode));document.getElementById("filters").style.display=mode==="alg"?"none":"";render();}
+function applyMode(){document.querySelectorAll("#modeSw button").forEach(b=>b.classList.toggle("on",b.dataset.mode===mode));document.getElementById("filters").style.display=mode==="alg"?"none":"";document.getElementById("diffBar").style.display=mode==="alg"?"":"none";render();}
 document.querySelectorAll("#modeSw button").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;localStorage.setItem("mode_v1",mode);applyMode();});
 loadStuck();buildFilters();applyMode();
 if(cfg){setPill("正在拉取…","busy");pull();}else{setPill("未配置云同步");}
