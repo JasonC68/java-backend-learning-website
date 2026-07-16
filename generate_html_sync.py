@@ -119,6 +119,202 @@ def tags_for(sec,q):
 for rec in items:
     rec["tags"]=tags_for(rec["sec"],rec["q"])
 
+# ===== 小林coding 每题精确锚点：我的题目文案 -> 小林页面上对应那道题的锚点（逐板块人工核对）=====
+XL_ANCHOR={
+ # MySQL（已核对 mysql.html 目录）
+ "索引为什么用 B+ 树（vs B树/跳表/哈希）":"mysql为什么用b-树结构-和其他结构比的优点",
+ "聚簇索引 vs 非聚簇索引":"mysql聚簇索引和非聚簇索引的区别是什么",
+ "联合索引 + 最左匹配原则":"联合索引的实现原理",
+ "索引失效的场景":"索引失效有哪些",
+ "回表 / 覆盖索引":"什么是覆盖索引",
+ "事务的 ACID 及实现":"事务的特性是什么-如何实现的",
+ "事务隔离级别 + 默认级别":"事务的隔离级别有哪些",
+ "RR 怎么（部分）解决幻读":"mysql-设置了可重读隔离级后-怎么保证不发生幻读",
+ "MVCC 实现原理":"介绍mvcc实现原理",
+ "redo log / undo log / binlog":"日志文件是分成了哪几种",
+ "binlog 两阶段提交":"binlog-两阶段提交过程是怎么样的",
+ "一条 SQL 的执行过程":"执行一条sql请求的过程是什么",
+ "InnoDB vs MyISAM":"说一下mysql的innodb与myisam的区别",
+ "MySQL 有哪些锁":"讲一下mysql里有哪些锁",
+ "explain 怎么看":"mysql的explain有什么作用",
+ "慢查询怎么优化":"给你张表-发现查询速度很慢-你有那些解决方案",
+ # Redis（已核对 redis.html 目录）
+ "Redis 为什么快":"redis为什么快",
+ "五种数据类型及底层实现":"讲一下redis底层的数据结构",
+ "ZSet 底层 / 跳表 / 为什么不用 B+ 树":"redis为什么使用跳表而不是用b-树",
+ "RDB vs AOF":"redis有哪2种持久化方式-分别的优缺点是什么",
+ "内存淘汰策略":"介绍一下redis-内存淘汰策略",
+ "过期删除策略":"介绍一下redis过期删除策略",
+ "缓存雪崩 / 击穿 / 穿透":"缓存雪崩、击穿、穿透是什么-怎么解决",
+ "布隆过滤器原理":"布隆过滤器原理介绍一下",
+ "Redis 和 MySQL 缓存一致性":"如何保证-redis-和-mysql-数据缓存一致性问题",
+ "Redis 分布式锁":"redis分布式锁的实现原理-什么场景下用到分布式锁",
+ "大 Key / 热 Key 问题":"redis的大key问题是什么",
+ "主从复制":"redis主从同步中的增量和完全同步怎么实现",
+ "哨兵机制":"哨兵机制原理是什么",
+ "怎么保证 Redis 操作原子性":"如何实现redis-原子性",
+ # 并发/多线程（已核对 juc.html 目录）
+ "JMM（Java 内存模型）+ 三大问题":"java-的内存模型-jmm-介绍一下",
+ "线程的创建方式":"线程的创建方式有哪些",
+ "线程的六种状态":"java线程的状态有哪些",
+ "sleep vs wait":"sleep-和-wait的区别是什么",
+ "notify vs notifyAll":"notify-和-notifyall-的区别",
+ "怎么保证多线程安全":"怎么保证多线程安全",
+ "volatile 作用与原理":"voliatle关键字有什么作用",
+ "synchronized 原理 + 锁升级":"synchronized锁升级的过程讲一下",
+ "CAS 原理 + ABA 问题":"cas-有什么问题-java是怎么解决的",
+ "ReentrantLock vs synchronized + AQS":"synchronized和reentrantlock区别",
+ "线程池原理（核心参数/流程/拒绝策略）":"介绍一下线程池的工作原理",
+ "BLOCKED vs WAITING / 如何停止线程":"blocked和waiting有啥区别",
+ # JVM（已核对 jvm.html 目录）
+ "JVM 内存模型（运行时数据区）":"jvm的内存模型介绍一下",
+ "堆和栈的区别 / 堆怎么分代":"jvm内存模型里的堆和栈有什么区别",
+ "程序计数器为什么线程私有":"程序计数器的作用-为什么是私有的",
+ "创建对象的过程":"创建对象的过程",
+ "类加载过程":"讲一下类加载过程",
+ "双亲委派模型是什么 / 有什么用":"java-中-双亲委派-是什么-有啥用",
+ "类加载器有哪些":"类加载器有哪些",
+ "判断垃圾的方法":"判断垃圾的方法有哪些",
+ "垃圾回收算法":"垃圾回收算法有哪些",
+ "垃圾回收器 / CMS vs G1":"垃圾回收器-cms-和-g1的区别",
+ "MinorGC / MajorGC / FullGC":"minorgc、majorgc、fullgc的区别-什么场景触发full-gc",
+ "四种引用类型":"引用类型有哪些-有什么区别",
+ "内存泄漏 vs 内存溢出":"内存泄漏和内存溢出的理解",
+ # Spring（已核对 spring.html 目录）
+ "IoC / DI 是什么":"spring-ioc和aop-介绍一下",
+ "Bean 的生命周期":"bean的生命周期说一下",
+ "Bean 的作用域":"spring-bean的作用域有哪些",
+ "三级缓存如何解决循环依赖":"spring是如何解决循环依赖的",
+ "AOP 原理（JDK 代理 vs CGLIB）":"springaop的原理了解吗",
+ "@Transactional 事务原理":"spring的事务什么情况下会失效",
+ "事务的传播行为":"spring的事务什么情况下会失效",
+ "事务失效的场景":"spring的事务什么情况下会失效",
+ "Spring MVC 请求处理流程":"了解springmvc的处理流程吗",
+ "Spring Boot 自动装配原理":"springboot自动装配原理是什么",
+ "常用注解区别（@Autowired vs @Resource 等）":"spring-常用注解有什么",
+ # 集合（已核对 collections.html 目录）
+ "HashMap 实现原理":"hashmap实现原理介绍一下",
+ "HashMap 的 put / get 过程":"hashmap的put过程介绍一下",
+ "HashMap 扩容机制":"hashmap的扩容机制介绍一下",
+ "为什么容量是 2 的 n 次方 / 负载因子":"hashmap的大小为什么是2的n次方大小呢",
+ "为什么链表转红黑树（而非 AVL）":"为什么hashmap要用红黑树而不是平衡二叉树",
+ "哈希冲突的解决方法":"了解的哈希冲突解决方法有哪些",
+ "HashMap 线程安全吗 / 多线程下的问题":"列举hashmap在多线程下可能会出现的问题",
+ "重写 equals / hashCode 的注意点":"重写hashmap的equal和hashcode方法需要注意什么",
+ "HashMap 用什么做 Key / 为什么 String 合适":"hashmap一般用什么做key-为啥string适合做key呢",
+ "HashMap vs Hashtable vs ConcurrentHashMap":"说一下hashmap和hashtable、concurrentmap的区别",
+ "ConcurrentHashMap 怎么实现的":"concurrenthashmap怎么实现的",
+ "用了 synchronized 为什么还要 CAS":"已经用了synchronized-为什么还要用cas呢",
+ "ArrayList vs LinkedList":"arraylist和linkedlist的区别-哪个集合是线程安全的",
+ "ArrayList 扩容机制":"arraylist的扩容机制说一下",
+ "ArrayList 为什么线程不安全 / 怎么变安全":"为什么arraylist不是线程安全的-具体来说是哪里不安全",
+ "List vs Set":"java-集合中-list-和-set区别是什么",
+ # Java基础（已核对 java.html 目录）
+ "值传递 vs 引用传递":"值传递和引用传递的区别",
+ "装箱拆箱 + Integer 缓存（-128~127）":"说一下-integer的缓存",
+ "为什么用 BigDecimal 不用 double":"为什么用bigdecimal-不用double",
+ "重载 vs 重写":"重载与重写有什么区别",
+ "抽象类 vs 接口":"java抽象类和接口的区别是什么",
+ "final / static 的作用":"java-中-final-作用是什么",
+ "深拷贝 vs 浅拷贝 + 实现方式":"深拷贝和浅拷贝的区别",
+ "JVM / JDK / JRE 三者关系":"jvm、jdk、jre三者关系",
+ "八种基本数据类型及字节数":"八种基本的数据类型",
+ "封装/继承/多态，多态的体现":"怎么理解面向对象-简单说说封装继承多态",
+ "泛型是什么 + 类型擦除":"什么是泛型",
+ # 计算机网络（已核对 network.html 目录）
+ "TCP 三次握手 + 为什么三次":"tcp三次握手过程说一下",
+ "TCP 四次挥手 + 为什么四次 + 2MSL":"tcp-四次挥手过程说一下",
+ "TCP vs UDP":"tcp和udp区别是什么",
+ "TCP 为什么可靠":"tcp为什么可靠传输",
+ "TCP 拥塞控制":"tcp的拥塞控制介绍一下",
+ "GET vs POST":"get和post的使用场景-有哪些区别",
+ "HTTP 常用状态码（含 502/504）":"http常用的状态码",
+ "HTTP vs HTTPS":"http和https-的区别",
+ "HTTPS 握手过程":"https握手过程说一下",
+ "HTTP/1.1 vs 2.0":"http1-1和2-0的区别是什么",
+ "HTTP 无状态 / Cookie 和 Session":"http到底是不是无状态的",
+ "Cookie / Session / Token(JWT)":"token-session-cookie的区别",
+ "输入 URL 到页面展示发生了什么":"描述一下打开百度首页后发生的网络过程",
+ "DNS 解析流程 / TCP 还是 UDP":"dns-域名解析的工作流程",
+ "HTTP 长连接 vs WebSocket":"http长连接与websocket有什么区别",
+ # 操作系统（已核对 os.html 目录）
+ "进程 vs 线程 vs 协程":"进程-线程-协程的区别是什么",
+ "进程的五种状态":"进程的状态-五种状态-如何切换",
+ "进程间通信方式（IPC）":"进程间通讯有哪些方式",
+ "线程间通信方式":"线程间通讯有什么方式",
+ "进程切换 vs 线程切换，为什么线程快":"线程切换为什么比进程切换快-节省了什么资源",
+ "用户态 vs 内核态":"用户态和内核态的区别",
+ "死锁四条件 + 如何避免":"死锁发生条件是什么",
+ "乐观锁 vs 悲观锁 / 自旋锁":"乐观锁和悲观锁有什么区别",
+ "虚拟内存 / 地址转换":"虚拟地址是怎么转化到物理地址的",
+ "程序的内存布局 / 堆栈区别":"程序的内存布局是怎么样的",
+ "页面置换算法":"页面置换有哪些算法",
+ "IO 多路复用 / select-poll-epoll":"select、poll、epoll-的区别是什么",
+ "epoll 的 LT vs ET":"epoll-的-边缘触发和水平触发有什么区别",
+ "零拷贝":"零拷贝是什么",
+ # 扩展（已核对 mq.html / cap.html 目录；MyBatis 小林站内无对应页面，保持跳转面试题首页）
+ "MQ 的作用（解耦/异步/削峰）":"为什么需要消息队列",
+ "MQ 如何保证消息不丢失":"消息丢失怎么解决的",
+ "MQ 如何保证不重复消费（幂等）":"消息重复消费怎么解决",
+ "MQ 消息积压怎么处理":"如何处理消息队列的消息积压问题",
+ "CAP / BASE 理论":"介绍一下cap理论",
+ "分布式事务方案（2PC/TCC/本地消息表）":"https://xiaolincoding.com/interview/cap.html#分布式事务的解决方案你知道哪些",
+ "分布式 ID 生成方案（雪花算法）":"分布式id有什么方案",
+ "限流算法（漏桶/令牌桶等）":"常见的限流算法你知道哪些",
+ # MyBatis：小林站内无对应页面，改用 JavaGuide
+ "MyBatis #{} 和 ${} 的区别":"https://javaguide.cn/system-design/framework/mybatis/mybatis-interview.html#和-的区别是什么",
+ "MyBatis 一级/二级缓存":"https://javaguide.cn/system-design/framework/mybatis/mybatis-interview.html",
+ # AI·Agent（xiaolinnote 一题一页，直接用完整 URL）
+ "什么是 Agent？与大模型有什么本质不同？":"https://xiaolinnote.com/ai/agent/1_whatisagent.html",
+ "Agent 的基本架构由哪些核心组件构成？":"https://xiaolinnote.com/ai/agent/2_components.html",
+ "Workflow / Agent / Tools 的概念和区别？":"https://xiaolinnote.com/ai/agent/3_workflow_tools.html",
+ "Agent 推理模式有哪些？ReAct 是什么、怎么实现？":"https://xiaolinnote.com/ai/agent/5_react.html",
+ "ReAct / Plan-and-Execute / Reflection 的区别与选型？":"https://xiaolinnote.com/ai/agent/6_three_patterns.html",
+ "复杂任务怎么做任务拆分？为什么要拆分？":"https://xiaolinnote.com/ai/agent/7_tasksplit.html",
+ "Agent 的记忆机制 / 记忆模块怎么设计？":"https://xiaolinnote.com/ai/agent/8_memory.html",
+ "长短期记忆怎么存？粒度多大？怎么用？":"https://xiaolinnote.com/ai/agent/9_memory_storage.html",
+ "Agent 记忆压缩有哪些方法？":"https://xiaolinnote.com/ai/agent/12_memcompress.html",
+ "如何赋予 LLM 规划能力？":"https://xiaolinnote.com/ai/agent/14_planning.html",
+ "Agent 的反思机制？为什么用、怎么实现？":"https://xiaolinnote.com/ai/agent/15_reflection.html",
+ "什么是 Multi-Agent？Single vs Multi 怎么选？":"https://xiaolinnote.com/ai/agent/11_single_multi.html",
+ "多 Agent 的协作、通信与动态路由怎么设计？":"https://xiaolinnote.com/ai/agent/16_collab.html",
+ "为什么有时手搓 Agent 而不用框架？":"https://xiaolinnote.com/ai/agent/13_handcode.html",
+ # AI·RAG
+ "什么是 RAG？完整工作流程是怎样的？":"https://xiaolinnote.com/ai/rag/1_whatisrag.html",
+ "RAG 解决了什么问题？RAG vs 微调如何选型？":"https://xiaolinnote.com/ai/rag/3_rag_vs_finetune.html",
+ "文档切割（Chunking）策略 / 粒度？":"https://xiaolinnote.com/ai/rag/4_chunking.html",
+ "怎么规避语义被切断的问题？":"https://xiaolinnote.com/ai/rag/5_semantic_cuts.html",
+ "Embedding 是什么？怎么选和评估？":"https://xiaolinnote.com/ai/rag/6_embedding.html",
+ "向量数据库是什么？怎么对比选型？":"https://xiaolinnote.com/ai/rag/8_vectordb.html",
+ "向量检索 vs 关键词检索的区别？":"https://xiaolinnote.com/ai/rag/11_retrieval_types.html",
+ "Query Rewrite 是什么？目的是什么？":"https://xiaolinnote.com/ai/rag/12_query_rewrite.html",
+ "什么是多路召回？怎么做？检索优化策略有哪些？":"https://xiaolinnote.com/ai/rag/13_multi_retrieval.html",
+ "进阶 RAG 范式（Self-RAG / Corrective RAG）了解哪些？":"https://xiaolinnote.com/ai/rag/15_advanced_paradigms.html",
+ "如何规避 RAG 幻觉？怎么量化 RAG 效果？":"https://xiaolinnote.com/ai/rag/17_hallucination.html",
+ "RAG 知识库如何动态与持续更新？":"https://xiaolinnote.com/ai/rag/19_dynamic_update.html",
+ # AI·工具调用
+ "什么是 Function Calling？原理是什么？":"https://xiaolinnote.com/ai/tools/1_function_calling.html",
+ "LLM 如何学会调用工具 / FC 能力怎么训练？":"https://xiaolinnote.com/ai/tools/3_fc_training.html",
+ "什么是 MCP？由哪几部分组成？":"https://xiaolinnote.com/ai/tools/5_mcp_components.html",
+ "MCP 和 Function Calling 的区别？什么场景用哪个？":"https://xiaolinnote.com/ai/tools/7_fc_vs_mcp_usage.html",
+ "Skill 是什么？和 MCP 有什么区别？":"https://xiaolinnote.com/ai/tools/10_mcp_vs_skill.html",
+ "Function Calling / Skill / MCP 三者的关系与区别？":"https://xiaolinnote.com/ai/tools/11_fc_skill_mcp.html",
+ "什么是 A2A 协议？和 MCP 的区别？":"https://xiaolinnote.com/ai/tools/12_a2a_protocol.html",
+ "MCP 通信方式 / SSE vs WebSocket 区别？":"https://xiaolinnote.com/ai/tools/14_sse_vs_websocket.html",
+ "LLM 网关解决了什么问题？":"https://xiaolinnote.com/ai/tools/16_llm_gateway.html",
+ # AI·大模型基础
+ "什么是大语言模型？和传统 NLP 模型有什么区别？":"https://xiaolinnote.com/ai/llm/what_is_llm.html",
+ "Transformer 架构基本原理（Encoder/Decoder）？":"https://xiaolinnote.com/ai/llm/transformer_architecture.html",
+ "KV Cache 是什么？Prompt Caching 原理（省 token）？":"https://xiaolinnote.com/ai/llm/kv_cache_prompt_caching.html",
+ "如何写好 Prompt？Prompt 工程实践经验？":"https://xiaolinnote.com/ai/llm/prompt_engineering.html",
+ "什么是 CoT？为什么有效？有什么局限？":"https://xiaolinnote.com/ai/llm/cot.html",
+ "大模型为什么会幻觉？怎么缓解？":"https://xiaolinnote.com/ai/llm/hallucination.html",
+ "温度值 / Top-P / Top-K 是什么？怎么设置？":"https://xiaolinnote.com/ai/llm/temperature_top_p_top_k.html",
+ "项目中如何做模型选型？为什么选这个模型？":"https://xiaolinnote.com/ai/llm/model_selection.html",
+}
+for rec in items:
+    rec["anc"]=XL_ANCHOR.get(rec["q"],"")
+
 JS=json.dumps(items,ensure_ascii=False); SEC=json.dumps(list(data.keys()),ensure_ascii=False)
 
 # ===== 算法刷题：CodeTop 高频前 100（顺序与 codetop.cc 按频度排序一致）=====
@@ -609,14 +805,17 @@ function renderCodes(host,o,minOne){
 // ===== 小林coding 跳转：板块 -> 页面，tag -> 页内小标题锚点（锚点对不上时自动停在页顶，退化为板块级）=====
 const XLURL={"集合":"https://xiaolincoding.com/interview/collections.html","并发/多线程":"https://xiaolincoding.com/interview/juc.html","MySQL":"https://xiaolincoding.com/interview/mysql.html","JVM":"https://xiaolincoding.com/interview/jvm.html","Spring":"https://xiaolincoding.com/interview/spring.html","计算机网络":"https://xiaolincoding.com/interview/network.html","Redis":"https://xiaolincoding.com/interview/redis.html","操作系统":"https://xiaolincoding.com/interview/os.html","Java基础":"https://xiaolincoding.com/interview/java.html","扩展(MyBatis/MQ/分布式)":"https://xiaolincoding.com/interview/mq.html","AI·Agent":"https://xiaolinnote.com/ai/agent/agent_info.html","AI·RAG":"https://xiaolinnote.com/ai/rag/rag_info.html","AI·工具调用":"https://xiaolinnote.com/ai/tools/tools_info.html","AI·大模型基础":"https://xiaolinnote.com/ai/llm/llm_info.html"};
 function xlSlug(s){return (s||"").toLowerCase().replace(/[^a-z0-9\\u4e00-\\u9fa5]+/g,"-").replace(/^-+|-+$/g,"");}
-function xlLink(sec,tags){
+function xlLink(sec,tags,anc){
+  if(anc&&/^https?:\/\//.test(anc))return anc;
   let base=XLURL[sec];const t=(tags&&tags[0])||"";
   if(sec==="扩展(MyBatis/MQ/分布式)"){
     if(t==="分布式")base="https://xiaolincoding.com/interview/cap.html";
     else if(t==="MyBatis")return "https://xiaolincoding.com/interview/";
   }
   if(!base)return "";
-  if(t&&/xiaolincoding\\.com\\/interview\\/.+\\.html$/.test(base))return base+"#"+xlSlug(t);
+  if(!/xiaolincoding\\.com\\/interview\\/.+\\.html$/.test(base))return base;
+  if(anc)return base+"#"+anc;          // 精确到那一题
+  if(t)return base+"#"+xlSlug(t);      // 退回小标题级
   return base;
 }
 function fmtIso(iso){if(!iso)return"";const d=new Date(iso+"T00:00:00");if(isNaN(d))return iso;const wk=["日","一","二","三","四","五","六"];return (d.getMonth()+1+"").padStart(2,"0")+"-"+(d.getDate()+"").padStart(2,"0")+" 周"+wk[d.getDay()];}
@@ -681,7 +880,7 @@ function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const
 function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const reviewDue=!!o.next&&o.next<=ti;if(d&&d>ti)return reviewDue;const studyDue=!!d&&d<=ti&&!(o.cnt>0);const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
-  ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso,tags:it.tags});});
+  ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso,tags:it.tags,anc:it.anc});});
   customList().forEach(c=>{(map[c.sec]||(map[c.sec]=[])).push({id:c.id,sec:c.sec,q:c.q,baseIso:"",custom:true,tags:[]});});
   Object.keys(map).forEach(s=>map[s].forEach((it,i)=>it.idx=i+1));return map;}
 function itemDate(it){const o=get(it.id);return (o.date!==undefined&&o.date!=="")?o.date:(it.baseIso||"");}
@@ -778,7 +977,7 @@ function render(){const tb=document.getElementById("tb");
       const tr=document.createElement("tr");
       tr.innerHTML='<td class="c">'+it.idx+'</td>'+
         '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
-        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+(xlLink(it.sec,it.tags)?'<a class="tag lc" href="'+xlLink(it.sec,it.tags)+'" target="_blank" rel="noopener" title="在小林coding打开对应板块">小林 ↗</a>':'')+'<span class="qedit" title="编辑题目">✎</span></td>'+
+        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+(function(u){if(!u)return '';const jg=/javaguide\.cn/.test(u);return '<a class="tag lc" href="'+u+'" target="_blank" rel="noopener" title="'+(jg?'在 JavaGuide 打开这一题':'在小林coding打开这一题')+'">'+(jg?'JavaGuide':'小林')+' ↗</a>';})(xlLink(it.sec,it.tags,it.anc))+'<span class="qedit" title="编辑题目">✎</span></td>'+
         '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
         '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
         '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span class="revdate" title="点击调整/延后复习" style="font-size:11px;cursor:pointer;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
