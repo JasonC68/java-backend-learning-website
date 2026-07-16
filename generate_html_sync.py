@@ -122,8 +122,10 @@ for rec in items:
 JS=json.dumps(items,ensure_ascii=False); SEC=json.dumps(list(data.keys()),ensure_ascii=False)
 
 # ===== 算法刷题：CodeTop 高频前 100（顺序与 codetop.cc 按频度排序一致）=====
-ALG_RAW=[("3","无重复字符的最长子串"),("146","LRU缓存机制"),("206","反转链表"),("215","数组中的第K个最大元素"),("25","K 个一组翻转链表"),("15","三数之和"),("53","最大子数组和"),("补充题4","手撕快速排序"),("5","最长回文子串"),("21","合并两个有序链表"),("102","二叉树的层序遍历"),("200","岛屿数量"),("33","搜索旋转排序数组"),("1","两数之和"),("20","有效的括号"),("46","全排列"),("88","合并两个有序数组"),("121","买卖股票的最佳时机"),("92","反转链表 II"),("103","二叉树的锯齿形层次遍历"),("300","最长上升子序列"),("236","二叉树的最近公共祖先"),("23","合并K个排序链表"),("54","螺旋矩阵"),("143","重排链表"),("141","环形链表"),("415","字符串相加"),("56","合并区间"),("72","编辑距离"),("160","相交链表"),("42","接雨水"),("1143","最长公共子序列"),("82","删除排序链表中的重复元素 II"),("93","复原IP地址"),("124","二叉树中的最大路径和"),("19","删除链表的倒数第N个节点"),("4","寻找两个正序数组的中位数"),("142","环形链表 II"),("165","比较版本号"),("199","二叉树的右视图"),("239","滑动窗口最大值"),("22","括号生成"),("704","二分查找"),("32","最长有效括号"),("69","x 的平方根"),("148","排序链表"),("94","二叉树的中序遍历"),("232","用栈实现队列"),("31","下一个排列"),("76","最小覆盖子串"),("2","两数相加"),("322","零钱兑换"),("43","字符串相乘"),("8","字符串转换整数 (atoi)"),("70","爬楼梯"),("105","从前序与中序遍历序列构造二叉树"),("41","缺失的第一个正数"),("78","子集"),("151","翻转字符串里的单词"),("34","在排序数组中查找元素的第一个和最后一个位置"),("剑指Offer22","链表中倒数第k个节点"),("394","字符串解码"),("129","求根到叶子节点数字之和"),("155","最小栈"),("101","对称二叉树"),("39","组合总和"),("64","最小路径和"),("470","用 Rand7() 实现 Rand10()"),("695","岛屿的最大面积"),("128","最长连续序列"),("122","买卖股票的最佳时机 II"),("104","二叉树的最大深度"),("221","最大正方形"),("110","平衡二叉树"),("234","回文链表"),("152","乘积最大子数组"),("14","最长公共前缀"),("48","旋转图像"),("240","搜索二维矩阵 II"),("98","验证二叉搜索树"),("144","二叉树的前序遍历"),("179","最大数"),("662","二叉树最大宽度"),("543","二叉树的直径"),("162","寻找峰值"),("62","不同路径"),("560","和为K的子数组"),("113","路径总和 II"),("24","两两交换链表中的节点"),("209","长度最小的子数组"),("198","打家劫舍"),("112","路径总和"),("83","删除排序链表中的重复元素"),("139","单词拆分"),("227","基本计算器 II"),("718","最长重复子数组"),("226","翻转二叉树"),("169","多数元素"),("207","课程表"),("283","移动零")]
-alg_items=[{"id":"alg"+str(i),"idx":i+1,"num":n,"q":t} for i,(n,t) in enumerate(ALG_RAW)]
+ALG_RAW=[("3","无重复字符的最长子串","滑动窗口"),("146","LRU缓存机制","哈希+双向链表"),("206","反转链表","链表"),("215","数组中的第K个最大元素","堆/快选"),("25","K 个一组翻转链表","链表"),("15","三数之和","双指针"),("53","最大子数组和","动态规划"),("补充题4","手撕快速排序","排序"),("5","最长回文子串","动态规划"),("21","合并两个有序链表","链表"),("102","二叉树的层序遍历","BFS"),("200","岛屿数量","DFS"),("33","搜索旋转排序数组","二分"),("1","两数之和","哈希"),("20","有效的括号","栈"),("46","全排列","回溯"),("88","合并两个有序数组","双指针"),("121","买卖股票的最佳时机","动态规划"),("92","反转链表 II","链表"),("103","二叉树的锯齿形层次遍历","BFS"),("300","最长上升子序列","动态规划"),("236","二叉树的最近公共祖先","二叉树"),("23","合并K个排序链表","堆"),("54","螺旋矩阵","模拟"),("143","重排链表","链表"),("141","环形链表","快慢指针"),("415","字符串相加","模拟"),("56","合并区间","排序"),("72","编辑距离","动态规划"),("160","相交链表","双指针"),("42","接雨水","双指针"),("1143","最长公共子序列","动态规划"),("82","删除排序链表中的重复元素 II","链表"),("93","复原IP地址","回溯"),("124","二叉树中的最大路径和","DFS"),("19","删除链表的倒数第N个节点","快慢指针"),("4","寻找两个正序数组的中位数","二分"),("142","环形链表 II","快慢指针"),("165","比较版本号","双指针"),("199","二叉树的右视图","BFS"),("239","滑动窗口最大值","单调队列"),("22","括号生成","回溯"),("704","二分查找","二分"),("32","最长有效括号","栈"),("69","x 的平方根","二分"),("148","排序链表","归并"),("94","二叉树的中序遍历","二叉树"),("232","用栈实现队列","栈"),("31","下一个排列","数组"),("76","最小覆盖子串","滑动窗口"),("2","两数相加","链表"),("322","零钱兑换","动态规划"),("43","字符串相乘","模拟"),("8","字符串转换整数 (atoi)","模拟"),("70","爬楼梯","动态规划"),("105","从前序与中序遍历序列构造二叉树","二叉树"),("41","缺失的第一个正数","原地哈希"),("78","子集","回溯"),("151","翻转字符串里的单词","字符串"),("34","在排序数组中查找元素的第一个和最后一个位置","二分"),("剑指Offer22","链表中倒数第k个节点","快慢指针"),("394","字符串解码","栈"),("129","求根到叶子节点数字之和","DFS"),("155","最小栈","栈"),("101","对称二叉树","二叉树"),("39","组合总和","回溯"),("64","最小路径和","动态规划"),("470","用 Rand7() 实现 Rand10()","数学"),("695","岛屿的最大面积","DFS"),("128","最长连续序列","哈希"),("122","买卖股票的最佳时机 II","贪心"),("104","二叉树的最大深度","二叉树"),("221","最大正方形","动态规划"),("110","平衡二叉树","二叉树"),("234","回文链表","快慢指针"),("152","乘积最大子数组","动态规划"),("14","最长公共前缀","字符串"),("48","旋转图像","模拟"),("240","搜索二维矩阵 II","矩阵"),("98","验证二叉搜索树","二叉树"),("144","二叉树的前序遍历","二叉树"),("179","最大数","贪心"),("662","二叉树最大宽度","BFS"),("543","二叉树的直径","DFS"),("162","寻找峰值","二分"),("62","不同路径","动态规划"),("560","和为K的子数组","前缀和"),("113","路径总和 II","DFS"),("24","两两交换链表中的节点","链表"),("209","长度最小的子数组","滑动窗口"),("198","打家劫舍","动态规划"),("112","路径总和","DFS"),("83","删除排序链表中的重复元素","链表"),("139","单词拆分","动态规划"),("227","基本计算器 II","栈"),("718","最长重复子数组","动态规划"),("226","翻转二叉树","二叉树"),("169","多数元素","摩尔投票"),("207","课程表","拓扑排序"),("283","移动零","双指针")]
+# 建议日期：从 2026-07-16 起，第一遍 30 天刷完（每天 3~4 题）；第二遍靠复习＋艾宾浩斯自然落在第二个月
+ALG_START=date(2026,7,16)
+alg_items=[{"id":"alg"+str(i),"idx":i+1,"num":n,"q":t,"tag":g,"iso":(ALG_START+timedelta(days=i*30//100)).isoformat()} for i,(n,t,g) in enumerate(ALG_RAW)]
 ALGJS=json.dumps(alg_items,ensure_ascii=False)
 
 html = '''<!DOCTYPE html>
@@ -311,6 +313,7 @@ body.dark .memo-folded:hover{background:#332a0c}
 .codedel:hover{background:rgba(248,113,113,.35);color:#fff}
 .codewrap.folded{margin-bottom:6px}
 .codewrap.folded pre.foldline{min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:9px 64px 9px 14px}
+.codewrap.nodel .codefold{right:7px}
 .hljs{color:#e1e4e8}
 .hljs-comment,.hljs-quote{color:#8b949e}
 .hljs-keyword,.hljs-selector-tag,.hljs-type,.hljs-literal{color:#ff7b72}
@@ -419,7 +422,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">📚 八股</button><button data-mode="alg">💻 算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.10.0</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.10.2</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -539,11 +542,11 @@ function confirmDlg(msg,cb){document.getElementById("cfMsg").textContent=msg;cfC
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200);}
 function md(t){return (window.marked?marked.parse(t||""):"<pre>"+esc(t)+"</pre>");}
 function highlightHTML(code){if(window.hljs){try{return hljs.highlightAuto(code||"").value;}catch(e){}}return esc(code);}
-function renderCodes(host,o){
+function renderCodes(host,o,fixed){
   host.innerHTML="";
   (o.codes||[]).forEach((c,idx)=>{
-    const box=document.createElement("div");box.className="codewrap"+(c.fold?" folded":"");
-    const btns='<button class="codefold" title="折叠/展开">'+(c.fold?"▸":"▾")+'</button><button class="codedel" title="删除此代码块">✕</button>';
+    const box=document.createElement("div");box.className="codewrap"+(c.fold?" folded":"")+(fixed?" nodel":"");
+    const btns='<button class="codefold" title="折叠/展开">'+(c.fold?"▸":"▾")+'</button>'+(fixed?'':'<button class="codedel" title="删除此代码块">✕</button>');
     const del=()=>{confirmDlg("删除此代码块？",()=>{o.codes.splice(idx,1);if(!o.codes.length)delete o.codes;save();render();});};
     if(c.fold){
       const first=(c.code||"").split("\\n")[0]||"",more=(c.code||"").indexOf("\\n")>=0;
@@ -551,7 +554,7 @@ function renderCodes(host,o){
       box.querySelector("code").innerHTML=highlightHTML(first)+(more?' <span style="color:#888">…</span>':"");
       box.style.cursor="pointer";
       box.onclick=e=>{if(e.target.closest(".codedel"))return;c.fold=false;save();render();};
-      box.querySelector(".codedel").onclick=e=>{e.stopPropagation();del();};
+      const db=box.querySelector(".codedel");if(db)db.onclick=e=>{e.stopPropagation();del();};
     }else{
       box.innerHTML=btns+'<pre aria-hidden="true"><code class="hljs"></code></pre><textarea spellcheck="false" placeholder="粘贴代码…"></textarea>';
       const code=box.querySelector("code"),ta=box.querySelector("textarea");
@@ -560,7 +563,7 @@ function renderCodes(host,o){
       ta.oninput=()=>{c.code=ta.value;paint();save();};
       ta.onkeydown=e=>{if(e.key==="Tab"){e.preventDefault();const s=ta.selectionStart,en=ta.selectionEnd;ta.value=ta.value.slice(0,s)+"  "+ta.value.slice(en);ta.selectionStart=ta.selectionEnd=s+2;c.code=ta.value;paint();save();}};
       box.querySelector(".codefold").onclick=()=>{c.fold=true;save();render();};
-      box.querySelector(".codedel").onclick=del;
+      const db=box.querySelector(".codedel");if(db)db.onclick=del;
     }
     host.appendChild(box);
   });
@@ -640,8 +643,8 @@ function renderAlg(tb){
     const hasStuff=(st.codes&&st.codes.some(c=>(c.code||c)&&(c.code||c).trim&&(c.code||c).trim()))||(st.memo&&st.memo.trim());
     const tr=document.createElement("tr");
     tr.innerHTML='<td class="c">'+it.idx+'</td>'+
-      '<td class="c hide-sm date" style="cursor:default"></td>'+
-      '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasStuff?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(it.q)+'</span><span class="tag">LC '+esc(it.num)+'</span></td>'+
+      '<td class="c hide-sm date" style="cursor:default">'+fmtIso(it.iso)+'</td>'+
+      '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasStuff?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(it.q)+'</span><span class="tag">'+esc(it.tag)+'</span><span class="tag">LC '+esc(it.num)+'</span></td>'+
       '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
       '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
       '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span class="revdate" title="点击调整/延后复习" style="font-size:11px;cursor:pointer;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
@@ -663,7 +666,7 @@ function renderAlg(tb){
       if(!o.codes||!o.codes.length)o.codes=[{code:""}];
       let bar='<div class="ehint">';
       bar+=(!o.memoOn)?'<button class="ebtn addmemo">＋ 助记</button>':'';
-      bar+='<button class="ebtn addcode">＋ 代码</button></div>';
+      bar+='</div>';
       let body='';
       if(o.memoOn){
         if(o.memoHide){const mf=plainFirstLine(o.memo);body+='<div class="memo-folded"><button class="memofold memobtn">▸</button><button class="memodel memobtn">✕</button>💡 助记'+(mf?'：'+esc(mf):'')+'</div>';}
@@ -677,10 +680,9 @@ function renderAlg(tb){
       if(mw){mw.querySelector(".memofold").onclick=e=>{e.stopPropagation();o.memoHide=true;save();render();};mw.querySelector(".memodel").onclick=e=>{e.stopPropagation();delMemo();};}
       const mfold=td.querySelector(".memo-folded");
       if(mfold){mfold.querySelector(".memodel").onclick=e=>{e.stopPropagation();delMemo();};mfold.onclick=e=>{if(e.target.closest(".memodel"))return;o.memoHide=false;save();render();};}
-      td.querySelector(".addcode").onclick=()=>{o.codes=o.codes||[];o.codes.push({code:""});save();render();};
       er.appendChild(td);tb.appendChild(er);
       if(o.memoOn&&!o.memoHide)mountEd(td.querySelector(".tui-memo"),()=>o.memo,v=>o.memo=v,"写思路/口诀…");
-      renderCodes(td.querySelector(".codebox"),o);
+      renderCodes(td.querySelector(".codebox"),o,true);
     }
   });
   let done=0,fam=0;ALG.forEach(it=>{const l=get(it.id).lvl;if(l>=2)done++;else if(l==1)fam++;});
