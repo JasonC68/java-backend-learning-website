@@ -449,7 +449,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.10.9</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.10.10</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -605,6 +605,19 @@ function renderCodes(host,o,minOne){
     }
     host.appendChild(box);
   });
+}
+// ===== 小林coding 跳转：板块 -> 页面，tag -> 页内小标题锚点（锚点对不上时自动停在页顶，退化为板块级）=====
+const XLURL={"集合":"https://xiaolincoding.com/interview/collections.html","并发/多线程":"https://xiaolincoding.com/interview/juc.html","MySQL":"https://xiaolincoding.com/interview/mysql.html","JVM":"https://xiaolincoding.com/interview/jvm.html","Spring":"https://xiaolincoding.com/interview/spring.html","计算机网络":"https://xiaolincoding.com/interview/network.html","Redis":"https://xiaolincoding.com/interview/redis.html","操作系统":"https://xiaolincoding.com/interview/os.html","Java基础":"https://xiaolincoding.com/interview/java.html","扩展(MyBatis/MQ/分布式)":"https://xiaolincoding.com/interview/mq.html","AI·Agent":"https://xiaolinnote.com/ai/agent/agent_info.html","AI·RAG":"https://xiaolinnote.com/ai/rag/rag_info.html","AI·工具调用":"https://xiaolinnote.com/ai/tools/tools_info.html","AI·大模型基础":"https://xiaolinnote.com/ai/llm/llm_info.html"};
+function xlSlug(s){return (s||"").toLowerCase().replace(/[^a-z0-9\\u4e00-\\u9fa5]+/g,"-").replace(/^-+|-+$/g,"");}
+function xlLink(sec,tags){
+  let base=XLURL[sec];const t=(tags&&tags[0])||"";
+  if(sec==="扩展(MyBatis/MQ/分布式)"){
+    if(t==="分布式")base="https://xiaolincoding.com/interview/cap.html";
+    else if(t==="MyBatis")return "https://xiaolincoding.com/interview/";
+  }
+  if(!base)return "";
+  if(t&&/xiaolincoding\\.com\\/interview\\/.+\\.html$/.test(base))return base+"#"+xlSlug(t);
+  return base;
 }
 function fmtIso(iso){if(!iso)return"";const d=new Date(iso+"T00:00:00");if(isNaN(d))return iso;const wk=["日","一","二","三","四","五","六"];return (d.getMonth()+1+"").padStart(2,"0")+"-"+(d.getDate()+"").padStart(2,"0")+" 周"+wk[d.getDay()];}
 function today(){const d=new Date();return (d.getMonth()+1+"").padStart(2,"0")+"-"+(d.getDate()+"").padStart(2,"0");}
@@ -765,7 +778,7 @@ function render(){const tb=document.getElementById("tb");
       const tr=document.createElement("tr");
       tr.innerHTML='<td class="c">'+it.idx+'</td>'+
         '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
-        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+'<span class="qedit" title="编辑题目">✎</span></td>'+
+        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+(xlLink(it.sec,it.tags)?'<a class="tag lc" href="'+xlLink(it.sec,it.tags)+'" target="_blank" rel="noopener" title="在小林coding打开对应板块">小林 ↗</a>':'')+'<span class="qedit" title="编辑题目">✎</span></td>'+
         '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
         '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
         '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span class="revdate" title="点击调整/延后复习" style="font-size:11px;cursor:pointer;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
