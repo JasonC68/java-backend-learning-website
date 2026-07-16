@@ -312,8 +312,79 @@ XL_ANCHOR={
  "温度值 / Top-P / Top-K 是什么？怎么设置？":"https://xiaolinnote.com/ai/llm/temperature_top_p_top_k.html",
  "项目中如何做模型选型？为什么选这个模型？":"https://xiaolinnote.com/ai/llm/model_selection.html",
 }
+# ===== JavaGuide 精确跳转（仅 Java 相关板块；找不到对应/相近题目的就不加）=====
+_JB1="https://javaguide.cn/java/basis/java-basic-questions-01.html#"
+_JB2="https://javaguide.cn/java/basis/java-basic-questions-02.html#"
+_JB3="https://javaguide.cn/java/basis/java-basic-questions-03.html#"
+_JC1="https://javaguide.cn/java/collection/java-collection-questions-01.html#"
+_JC2="https://javaguide.cn/java/collection/java-collection-questions-02.html#"
+_JK1="https://javaguide.cn/java/concurrent/java-concurrent-questions-01.html#"
+_JK2="https://javaguide.cn/java/concurrent/java-concurrent-questions-02.html#"
+_JK3="https://javaguide.cn/java/concurrent/java-concurrent-questions-03.html#"
+_JVM_MEM="https://javaguide.cn/java/jvm/memory-area.html#"
+_JVM_GC="https://javaguide.cn/java/jvm/jvm-garbage-collection.html#"
+_JVM_CLP="https://javaguide.cn/java/jvm/class-loading-process.html#"
+_JVM_CL="https://javaguide.cn/java/jvm/classloader.html#"
+_JSP="https://javaguide.cn/system-design/framework/spring/spring-knowledge-and-questions-summary.html#"
+JG_ANCHOR={
+ # Java基础
+ "装箱拆箱 + Integer 缓存（-128~127）":_JB1+"包装类型的缓存机制了解么",
+ "为什么用 BigDecimal 不用 double":_JB1+"如何解决浮点数运算的精度丢失问题",
+ "重载 vs 重写":_JB1+"⭐️-重载和重写有什么区别",
+ "JVM / JDK / JRE 三者关系":_JB1+"⭐️-jvm-vs-jdk-vs-jre",
+ "八种基本数据类型及字节数":_JB1+"java-中的几种基本数据类型了解么",
+ "抽象类 vs 接口":_JB2+"⭐️-接口和抽象类有什么共同点和区别",
+ "深拷贝 vs 浅拷贝 + 实现方式":_JB2+"深拷贝和浅拷贝区别了解吗-什么是引用拷贝",
+ "封装/继承/多态，多态的体现":_JB2+"⭐️-面向对象三大特征",
+ "泛型是什么 + 类型擦除":_JB3+"什么是泛型-有什么作用",
+ # 集合
+ "HashMap 实现原理":_JC2+"⭐️-hashmap-的底层实现",
+ "为什么容量是 2 的 n 次方 / 负载因子":_JC2+"⭐️-hashmap-的长度为什么是-2-的幂次方",
+ "HashMap 线程安全吗 / 多线程下的问题":_JC2+"⭐️-hashmap-为什么线程不安全",
+ "HashMap vs Hashtable vs ConcurrentHashMap":_JC2+"⭐️-hashmap-和-hashtable-的区别",
+ "ConcurrentHashMap 怎么实现的":_JC2+"⭐️-concurrenthashmap-线程安全的具体实现方式-底层具体实现",
+ "重写 equals / hashCode 的注意点":_JB2+"为什么重写-equals-时必须重写-hashcode-方法",
+ "ArrayList vs LinkedList":_JC1+"⭐️arraylist-与-linkedlist-区别",
+ "ArrayList 扩容机制":_JC1+"⭐️说一说-arraylist-的扩容机制吧",
+ "List vs Set":_JC1+"⭐️说说-list-set-queue-map-四者的区别",
+ # 并发/多线程
+ "线程的创建方式":_JK1+"如何创建线程",
+ "线程的六种状态":_JK1+"⭐️-说说线程的生命周期和状态",
+ "sleep vs wait":_JK1+"thread-sleep-方法和-object-wait-方法对比",
+ "怎么保证多线程安全":_JK1+"如何理解线程安全和不安全",
+ "JMM（Java 内存模型）+ 三大问题":_JK2+"⭐️-jmm-java-内存模型",
+ "volatile 作用与原理":_JK2+"⭐️-volatile-关键字",
+ "synchronized 原理 + 锁升级":_JK2+"jdk1-6-之后的-synchronized-底层做了哪些优化-锁升级原理了解吗",
+ "CAS 原理 + ABA 问题":_JK2+"cas-算法",
+ "ReentrantLock vs synchronized + AQS":_JK2+"⭐️-synchronized-和-reentrantlock-有什么区别",
+ "线程池原理（核心参数/流程/拒绝策略）":_JK3+"⭐️-线程池常见参数有哪些-如何解释",
+ # JVM
+ "JVM 内存模型（运行时数据区）":_JVM_MEM+"运行时数据区域",
+ "创建对象的过程":_JVM_MEM+"对象的创建",
+ "堆和栈的区别 / 堆怎么分代":_JVM_GC+"堆空间的基本结构",
+ "程序计数器为什么线程私有":_JK1+"程序计数器为什么是私有的",
+ "类加载过程":_JVM_CLP+"类加载过程",
+ "双亲委派模型是什么 / 有什么用":_JVM_CL+"双亲委派模型",
+ "类加载器有哪些":_JVM_CL+"类加载器介绍",
+ "判断垃圾的方法":_JVM_GC+"死亡对象判断方法",
+ "垃圾回收算法":_JVM_GC+"垃圾收集算法",
+ "垃圾回收器 / CMS vs G1":_JVM_GC+"垃圾收集器",
+ "MinorGC / MajorGC / FullGC":_JVM_GC+"主要进行-gc-的区域",
+ "四种引用类型":_JVM_GC+"引用类型总结",
+ # Spring
+ "IoC / DI 是什么":_JSP+"⭐️什么是-ioc",
+ "Bean 的生命周期":_JSP+"⭐️bean-的生命周期了解么",
+ "Bean 的作用域":_JSP+"⭐️bean-的作用域有哪些",
+ "三级缓存如何解决循环依赖":_JSP+"spring-循环依赖了解吗-怎么解决",
+ "AOP 原理（JDK 代理 vs CGLIB）":_JSP+"⭐️谈谈自己对于-aop-的了解",
+ "@Transactional 事务原理":_JSP+"transactional-rollbackfor-exception-class-注解了解吗",
+ "事务的传播行为":_JSP+"spring-事务中哪几种事务传播行为",
+ "Spring MVC 请求处理流程":_JSP+"⭐️springmvc-工作原理了解吗",
+ "常用注解区别（@Autowired vs @Resource 等）":_JSP+"⭐️-autowired-和-resource-的区别是什么",
+}
 for rec in items:
     rec["anc"]=XL_ANCHOR.get(rec["q"],"")
+    rec["jg"]=JG_ANCHOR.get(rec["q"],"")
 
 JS=json.dumps(items,ensure_ascii=False); SEC=json.dumps(list(data.keys()),ensure_ascii=False)
 
@@ -645,7 +716,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.10.10</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.10.11</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
@@ -880,7 +951,7 @@ function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const
 function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const reviewDue=!!o.next&&o.next<=ti;if(d&&d>ti)return reviewDue;const studyDue=!!d&&d<=ti&&!(o.cnt>0);const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
-  ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso,tags:it.tags,anc:it.anc});});
+  ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso,tags:it.tags,anc:it.anc,jg:it.jg});});
   customList().forEach(c=>{(map[c.sec]||(map[c.sec]=[])).push({id:c.id,sec:c.sec,q:c.q,baseIso:"",custom:true,tags:[]});});
   Object.keys(map).forEach(s=>map[s].forEach((it,i)=>it.idx=i+1));return map;}
 function itemDate(it){const o=get(it.id);return (o.date!==undefined&&o.date!=="")?o.date:(it.baseIso||"");}
@@ -977,7 +1048,7 @@ function render(){const tb=document.getElementById("tb");
       const tr=document.createElement("tr");
       tr.innerHTML='<td class="c">'+it.idx+'</td>'+
         '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
-        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+(function(u){if(!u)return '';const jg=/javaguide\.cn/.test(u);return '<a class="tag lc" href="'+u+'" target="_blank" rel="noopener" title="'+(jg?'在 JavaGuide 打开这一题':'在小林coding打开这一题')+'">'+(jg?'JavaGuide':'小林')+' ↗</a>';})(xlLink(it.sec,it.tags,it.anc))+'<span class="qedit" title="编辑题目">✎</span></td>'+
+        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+(function(u){if(!u)return '';const jg=/javaguide\.cn/.test(u);return '<a class="tag lc" href="'+u+'" target="_blank" rel="noopener" title="'+(jg?'在 JavaGuide 打开这一题':'在小林coding打开这一题')+'">'+(jg?'JavaGuide':'小林')+' ↗</a>';})(xlLink(it.sec,it.tags,it.anc))+(it.jg?'<a class="tag lc" href="'+it.jg+'" target="_blank" rel="noopener" title="在 JavaGuide 打开这一题">JavaGuide ↗</a>':'')+'<span class="qedit" title="编辑题目">✎</span></td>'+
         '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
         '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
         '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span class="revdate" title="点击调整/延后复习" style="font-size:11px;cursor:pointer;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
