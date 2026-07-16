@@ -121,6 +121,11 @@ for rec in items:
 
 JS=json.dumps(items,ensure_ascii=False); SEC=json.dumps(list(data.keys()),ensure_ascii=False)
 
+# ===== 算法刷题：CodeTop 高频前 100（顺序与 codetop.cc 按频度排序一致）=====
+ALG_RAW=[("3","无重复字符的最长子串"),("146","LRU缓存机制"),("206","反转链表"),("215","数组中的第K个最大元素"),("25","K 个一组翻转链表"),("15","三数之和"),("53","最大子数组和"),("补充题4","手撕快速排序"),("5","最长回文子串"),("21","合并两个有序链表"),("102","二叉树的层序遍历"),("200","岛屿数量"),("33","搜索旋转排序数组"),("1","两数之和"),("20","有效的括号"),("46","全排列"),("88","合并两个有序数组"),("121","买卖股票的最佳时机"),("92","反转链表 II"),("103","二叉树的锯齿形层次遍历"),("300","最长上升子序列"),("236","二叉树的最近公共祖先"),("23","合并K个排序链表"),("54","螺旋矩阵"),("143","重排链表"),("141","环形链表"),("415","字符串相加"),("56","合并区间"),("72","编辑距离"),("160","相交链表"),("42","接雨水"),("1143","最长公共子序列"),("82","删除排序链表中的重复元素 II"),("93","复原IP地址"),("124","二叉树中的最大路径和"),("19","删除链表的倒数第N个节点"),("4","寻找两个正序数组的中位数"),("142","环形链表 II"),("165","比较版本号"),("199","二叉树的右视图"),("239","滑动窗口最大值"),("22","括号生成"),("704","二分查找"),("32","最长有效括号"),("69","x 的平方根"),("148","排序链表"),("94","二叉树的中序遍历"),("232","用栈实现队列"),("31","下一个排列"),("76","最小覆盖子串"),("2","两数相加"),("322","零钱兑换"),("43","字符串相乘"),("8","字符串转换整数 (atoi)"),("70","爬楼梯"),("105","从前序与中序遍历序列构造二叉树"),("41","缺失的第一个正数"),("78","子集"),("151","翻转字符串里的单词"),("34","在排序数组中查找元素的第一个和最后一个位置"),("剑指Offer22","链表中倒数第k个节点"),("394","字符串解码"),("129","求根到叶子节点数字之和"),("155","最小栈"),("101","对称二叉树"),("39","组合总和"),("64","最小路径和"),("470","用 Rand7() 实现 Rand10()"),("695","岛屿的最大面积"),("128","最长连续序列"),("122","买卖股票的最佳时机 II"),("104","二叉树的最大深度"),("221","最大正方形"),("110","平衡二叉树"),("234","回文链表"),("152","乘积最大子数组"),("14","最长公共前缀"),("48","旋转图像"),("240","搜索二维矩阵 II"),("98","验证二叉搜索树"),("144","二叉树的前序遍历"),("179","最大数"),("662","二叉树最大宽度"),("543","二叉树的直径"),("162","寻找峰值"),("62","不同路径"),("560","和为K的子数组"),("113","路径总和 II"),("24","两两交换链表中的节点"),("209","长度最小的子数组"),("198","打家劫舍"),("112","路径总和"),("83","删除排序链表中的重复元素"),("139","单词拆分"),("227","基本计算器 II"),("718","最长重复子数组"),("226","翻转二叉树"),("169","多数元素"),("207","课程表"),("283","移动零")]
+alg_items=[{"id":"alg"+str(i),"idx":i+1,"num":n,"q":t} for i,(n,t) in enumerate(ALG_RAW)]
+ALGJS=json.dumps(alg_items,ensure_ascii=False)
+
 html = '''<!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -413,12 +418,12 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__PM_JS__</script>
 <script>__HL_JS__</script>
 </head><body>
-<div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.9.3</span></div>
+<div class="row1"><h1>秋招后端必背 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">📚 八股</button><button data-mode="alg">💻 算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
+<div class="sub"><span style="color:#9ca3af">v2.10.0</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="toolbar" id="filters"></div>
-<div class="toolbar">
+<div class="toolbar" id="dateBar">
   <span style="font-size:12px;color:#6b7280">按日期：</span>
   <span class="chip active" data-date="all">全部</span>
   <span class="chip" data-date="todayall" title="今天要打卡的（点 ＋ 算完成）+ 之前没完成顺延的 + 今天到期/逾期要复习的">📌 今天任务</span>
@@ -500,7 +505,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   </div>
 </div></div>
 <script>
-const ITEMS=__ITEMS__, SECTIONS=__SEC__;
+const ITEMS=__ITEMS__, SECTIONS=__SEC__, ALG=__ALG__;
 const KEY="review_tracker_v2", CFGKEY="sync_cfg_v1";
 const LVLS=["未开始","眼熟","能讲框架","能扛追问"];
 let state=JSON.parse(localStorage.getItem(KEY)||"{}");
@@ -625,10 +630,70 @@ function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
   customList().forEach(c=>{(map[c.sec]||(map[c.sec]=[])).push({id:c.id,sec:c.sec,q:c.q,baseIso:"",custom:true,tags:[]});});
   Object.keys(map).forEach(s=>map[s].forEach((it,i)=>it.idx=i+1));return map;}
 function itemDate(it){const o=get(it.id);return (o.date!==undefined&&o.date!=="")?o.date:(it.baseIso||"");}
+let mode=localStorage.getItem("mode_v1")||"gu";
+function mountEd(host,getv,setv,ph){if(window.MDEditor){editors.push(window.MDEditor(host,getv()||"",(html)=>{setv(html);save();}));}else{host.innerHTML='<textarea class="fa" placeholder="'+(ph||"")+'"></textarea>';const ta=host.querySelector(".fa");ta.value=getv()||"";ta.oninput=()=>{setv(ta.value);save();};}}
+function renderAlg(tb){
+  const sr=document.createElement("tr");sr.className="sec-row";sr.innerHTML='<td colspan="6">算法 · CodeTop 高频 Top 100</td>';tb.appendChild(sr);
+  const list=ALG.filter(it=>{const o=get(it.id);if(lvlFilter!=="all"&&o.lvl!=lvlFilter)return false;if(starOnly&&!o.star)return false;return true;});
+  list.forEach(it=>{const st=get(it.id);
+    const opened=openIds.has(it.id);
+    const hasStuff=(st.codes&&st.codes.some(c=>(c.code||c)&&(c.code||c).trim&&(c.code||c).trim()))||(st.memo&&st.memo.trim());
+    const tr=document.createElement("tr");
+    tr.innerHTML='<td class="c">'+it.idx+'</td>'+
+      '<td class="c hide-sm date" style="cursor:default"></td>'+
+      '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasStuff?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(it.q)+'</span><span class="tag">LC '+esc(it.num)+'</span></td>'+
+      '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
+      '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
+      '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span class="revdate" title="点击调整/延后复习" style="font-size:11px;cursor:pointer;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
+    tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
+    tr.querySelector(".qbtn").onclick=()=>{opened?openIds.delete(it.id):openIds.add(it.id);render();};
+    tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
+    tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNext(st.cnt);save();render();};
+    tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNext(st.cnt);else delete st.next;}save();render();};
+    const rv=tr.querySelector(".revdate");
+    if(rv)rv.onclick=e=>{e.stopPropagation();openCal(rv,{selected:st.next,dot:false,clearLabel:"移出复习",quick:[3,7,14],
+      onPick:iso=>{st.next=iso;save();render();},
+      onClear:()=>{delete st.next;save();render();},
+      onQuick:n=>{st.next=addDays(st.next||todayIso(),n);save();render();}});};
+    tb.appendChild(tr);
+    if(opened){
+      const er=document.createElement("tr");er.className="ed-row";
+      const td=document.createElement("td");td.colSpan=6;const o=st;
+      if(o.codes)o.codes=o.codes.map(c=>typeof c==="string"?{code:c}:c);
+      if(!o.codes||!o.codes.length)o.codes=[{code:""}];
+      let bar='<div class="ehint">';
+      bar+=(!o.memoOn)?'<button class="ebtn addmemo">＋ 助记</button>':'';
+      bar+='<button class="ebtn addcode">＋ 代码</button></div>';
+      let body='';
+      if(o.memoOn){
+        if(o.memoHide){const mf=plainFirstLine(o.memo);body+='<div class="memo-folded"><button class="memofold memobtn">▸</button><button class="memodel memobtn">✕</button>💡 助记'+(mf?'：'+esc(mf):'')+'</div>';}
+        else body+='<div class="memo-label">💡 助记</div><div class="memowrap"><button class="memofold memobtn" title="隐藏助记">▾</button><button class="memodel memobtn" title="删除助记">✕</button><div class="tui-memo"></div></div>';
+      }
+      body+='<div class="codebox"></div>';
+      td.innerHTML=bar+body;
+      const addb=td.querySelector(".addmemo");if(addb)addb.onclick=()=>{o.memoOn=true;o.memoHide=false;save();render();};
+      const delMemo=()=>confirmDlg("删除助记？",()=>{o.memoOn=false;delete o.memo;o.memoHide=false;save();render();});
+      const mw=td.querySelector(".memowrap");
+      if(mw){mw.querySelector(".memofold").onclick=e=>{e.stopPropagation();o.memoHide=true;save();render();};mw.querySelector(".memodel").onclick=e=>{e.stopPropagation();delMemo();};}
+      const mfold=td.querySelector(".memo-folded");
+      if(mfold){mfold.querySelector(".memodel").onclick=e=>{e.stopPropagation();delMemo();};mfold.onclick=e=>{if(e.target.closest(".memodel"))return;o.memoHide=false;save();render();};}
+      td.querySelector(".addcode").onclick=()=>{o.codes=o.codes||[];o.codes.push({code:""});save();render();};
+      er.appendChild(td);tb.appendChild(er);
+      if(o.memoOn&&!o.memoHide)mountEd(td.querySelector(".tui-memo"),()=>o.memo,v=>o.memo=v,"写思路/口诀…");
+      renderCodes(td.querySelector(".codebox"),o);
+    }
+  });
+  let done=0,fam=0;ALG.forEach(it=>{const l=get(it.id).lvl;if(l>=2)done++;else if(l==1)fam++;});
+  const tot=ALG.length,pct=tot?Math.round(done/tot*100):0,fpct=tot?Math.round(fam/tot*100):0;
+  document.getElementById("pbar").style.width=pct+"%";
+  document.getElementById("pbar2").style.width=fpct+"%";
+  document.getElementById("stat").innerHTML="已掌握(能讲框架+能扛追问)：<b>"+done+"</b> / "+tot+"　("+pct+"%)　·　<span style='color:#d97706'>眼熟 "+fam+"</span>";
+}
 function render(){const tb=document.getElementById("tb");
   const _sy=window.scrollY;
   editors.forEach(e=>{try{e.destroy();}catch(_){}});editors=[];
   tb.innerHTML="";
+  if(mode==="alg"){renderAlg(tb);window.scrollTo(0,_sy);requestAnimationFrame(()=>window.scrollTo(0,_sy));return;}
   const map=sectionMap();
   const secs=Object.keys(map).filter(s=>secFilter==="all"||s===secFilter);
   secs.forEach(s=>{
@@ -802,13 +867,15 @@ if(window.matchMedia)try{matchMedia("(prefers-color-scheme: dark)").addEventList
 applyTheme();
 document.getElementById("cfYes").onclick=()=>{document.getElementById("cfModal").classList.remove("show");const f=cfCb;cfCb=null;if(f)f();};
 document.getElementById("cfNo").onclick=()=>{document.getElementById("cfModal").classList.remove("show");cfCb=null;};
-loadStuck();buildFilters();render();
+function applyMode(){document.querySelectorAll("#modeSw button").forEach(b=>b.classList.toggle("on",b.dataset.mode===mode));document.getElementById("filters").style.display=mode==="alg"?"none":"";document.getElementById("dateBar").style.display=mode==="alg"?"none":"";render();}
+document.querySelectorAll("#modeSw button").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;localStorage.setItem("mode_v1",mode);applyMode();});
+loadStuck();buildFilters();applyMode();
 if(cfg){setPill("正在拉取…","busy");pull();}else{setPill("未配置云同步");}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")autoSync();});
 window.addEventListener("focus",autoSync);
 setInterval(autoSync,60000);
 </script></body></html>'''
-html = html.replace("__ITEMS__", JS).replace("__SEC__", SEC)
+html = html.replace("__ITEMS__", JS).replace("__SEC__", SEC).replace("__ALG__", ALGJS)
 pm_css = open("/tmp/tui/node_modules/prosemirror-view/style/prosemirror.css", encoding="utf-8").read()
 pm_css += "\n" + open("/tmp/tui/node_modules/prosemirror-gapcursor/style/gapcursor.css", encoding="utf-8").read()
 pm_css = pm_css.replace("</style", "<\\/style")
