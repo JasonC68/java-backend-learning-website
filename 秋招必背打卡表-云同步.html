@@ -63,7 +63,7 @@ td.date input[type=date]{width:108px;box-sizing:border-box;font-size:12px;paddin
 .cal-quick button{flex:1;font-size:11px;border:1px solid #93c5fd;background:#eff6ff;color:#2563eb;border-radius:6px;padding:4px 0;cursor:pointer}
 .cal-quick button:hover{background:#dbeafe}
 body.dark .cal-quick button{background:#1e293b;border-color:#3a3a3a;color:#93c5fd}
-.cal-foot{display:flex;justify-content:space-between;margin-top:8px}
+.cal-foot{display:flex;justify-content:space-between;gap:4px;margin-top:8px}
 .cal-foot button{font-size:11px;border:1px solid #d1d5db;background:#fff;border-radius:6px;padding:3px 10px;cursor:pointer}
 .cal-foot button:hover{background:#f3f4f6}
 .addform{display:flex;gap:6px;align-items:center}
@@ -35759,7 +35759,7 @@ document.querySelectorAll('[data-diff]').forEach(c=>c.onclick=()=>{document.quer
 const pickBtn=document.getElementById("pickBtn"),calBox=document.getElementById("cal");
 let calRef=new Date(),calCtx=null;
 function updatePickBtn(){pickBtn.textContent=pickedDate?("📅 "+pickedDate.slice(5)):"📅 选择日期";}
-function studyDateSet(){const s=new Set();if(mode==="alg"){ALG.forEach(it=>{const o=get(it.id);s.add((o.date&&o.date!=="")?o.date:it.iso);});return s;}ITEMS.forEach(it=>{const o=get(it.id);s.add((o.date&&o.date!=="")?o.date:it.iso);});customList().forEach(c=>{const o=get(c.id);if(o.date)s.add(o.date);});return s;}
+function studyDateSet(){const s=new Set();const add=(id,baseIso)=>{const d=realDate(get(id),baseIso);if(d)s.add(d);};if(mode==="alg"){ALG.forEach(it=>add(it.id,it.iso));return s;}ITEMS.forEach(it=>add(it.id,it.iso));customList().forEach(c=>add(c.id,""));return s;}
 function renderCal(){
   const sset=(calCtx&&calCtx.dot)?studyDateSet():new Set();
   const sel=calCtx?calCtx.selected:"";
@@ -35772,12 +35772,13 @@ function renderCal(){
     html+='<div class="cal-day'+(iso===todayIso()?" today":"")+(iso===sel?" sel":"")+'" data-iso="'+iso+'">'+d+(sset.has(iso)?'<span class="dot"></span>':'')+'</div>';}
   html+='</div>';
   if(calCtx&&calCtx.quick)html+='<div class="cal-quick">'+calCtx.quick.map(n=>'<button data-q="'+n+'">延后'+n+'天</button>').join('')+'</div>';
-  html+='<div class="cal-foot"><button id="calToday">今天</button>'+((calCtx&&calCtx.onClear)?'<button id="calClear">'+(calCtx.clearLabel||"清除")+'</button>':'<span></span>')+'</div>';
+  html+='<div class="cal-foot"><button id="calToday">今天</button>'+((calCtx&&calCtx.onNone)?'<button id="calNone">'+(calCtx.noneLabel||"清空日期")+'</button>':'')+((calCtx&&calCtx.onClear)?'<button id="calClear">'+(calCtx.clearLabel||"清除")+'</button>':'<span></span>')+'</div>';
   calBox.innerHTML=html;
   calBox.querySelector("#calPrev").onclick=e=>{e.stopPropagation();calRef=new Date(y,m-1,1);renderCal();};
   calBox.querySelector("#calNext").onclick=e=>{e.stopPropagation();calRef=new Date(y,m+1,1);renderCal();};
   calBox.querySelector("#calToday").onclick=e=>{e.stopPropagation();calRef=new Date();renderCal();};
   const cc=calBox.querySelector("#calClear");if(cc)cc.onclick=e=>{e.stopPropagation();calBox.classList.remove("show");calCtx.onClear();};
+  const cn=calBox.querySelector("#calNone");if(cn)cn.onclick=e=>{e.stopPropagation();calBox.classList.remove("show");calCtx.onNone();};
   calBox.querySelectorAll(".cal-quick button").forEach(b=>b.onclick=e=>{e.stopPropagation();calBox.classList.remove("show");calCtx.onQuick(+b.dataset.q);});
   calBox.querySelectorAll(".cal-day[data-iso]").forEach(el=>el.onclick=e=>{e.stopPropagation();const iso=el.dataset.iso;calBox.classList.remove("show");calCtx.onPick(iso);});
 }
@@ -35794,14 +35795,16 @@ document.addEventListener("click",e=>{if(!calBox.contains(e.target)&&e.target!==
 document.querySelectorAll('[data-date]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-date]').forEach(x=>x.classList.remove("active"));c.classList.add("active");dateFilter=c.dataset.date;pickedDate="";updatePickBtn();render();});
 document.getElementById("starFilter").onclick=function(){starOnly=!starOnly;this.classList.toggle("active",starOnly);render();};
 document.getElementById("recycleBtn").onclick=function(){recycleMode=!recycleMode;this.classList.toggle("pri",recycleMode);render();};
-function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=(o.date&&o.date!=="")?o.date:baseIso;const rd=!!o.next&&o.next<=ti;if(d&&d>ti){if(rd)n++;return;}const sd=!!d&&d<=ti&&!(o.cnt>0);if(sd||rd)n++;};if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return n;}ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
+function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=realDate(o,baseIso);const rd=!!o.next&&o.next<=ti;if(d&&d>ti){if(rd)n++;return;}const sd=!!d&&d<=ti&&!(o.cnt>0);if(sd||rd)n++;};if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return n;}ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
 function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const reviewDue=!!o.next&&o.next<=ti;if(d&&d>ti)return reviewDue;const studyDue=!!d&&d<=ti&&!(o.cnt>0);const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
   ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso,tags:it.tags,anc:it.anc,jg:it.jg});});
   customList().forEach(c=>{(map[c.sec]||(map[c.sec]=[])).push({id:c.id,sec:c.sec,q:c.q,baseIso:"",custom:true,tags:[]});});
   Object.keys(map).forEach(s=>map[s].forEach((it,i)=>it.idx=i+1));return map;}
-function itemDate(it){const o=get(it.id);return (o.date!==undefined&&o.date!=="")?o.date:(it.baseIso||"");}
+// date==="none" 表示手动清空为「未分配」，不再回落到默认建议日期
+function realDate(o,baseIso){if(o.date==="none")return "";return (o.date!==undefined&&o.date!=="")?o.date:(baseIso||"");}
+function itemDate(it){return realDate(get(it.id),it.baseIso);}
 let mode=localStorage.getItem("mode_v1")||"gu";
 function mountEd(host,getv,setv,ph){if(window.MDEditor){editors.push(window.MDEditor(host,getv()||"",(html)=>{setv(html);save();}));}else{host.innerHTML='<textarea class="fa" placeholder="'+(ph||"")+'"></textarea>';const ta=host.querySelector(".fa");ta.value=getv()||"";ta.oninput=()=>{setv(ta.value);save();};}}
 function renderAlg(tb){
@@ -35820,8 +35823,9 @@ function renderAlg(tb){
       '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
       '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span class="revdate" title="点击调整/延后复习" style="font-size:11px;cursor:pointer;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
     const dc=tr.querySelector(".date");
-    dc.onclick=e=>{e.stopPropagation();openCal(dc,{selected:itemDate(it),dot:true,clearLabel:"恢复默认",
+    dc.onclick=e=>{e.stopPropagation();openCal(dc,{selected:itemDate(it),dot:true,clearLabel:"恢复默认",noneLabel:"清空日期",
       onPick:iso=>{get(it.id).date=iso;save();render();},
+      onNone:()=>{get(it.id).date="none";save();render();},
       onClear:()=>{delete get(it.id).date;save();render();}});};
     tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
     tr.querySelector(".qbtn").onclick=()=>{opened?openIds.delete(it.id):openIds.add(it.id);render();};
@@ -35900,8 +35904,9 @@ function render(){const tb=document.getElementById("tb");
         '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
         '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span class="revdate" title="点击调整/延后复习" style="font-size:11px;cursor:pointer;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
       const dc=tr.querySelector(".date");
-      dc.onclick=e=>{e.stopPropagation();openCal(dc,{selected:itemDate(it),dot:true,clearLabel:"恢复默认",
+      dc.onclick=e=>{e.stopPropagation();openCal(dc,{selected:itemDate(it),dot:true,clearLabel:"恢复默认",noneLabel:"清空日期",
         onPick:iso=>{get(it.id).date=iso;save();render();},
+        onNone:()=>{get(it.id).date="none";save();render();},
         onClear:()=>{delete get(it.id).date;save();render();}});};
       const rv=tr.querySelector(".revdate");
       if(rv)rv.onclick=e=>{e.stopPropagation();openCal(rv,{selected:st.next,dot:false,clearLabel:"移出复习",quick:[3,7,14],
@@ -36001,7 +36006,7 @@ function renderBackups(){const a=loadBackups(),box=document.getElementById("bkLi
 }
 // ---- 缩减今日任务：把未完成的一部分挪到未来 ----
 function todayTaskItems(){const ti=todayIso();const res=[];
-  const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=(o.date&&o.date!=="")?o.date:baseIso;if(d&&d>ti)return;const reviewDue=!!o.next&&o.next<=ti;const studyDue=!!d&&d<=ti&&!(o.cnt>0);if(studyDue||reviewDue)res.push({id:id,reviewDue:reviewDue});};
+  const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=realDate(o,baseIso);if(d&&d>ti)return;const reviewDue=!!o.next&&o.next<=ti;const studyDue=!!d&&d<=ti&&!(o.cnt>0);if(studyDue||reviewDue)res.push({id:id,reviewDue:reviewDue});};
   if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return res;}
   ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return res;}
 const trimModal=document.getElementById("trimModal");
