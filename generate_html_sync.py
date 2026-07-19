@@ -567,18 +567,19 @@ h1{font-size:20px}
 #pbar2{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
 #goalmark{position:absolute;top:0;bottom:0;width:2px;background:#dc2626;z-index:3}
 .statline{font-size:13px;margin-bottom:12px}.statline b{color:#059669}
-.est{font-size:13px;margin:0 0 12px;color:#374151;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.estrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 12px}
+.est{font-size:13px;color:#374151;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
 .est .estlabel{color:#6b7280}
 .est .estseg{background:#f3f4f6;border-radius:8px;padding:3px 10px;white-space:nowrap}
 .est .estsub{color:#9ca3af;font-size:12px;margin-left:4px}
 .est .esttot{font-weight:600;color:#2563eb;white-space:nowrap}
 .est.none{color:#16a34a}
-.timer{display:inline-flex;align-items:center;gap:8px;margin:0 0 12px;padding:6px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.05)}
-.timer .tdot{width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex:none}
+.timer{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid #e5e7eb;border-radius:8px;background:#fff}
+.timer .tdot{width:6px;height:6px;border-radius:50%;background:#cbd5e1;flex:none}
 .timer.run .tdot{background:#16a34a;animation:tblink 1s ease-in-out infinite}
 @keyframes tblink{50%{opacity:.3}}
-.timer b{font-size:15px;color:#111827;font-variant-numeric:tabular-nums;min-width:66px;display:inline-block;font-weight:600}
-.timer button{font-size:12px;border:1px solid #d1d5db;background:#fff;border-radius:6px;padding:2px 9px;cursor:pointer}
+.timer b{font-size:13px;color:#111827;font-variant-numeric:tabular-nums;min-width:58px;display:inline-block;font-weight:600}
+.timer button{font-size:12px;line-height:1;border:1px solid #d1d5db;background:#fff;border-radius:6px;width:22px;height:22px;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
 .timer button:hover{background:#f3f4f6}
 .timer button.on{background:#2563eb;color:#fff;border-color:#2563eb}
 body.dark .timer{background:#1f1f1f;border-color:#3a3a3a}
@@ -586,11 +587,12 @@ body.dark .timer b{color:#e5e5e5}
 body.dark .timer .tdot{background:#4b5563}
 body.dark .timer button{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
 body.dark .timer button:hover{background:#303030}
+@media(max-width:640px){.timer{width:100%;box-sizing:border-box;justify-content:flex-start}}
 .toolbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;align-items:center}
 .chip{border:1px solid #d1d5db;background:#fff;border-radius:16px;padding:4px 12px;font-size:13px;cursor:pointer;user-select:none}
 .chip.active{background:#2563eb;color:#fff;border-color:#2563eb}
 .spacer{flex:1}
-.btn{border:1px solid #d1d5db;background:#fff;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer}
+.btn{border:1px solid #d1d5db;background:#fff;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer}
 .btn:hover{background:#f3f4f6}.btn.pri{background:#2563eb;color:#fff;border-color:#2563eb}
 table{width:100%;table-layout:fixed;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 th:nth-child(1),td:nth-child(1){width:56px}
@@ -602,7 +604,7 @@ th{background:#2f5597;color:#fff;font-weight:600;position:sticky;top:0;z-index:2
 td.c,th.c{text-align:center;white-space:nowrap}
 tr.sec-row td{background:#eef2ff;font-weight:700;color:#3730a3}
 th:nth-child(2){width:120px}
-td.date{width:120px;min-width:120px;max-width:120px;color:#6b7280;font-size:12px;white-space:nowrap;cursor:pointer;border-radius:4px;overflow:hidden}
+td.date{width:120px;min-width:120px;max-width:120px;color:#6b7280;font-size:12px;white-space:nowrap;cursor:pointer;border-radius:6px;overflow:hidden}
 td.date:hover{background:#eef2ff}
 td.date input[type=date]{width:108px;box-sizing:border-box;font-size:12px;padding:1px 2px}
 .add-row td{background:#fff;padding:6px 14px}
@@ -616,7 +618,7 @@ td.date input[type=date]{width:108px;box-sizing:border-box;font-size:12px;paddin
 .pickwrap{position:relative;display:inline-block}
 .pickbtn{font-size:12px;padding:4px 10px;border:1px solid #d1d5db;border-radius:16px;background:#fff;cursor:pointer}
 .pickbtn:hover{background:#f3f4f6}
-.cal{position:fixed;z-index:50;background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.14);padding:10px;width:252px;display:none}
+.cal{position:fixed;z-index:50;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.14);padding:10px;width:252px;display:none}
 .cal.show{display:block}
 .cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;font-weight:600}
 .cal-head button{border:none;background:#f3f4f6;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:14px}
@@ -676,7 +678,7 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 .preview:empty::before{content:"还没有内容，点 ✏️ 编辑开始写…";color:#bbb}
 .preview h1,.preview h2,.preview h3{font-size:14px;margin:8px 0 4px}
 .preview p{margin:5px 0}.preview ul,.preview ol{margin:5px 0 5px 20px}
-.preview code{background:#f3f4f6;padding:1px 4px;border-radius:3px;font-size:12px}
+.preview code{background:#f3f4f6;padding:1px 4px;border-radius:4px;font-size:12px}
 .preview pre{background:#f3f4f6;padding:8px;border-radius:6px;overflow:auto}
 .preview pre code{background:none;padding:0}
 .preview blockquote{border-left:3px solid #d1d5db;margin:5px 0;padding-left:10px;color:#4b5563}
@@ -721,14 +723,14 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 .tui-memo .ProseMirror{outline:none;min-height:70px;padding:10px 14px;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7;color:#1f2937;overflow-wrap:break-word;word-break:break-word}
 .memo-label{font-size:12px;color:#b45309;margin:0 0 4px;font-weight:600}
 .memowrap{position:relative}
-.memobtn{position:absolute;top:6px;z-index:3;border:none;background:rgba(120,80,0,.10);color:#92700e;border-radius:5px;width:22px;height:22px;font-size:12px;line-height:1;cursor:pointer}
+.memobtn{position:absolute;top:6px;z-index:3;border:none;background:rgba(120,80,0,.10);color:#92700e;border-radius:6px;width:22px;height:22px;font-size:12px;line-height:1;cursor:pointer}
 .memofold{right:34px}.memodel{right:8px}
 .memobtn:hover{background:rgba(120,80,0,.2)}
 .memodel:hover{background:rgba(220,38,38,.18);color:#b91c1c}
 .memo-folded{position:relative;border:1px solid #fde68a;background:#fffbeb;border-radius:8px;margin-bottom:8px;padding:10px 64px 10px 14px;font-size:13px;color:#92700e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .memo-folded:hover{background:#fef9ec}
 .notewrap{position:relative}
-.notebtn{position:absolute;top:6px;right:8px;z-index:3;border:none;background:rgba(0,0,0,.06);color:#6b7280;border-radius:5px;width:22px;height:22px;font-size:12px;line-height:1;cursor:pointer}
+.notebtn{position:absolute;top:6px;right:8px;z-index:3;border:none;background:rgba(0,0,0,.06);color:#6b7280;border-radius:6px;width:22px;height:22px;font-size:12px;line-height:1;cursor:pointer}
 .notebtn:hover{background:rgba(0,0,0,.12);color:#374151}
 .note-folded{position:relative;border:1px solid #e5e7eb;background:#fff;border-radius:8px;padding:10px 40px 10px 14px;font-size:13px;color:#6b7280;cursor:pointer}
 .note-folded:hover{background:#f9fafb}
@@ -747,7 +749,7 @@ body.dark .memo-folded:hover{background:#332a0c}
 .codewrap pre code{font:inherit;display:block;min-height:1.6em}
 .codewrap textarea{position:absolute;inset:0;width:100%;height:100%;border:none;outline:none;resize:none;background:transparent;color:transparent;caret-color:#fff;overflow:hidden}
 .codewrap textarea::placeholder{color:#888}
-.codedel,.codefold{position:absolute;top:5px;z-index:3;border:none;background:rgba(255,255,255,.08);color:#aaa;border-radius:5px;width:22px;height:22px;font-size:12px;line-height:1;cursor:pointer}
+.codedel,.codefold{position:absolute;top:5px;z-index:3;border:none;background:rgba(255,255,255,.08);color:#aaa;border-radius:6px;width:22px;height:22px;font-size:12px;line-height:1;cursor:pointer}
 .codedel{right:7px}.codefold{right:34px}
 .codefold:hover{background:rgba(255,255,255,.18);color:#fff}
 .codedel:hover{background:rgba(248,113,113,.35);color:#fff}
@@ -871,7 +873,7 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 .ProseMirror blockquote{border-left:3px solid #c7d2fe;background:#f8faff;color:#475569;padding:4px 12px;margin:8px 0}
 .ProseMirror strong{color:#111827}
 .ProseMirror a{color:#2563eb}
-.ProseMirror mark,.preview mark{background:#fef08a;color:inherit;border-radius:2px;padding:0 1px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.ProseMirror mark,.preview mark{background:#fef08a;color:inherit;border-radius:4px;padding:0 1px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fef9c3}
 .ProseMirror hr{border:none;border-top:1px solid #e5e7eb;margin:12px 0}
 </style>
@@ -882,8 +884,10 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <div class="sub"><span style="color:#9ca3af">v2.10.14</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
-<div class="est" id="estLine" title="按单题估时算出的、完成今天剩余任务还需要多久（每完成一题自动减少）"></div>
-<span class="timer" id="timerBox" title="学习计时器：可随时开始 / 暂停 / 重置"><span class="tdot"></span><b id="timerDisp">00:00:00</b><button id="timerToggle">▶ 开始</button><button id="timerReset">↺ 重置</button></span>
+<div class="estrow">
+  <div class="est" id="estLine" title="按单题估时算出的、完成今天剩余任务还需要多久（每完成一题自动减少）"></div>
+  <span class="timer" id="timerBox" title="学习计时器：可随时开始 / 暂停 / 重置"><span class="tdot"></span><b id="timerDisp">00:00:00</b><button id="timerToggle" title="开始">▶</button><button id="timerReset" title="重置">↺</button></span>
+</div>
 <div class="toolbar" id="filters"></div>
 <div class="toolbar" id="dateBar">
   <span style="font-size:12px;color:#6b7280">按日期：</span>
@@ -1127,10 +1131,10 @@ let timerElapsed=0,timerStart=0,timerRunning=false,timerTick=null;
 function fmtTimer(ms){let s=Math.floor(ms/1000);const h=Math.floor(s/3600);s-=h*3600;const m=Math.floor(s/60);s-=m*60;const p=n=>(n+"").padStart(2,"0");return p(h)+":"+p(m)+":"+p(s);}
 function renderTimer(){const d=document.getElementById("timerDisp");if(d)d.textContent=fmtTimer(timerElapsed+(timerRunning?Date.now()-timerStart:0));}
 function timerToggle(){const btn=document.getElementById("timerToggle"),box=document.getElementById("timerBox");
-  if(timerRunning){timerElapsed+=Date.now()-timerStart;timerRunning=false;if(timerTick){clearInterval(timerTick);timerTick=null;}btn.textContent="▶ 继续";btn.classList.remove("on");box.classList.remove("run");}
-  else{timerStart=Date.now();timerRunning=true;btn.textContent="⏸ 暂停";btn.classList.add("on");box.classList.add("run");if(timerTick)clearInterval(timerTick);timerTick=setInterval(renderTimer,250);}
+  if(timerRunning){timerElapsed+=Date.now()-timerStart;timerRunning=false;if(timerTick){clearInterval(timerTick);timerTick=null;}btn.textContent="▶";btn.title="继续";btn.classList.remove("on");box.classList.remove("run");}
+  else{timerStart=Date.now();timerRunning=true;btn.textContent="⏸";btn.title="暂停";btn.classList.add("on");box.classList.add("run");if(timerTick)clearInterval(timerTick);timerTick=setInterval(renderTimer,250);}
   renderTimer();}
-function timerReset(){timerElapsed=0;timerRunning=false;if(timerTick){clearInterval(timerTick);timerTick=null;}const btn=document.getElementById("timerToggle");if(btn){btn.textContent="▶ 开始";btn.classList.remove("on");}const box=document.getElementById("timerBox");if(box)box.classList.remove("run");renderTimer();}
+function timerReset(){timerElapsed=0;timerRunning=false;if(timerTick){clearInterval(timerTick);timerTick=null;}const btn=document.getElementById("timerToggle");if(btn){btn.textContent="▶";btn.title="开始";btn.classList.remove("on");}const box=document.getElementById("timerBox");if(box)box.classList.remove("run");renderTimer();}
 document.getElementById("timerToggle").onclick=timerToggle;
 document.getElementById("timerReset").onclick=timerReset;
 renderTimer();
