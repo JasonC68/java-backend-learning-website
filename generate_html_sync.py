@@ -573,14 +573,15 @@ h1{font-size:20px}
 .est .estsub{color:#9ca3af;font-size:12px;margin-left:4px}
 .est .esttot{font-weight:600;color:#2563eb;white-space:nowrap}
 .est.none{color:#16a34a}
-.timer{display:inline-flex;align-items:center;gap:6px;margin-left:14px;vertical-align:middle}
-.timer .tdot{width:7px;height:7px;border-radius:50%;background:#cbd5e1}
+.timer{display:inline-flex;align-items:center;gap:8px;margin:0 0 12px;padding:6px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.timer .tdot{width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex:none}
 .timer.run .tdot{background:#16a34a;animation:tblink 1s ease-in-out infinite}
 @keyframes tblink{50%{opacity:.3}}
-.timer b{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px;color:#111827;font-variant-numeric:tabular-nums;min-width:52px;display:inline-block;font-weight:600}
+.timer b{font-size:15px;color:#111827;font-variant-numeric:tabular-nums;min-width:66px;display:inline-block;font-weight:600}
 .timer button{font-size:12px;border:1px solid #d1d5db;background:#fff;border-radius:6px;padding:2px 9px;cursor:pointer}
 .timer button:hover{background:#f3f4f6}
 .timer button.on{background:#2563eb;color:#fff;border-color:#2563eb}
+body.dark .timer{background:#1f1f1f;border-color:#3a3a3a}
 body.dark .timer b{color:#e5e5e5}
 body.dark .timer .tdot{background:#4b5563}
 body.dark .timer button{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
@@ -878,10 +879,11 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.10.14</span><span class="timer" id="timerBox" title="学习计时器：可随时开始 / 暂停 / 重置"><span class="tdot"></span><b id="timerDisp">00:00</b><button id="timerToggle">▶ 开始</button><button id="timerReset">↺ 重置</button></span></div>
+<div class="sub"><span style="color:#9ca3af">v2.10.14</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="est" id="estLine" title="按单题估时算出的、完成今天剩余任务还需要多久（每完成一题自动减少）"></div>
+<span class="timer" id="timerBox" title="学习计时器：可随时开始 / 暂停 / 重置"><span class="tdot"></span><b id="timerDisp">00:00:00</b><button id="timerToggle">▶ 开始</button><button id="timerReset">↺ 重置</button></span>
 <div class="toolbar" id="filters"></div>
 <div class="toolbar" id="dateBar">
   <span style="font-size:12px;color:#6b7280">按日期：</span>
@@ -1122,7 +1124,7 @@ document.getElementById("starFilter").onclick=function(){starOnly=!starOnly;this
 document.getElementById("recycleBtn").onclick=function(){recycleMode=!recycleMode;this.classList.toggle("pri",recycleMode);render();};
 // ===== 学习计时器（正计时：开始/暂停/重置）=====
 let timerElapsed=0,timerStart=0,timerRunning=false,timerTick=null;
-function fmtTimer(ms){let s=Math.floor(ms/1000);const h=Math.floor(s/3600);s-=h*3600;const m=Math.floor(s/60);s-=m*60;const p=n=>(n+"").padStart(2,"0");return (h?p(h)+":":"")+p(m)+":"+p(s);}
+function fmtTimer(ms){let s=Math.floor(ms/1000);const h=Math.floor(s/3600);s-=h*3600;const m=Math.floor(s/60);s-=m*60;const p=n=>(n+"").padStart(2,"0");return p(h)+":"+p(m)+":"+p(s);}
 function renderTimer(){const d=document.getElementById("timerDisp");if(d)d.textContent=fmtTimer(timerElapsed+(timerRunning?Date.now()-timerStart:0));}
 function timerToggle(){const btn=document.getElementById("timerToggle"),box=document.getElementById("timerBox");
   if(timerRunning){timerElapsed+=Date.now()-timerStart;timerRunning=false;if(timerTick){clearInterval(timerTick);timerTick=null;}btn.textContent="▶ 继续";btn.classList.remove("on");box.classList.remove("run");}
