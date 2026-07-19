@@ -567,6 +567,12 @@ h1{font-size:20px}
 #pbar2{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
 #goalmark{position:absolute;top:0;bottom:0;width:2px;background:#dc2626;z-index:3}
 .statline{font-size:13px;margin-bottom:12px}.statline b{color:#059669}
+.est{font-size:13px;margin:0 0 12px;color:#374151;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.est .estlabel{color:#6b7280}
+.est .estseg{background:#f3f4f6;border-radius:8px;padding:3px 10px;white-space:nowrap}
+.est .estsub{color:#9ca3af;font-size:12px;margin-left:4px}
+.est .esttot{font-weight:600;color:#2563eb;white-space:nowrap}
+.est.none{color:#16a34a}
 .toolbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;align-items:center}
 .chip{border:1px solid #d1d5db;background:#fff;border-radius:16px;padding:4px 12px;font-size:13px;cursor:pointer;user-select:none}
 .chip.active{background:#2563eb;color:#fff;border-color:#2563eb}
@@ -779,6 +785,10 @@ body.dark #bkLabel{background:#121212;border-color:#3a3a3a;color:#e5e5e5}
 body.dark{background:#1a1a1a;color:#e5e5e5}
 body.dark .bar{background:#3a3a3a}
 body.dark .statline{color:#d4d4d4}
+body.dark .est{color:#d4d4d4}
+body.dark .est .estseg{background:#262626}
+body.dark .est .esttot{color:#60a5fa}
+body.dark .est.none{color:#4ade80}
 body.dark .pill{background:#3a3a3a;color:#d4d4d4}
 body.dark .chip{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
 body.dark .chip.active{background:#2563eb;color:#fff;border-color:#2563eb}
@@ -856,9 +866,10 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.10.12</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.10.13</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
+<div class="est" id="estLine" title="按单题估时算出的、完成今天剩余任务还需要多久（每完成一题自动减少）"></div>
 <div class="toolbar" id="filters"></div>
 <div class="toolbar" id="dateBar">
   <span style="font-size:12px;color:#6b7280">按日期：</span>
@@ -1098,6 +1109,29 @@ document.querySelectorAll('[data-date]').forEach(c=>c.onclick=()=>{document.quer
 document.getElementById("starFilter").onclick=function(){starOnly=!starOnly;this.classList.toggle("active",starOnly);render();};
 document.getElementById("recycleBtn").onclick=function(){recycleMode=!recycleMode;this.classList.toggle("pri",recycleMode);render();};
 function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=realDate(o,baseIso);const rd=!!o.next&&o.next<=ti;if(d&&d>ti){if(rd)n++;return;}const sd=!!d&&d<=ti&&!(o.cnt>0);if(sd||rd)n++;};if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return n;}ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
+// ---- 今日剩余任务估时（八股/算法 · 新学/复习 分类，跨两个模式统计）----
+const EST_MIN={guNew:9,guRev:3,algNew:25,algRev:10};   // 单题分钟数
+function taskBreakdown(){const ti=todayIso();const b={guNew:0,guRev:0,algNew:0,algRev:0};
+  const chk=(id,baseIso,isAlg)=>{const o=get(id);if(o.del||o.purged)return;
+    const d=realDate(o,baseIso);const rd=!!o.next&&o.next<=ti;
+    if(d&&d>ti){if(rd){if(isAlg)b.algRev++;else b.guRev++;}return;}
+    const sd=!!d&&d<=ti&&!(o.cnt>0);
+    if(sd){if(isAlg)b.algNew++;else b.guNew++;}
+    else if(rd){if(isAlg)b.algRev++;else b.guRev++;}};
+  ITEMS.forEach(it=>chk(it.id,it.iso,false));customList().forEach(c=>chk(c.id,"",false));
+  ALG.forEach(it=>chk(it.id,it.iso,true));return b;}
+function fmtDur(m){m=Math.round(m);if(m<=0)return "0 分钟";const h=Math.floor(m/60),mm=m%60;return (h?h+" 小时":"")+(h&&mm?" ":"")+(mm?mm+" 分钟":"");}
+function updateEstimate(){const el=document.getElementById("estLine");if(!el)return;
+  const b=taskBreakdown();
+  const guMin=b.guNew*EST_MIN.guNew+b.guRev*EST_MIN.guRev;
+  const algMin=b.algNew*EST_MIN.algNew+b.algRev*EST_MIN.algRev;
+  const total=guMin+algMin;
+  if(total<=0){el.className="est none";el.innerHTML="⏱ 今日任务已全部完成，休息一下 🎉";return;}
+  el.className="est";
+  el.innerHTML="<span class='estlabel'>⏱ 完成今日剩余任务还需：</span>"
+    +"<span class='estseg'>八股 "+fmtDur(guMin)+"<span class='estsub'>新学"+b.guNew+"·复习"+b.guRev+"</span></span>"
+    +"<span class='estseg'>算法 "+fmtDur(algMin)+"<span class='estsub'>新学"+b.algNew+"·复习"+b.algRev+"</span></span>"
+    +"<span class='esttot'>合计 "+fmtDur(total)+"</span>";}
 function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const reviewDue=!!o.next&&o.next<=ti;if(d&&d>ti)return reviewDue;const studyDue=!!d&&d<=ti&&!(o.cnt>0);const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
@@ -1114,6 +1148,7 @@ function renderAlg(tb){
   const DL=["","简单","中等","困难"];
   const list=ALG.map(it=>Object.assign({},it,{baseIso:it.iso})).filter(it=>{const o=get(it.id);if(lvlFilter!=="all"&&o.lvl!=lvlFilter)return false;if(diffFilter!=="all"&&it.lv!=diffFilter)return false;if(starOnly&&!o.star)return false;if(!passDate(it))return false;return true;});
   {const tc=document.querySelector('[data-date="todayall"]');if(tc)tc.textContent="📌 今天任务："+todayCount();}
+  updateEstimate();
   list.forEach(it=>{const st=get(it.id);
     const opened=openIds.has(it.id);
     const hasStuff=(st.codes&&st.codes.some(c=>(c.code||c)&&(c.code||c).trim&&(c.code||c).trim()))||(st.memo&&st.memo.trim());
@@ -1277,6 +1312,7 @@ function render(){const tb=document.getElementById("tb");
   document.getElementById("stat").innerHTML="已掌握(能讲框架+能扛追问)：<b>"+done+"</b> / "+tot+"　("+pct+"%)　·　<span style='color:#d97706'>眼熟 "+fam+"</span>　·　"+(pct>=GOAL?"<span style='color:#16a34a'>✅ 已过可投递线，可以开始投面试</span>":"<span style='color:#dc2626'>距可投递线(60%)还差 "+(GOAL-pct)+"%</span>");
   if(dateFilter==="todayall")saveStuck();
   {const tc=document.querySelector('[data-date="todayall"]');if(tc)tc.textContent="📌 今天任务："+todayCount();}
+  updateEstimate();
   window.scrollTo(0,_sy);requestAnimationFrame(()=>window.scrollTo(0,_sy));}
 const modal=document.getElementById("modal");
 document.getElementById("cfgBtn").onclick=()=>{if(cfg){document.getElementById("supaUrl").value=cfg.url;document.getElementById("supaKey").value=cfg.key;}document.getElementById("imgKey").value=imgKey;modal.classList.add("show");};
