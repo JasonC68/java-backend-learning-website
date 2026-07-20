@@ -589,6 +589,23 @@ body.dark .timer .tdot{background:#4b5563}
 body.dark .timer button{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
 body.dark .timer button:hover{background:#303030}
 @media(max-width:640px){.timer{width:100%;box-sizing:border-box;justify-content:flex-start}}
+.focusbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:10px 14px;margin:0 0 12px}
+.focusbar .fp-main{display:flex;align-items:center;gap:8px;flex:1;min-width:220px}
+.focusbar .fp-kind{font-size:12px;font-weight:600;padding:2px 9px;border-radius:8px;white-space:nowrap}
+.focusbar .fp-kind.new{background:#dbeafe;color:#1d4ed8}
+.focusbar .fp-kind.review{background:#fef3c7;color:#b45309}
+.focusbar .fp-q{font-size:14px;color:#111827;font-weight:500}
+.focusbar .fp-side{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.focusbar .fp-time{display:inline-flex;align-items:baseline;gap:6px;margin-right:2px}
+.focusbar .fp-time b{font-size:18px;font-variant-numeric:tabular-nums;color:#1d4ed8;font-weight:600;min-width:52px;display:inline-block}
+.focusbar .fp-time.over b{color:#dc2626}
+.focusbar .fp-allot{font-size:12px;color:#6b7280;white-space:nowrap}
+body.dark .focusbar{background:#172033;border-color:#254264}
+body.dark .focusbar .fp-q{color:#e5e5e5}
+body.dark .focusbar .fp-time b{color:#93c5fd}
+body.dark .focusbar .fp-kind.new{background:#1e3a5f;color:#93c5fd}
+body.dark .focusbar .fp-kind.review{background:#3a2e0a;color:#fcd34d}
+@media(max-width:640px){.focusbar .fp-side{width:100%;justify-content:flex-start}}
 .toolbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;align-items:center}
 .chip{border:1px solid #d1d5db;background:#fff;border-radius:16px;padding:4px 12px;font-size:13px;cursor:pointer;user-select:none}
 .chip.active{background:#2563eb;color:#fff;border-color:#2563eb}
@@ -882,12 +899,16 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.10.14</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.0</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
   <div class="est" id="estLine" title="按单题估时算出的、完成今天剩余任务还需要多久（每完成一题自动减少）"></div>
   <span class="timer" id="timerBox" title="学习计时器：可随时开始 / 暂停 / 重置"><span class="tdot"></span><b id="timerDisp">00:00:00</b><button id="timerToggle" title="开始">▶</button><button id="timerReset" title="重置">↺</button></span>
+</div>
+<div class="focusbar" id="focusPanel" style="display:none">
+  <div class="fp-main"><span class="fp-kind" id="focusKind"></span><span class="fp-q" id="focusQ"></span></div>
+  <div class="fp-side"><span class="fp-time" id="focusTime"><b id="focusDisp">00:00</b><span class="fp-allot" id="focusAllot"></span></span><button class="btn pri" id="focusDone">✓ 完成本题</button><button class="btn" id="focusSkip" title="这题先跳过，换下一题">⏭ 跳过</button><button class="btn" id="focusStop">⏹ 结束</button></div>
 </div>
 <div class="toolbar" id="filters"></div>
 <div class="toolbar" id="dateBar">
@@ -895,6 +916,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   <span class="chip active" data-date="all">全部</span>
   <span class="chip" data-date="todayall" title="今天要打卡的（点 ＋ 算完成）+ 之前没完成顺延的 + 今天到期/逾期要复习的">📌 今天任务</span>
   <button class="btn" id="trimBtn" title="把今天未完成的一部分任务挪到未来" style="margin-left:2px">✂️ 缩减</button>
+  <button class="btn" id="focusBtn" title="从今日任务里挑一题、按建议时长开始专注学习/复习">🎯 专注</button>
   <span class="chip" data-date="today">📅 今天打卡</span>
   <span class="chip" data-date="tomorrow">明天</span>
   <span class="chip" data-date="review" title="按艾宾浩斯遗忘曲线，到期/逾期需复习的题">🔁 今日复习</span>
@@ -931,6 +953,11 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <div class="modal" id="cfModal"><div class="card" style="max-width:380px">
   <p id="cfMsg" style="font-size:14px;line-height:1.6;margin-bottom:16px"></p>
   <div class="acts"><button class="btn" id="cfNo">取消</button><button class="btn pri" id="cfYes">确定</button></div>
+</div></div>
+<div class="modal" id="focusModal"><div class="card" style="max-width:360px">
+  <h3 style="font-size:16px;margin-bottom:8px">⏰ 时间到</h3>
+  <p id="focusModalMsg" style="font-size:13px;color:#4b5563;margin-bottom:14px;line-height:1.6"></p>
+  <div class="acts"><button class="btn" id="focusStopBtn">停止复习</button><button class="btn pri" id="focusContBtn">继续学习</button></div>
 </div></div>
 <div id="toast"></div>
 <div class="modal" id="trimModal"><div class="card" style="max-width:430px">
@@ -1139,6 +1166,49 @@ function timerReset(){timerElapsed=0;timerRunning=false;if(timerTick){clearInter
 document.getElementById("timerToggle").onclick=timerToggle;
 document.getElementById("timerReset").onclick=timerReset;
 renderTimer();
+// ===== 🎯 专注学习/复习：挑一题 → 本题计时 → 到时提示 → 完成/跳过/结束 =====
+let focusOn=false,focusTask=null,focusStartMs=0,focusTick=null,focusAlerted=false;
+const focusSkipped=new Set();
+function fmtMS(ms){let s=Math.floor(ms/1000);const h=Math.floor(s/3600);s-=h*3600;const m=Math.floor(s/60);s-=m*60;const p=n=>(n+"").padStart(2,"0");return (h?h+":":"")+p(m)+":"+p(s);}
+function focusMinFor(t){return t.isAlg?(t.kind==="review"?EST_MIN.algRev:EST_MIN.algNew):(t.kind==="review"?EST_MIN.guRev:EST_MIN.guNew);}
+function focusQueue(){const ti=todayIso();const rev=[],neu=[];
+  const push=(id,baseIso,isAlg,q,sec,idx)=>{const o=get(id);if(o.del||o.purged)return;
+    const d=realDate(o,baseIso);const reviewDue=!!o.next&&o.next<=ti;
+    if(d&&d>ti){if(reviewDue)rev.push({id:id,kind:"review",isAlg:isAlg,q:q,sec:sec,idx:idx});return;}
+    const studyDue=!!d&&d<=ti&&!(o.cnt>0);
+    if(studyDue)neu.push({id:id,kind:"new",isAlg:isAlg,q:q,sec:sec,idx:idx});
+    else if(reviewDue)rev.push({id:id,kind:"review",isAlg:isAlg,q:q,sec:sec,idx:idx});};
+  if(mode==="alg"){ALG.forEach(it=>push(it.id,it.iso,true,qText(it),"算法",it.idx));}
+  else{ITEMS.forEach(it=>push(it.id,it.iso,false,qText(it),it.sec));customList().forEach(c=>push(c.id,"",false,qText(c),c.sec));}
+  return rev.concat(neu);}   // 复习优先，再新学
+function renderFocus(){if(!focusOn||!focusTask)return;const el=document.getElementById("focusDisp");if(!el)return;
+  const elapsed=Date.now()-focusStartMs,allot=focusMinFor(focusTask)*60000;
+  el.textContent=fmtMS(elapsed);
+  document.getElementById("focusTime").classList.toggle("over",elapsed>=allot);
+  if(!focusAlerted&&elapsed>=allot){focusAlerted=true;showFocusTimeup();}}
+function loadFocusTask(t){focusTask=t;focusStartMs=Date.now();focusAlerted=false;
+  const k=document.getElementById("focusKind");k.textContent=t.kind==="review"?"🔁 复习":"🆕 新学";k.className="fp-kind "+t.kind;
+  document.getElementById("focusQ").textContent=(t.sec?("["+t.sec+"] "):"")+t.q;
+  document.getElementById("focusAllot").textContent="/ 建议 "+fmtMS(focusMinFor(t)*60000);
+  if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);renderFocus();}
+function focusNext(){const q=focusQueue().filter(t=>!focusSkipped.has(t.id));
+  if(!q.length){const skipped=focusSkipped.size;endFocus();toast(skipped?"剩下的都跳过了，专注结束":"🎉 今日任务已全部完成");return;}
+  loadFocusTask(q[0]);}
+function startFocus(){focusSkipped.clear();if(!focusQueue().length){toast("🎉 今日任务已全部完成");return;}
+  focusOn=true;document.getElementById("focusPanel").style.display="";document.getElementById("focusBtn").classList.add("pri");focusNext();}
+function endFocus(){focusOn=false;focusTask=null;if(focusTick){clearInterval(focusTick);focusTick=null;}
+  const p=document.getElementById("focusPanel");if(p)p.style.display="none";
+  const b=document.getElementById("focusBtn");if(b)b.classList.remove("pri");
+  document.getElementById("focusModal").classList.remove("show");}
+function focusComplete(){if(!focusTask)return;const o=get(focusTask.id);o.cnt=(o.cnt||0)+1;o.last=today();o.next=focusTask.isAlg?schedNextAlg(o.cnt,focusTask.idx):schedNext(o.cnt);save();render();toast("✓ 已完成，下一题");focusNext();}
+function focusSkip(){if(!focusTask)return;focusSkipped.add(focusTask.id);focusNext();}
+function showFocusTimeup(){const m=document.getElementById("focusModalMsg");if(m&&focusTask)m.textContent="「"+focusTask.q+"」的建议用时 "+focusMinFor(focusTask)+" 分钟已到。可以继续深入，或结束这一题。";document.getElementById("focusModal").classList.add("show");}
+document.getElementById("focusBtn").onclick=()=>{if(focusOn)endFocus();else startFocus();};
+document.getElementById("focusDone").onclick=focusComplete;
+document.getElementById("focusSkip").onclick=focusSkip;
+document.getElementById("focusStop").onclick=endFocus;
+document.getElementById("focusContBtn").onclick=()=>document.getElementById("focusModal").classList.remove("show");
+document.getElementById("focusStopBtn").onclick=endFocus;
 function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=realDate(o,baseIso);const rd=!!o.next&&o.next<=ti;if(d&&d>ti){if(rd)n++;return;}const sd=!!d&&d<=ti&&!(o.cnt>0);if(sd||rd)n++;};if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return n;}ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
 // ---- 今日剩余任务估时（八股/算法 · 新学/复习 分类，跨两个模式统计）----
 const EST_MIN={guNew:9,guRev:3,algNew:25,algRev:10};   // 单题分钟数
@@ -1444,7 +1514,7 @@ applyTheme();
 document.getElementById("cfYes").onclick=()=>{document.getElementById("cfModal").classList.remove("show");const f=cfCb;cfCb=null;if(f)f();};
 document.getElementById("cfNo").onclick=()=>{document.getElementById("cfModal").classList.remove("show");cfCb=null;};
 function applyMode(){document.querySelectorAll("#modeSw button").forEach(b=>b.classList.toggle("on",b.dataset.mode===mode));document.getElementById("filters").style.display=mode==="alg"?"none":"";document.getElementById("diffBar").style.display=mode==="alg"?"":"none";render();}
-document.querySelectorAll("#modeSw button").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;localStorage.setItem("mode_v1",mode);applyMode();});
+document.querySelectorAll("#modeSw button").forEach(b=>b.onclick=()=>{if(focusOn)endFocus();mode=b.dataset.mode;localStorage.setItem("mode_v1",mode);applyMode();});
 loadStuck();buildFilters();applyMode();
 if(cfg){if(dirty){setPill("有未同步的改动，正在上传…","busy");push();}else{setPill("正在拉取…","busy");pull();}}else{setPill("未配置云同步");}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")autoSync();});
