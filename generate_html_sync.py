@@ -605,8 +605,8 @@ body.dark .timer button:hover{background:#303030}
 #focusBtn:disabled{border-color:#e5e7eb;color:#9ca3af;background:#f9fafb;cursor:not-allowed}
 #focusBtn:disabled:hover{background:#f9fafb}
 body.dark #focusBtn:disabled{border-color:#3a3a3a;color:#6b7280;background:#1c1c1c}
-.focusbar .btn.pri,#focusModal .btn.pri,#focusBtn.pri{background:#dc2626;border-color:#dc2626;color:#fff}
-.focusbar .btn.pri:hover,#focusModal .btn.pri:hover,#focusBtn.pri:hover{background:#b91c1c;border-color:#b91c1c}
+.focusbar .btn.pri,#focusModal .btn.pri,#focusBtn.pri,body.dark .focusbar .btn.pri,body.dark #focusModal .btn.pri,body.dark #focusBtn.pri{background:#dc2626;border-color:#dc2626;color:#fff}
+.focusbar .btn.pri:hover,#focusModal .btn.pri:hover,#focusBtn.pri:hover,body.dark .focusbar .btn.pri:hover,body.dark #focusModal .btn.pri:hover,body.dark #focusBtn.pri:hover{background:#b91c1c;border-color:#b91c1c}
 body.dark #focusBtn{border-color:#dc2626}
 body.dark #focusBtn:hover{background:#2a1416}
 body.dark .focusbar{background:#2a1416;border-color:#5f2626}
