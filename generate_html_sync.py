@@ -574,6 +574,7 @@ h1{font-size:20px}
 .est .estsub{color:#9ca3af;font-size:12px;margin-left:4px}
 .est .esttot{font-weight:600;color:#2563eb;white-space:nowrap}
 .est.none{color:#16a34a}
+.tododot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#dc2626;margin-right:5px;vertical-align:middle}
 .timer{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;margin-left:auto}
 .timer .tdot{width:6px;height:6px;border-radius:50%;background:#cbd5e1;flex:none}
 .timer.run .tdot{background:#16a34a;animation:tblink 1s ease-in-out infinite}
@@ -1240,6 +1241,8 @@ document.getElementById("focusStopBtn").onclick=endFocus;
 document.getElementById("focusStayBtn").onclick=()=>{document.getElementById("focusModal").classList.remove("show");focusSetRun(true);};
 document.getElementById("focusNextBtn").onclick=()=>{document.getElementById("focusModal").classList.remove("show");focusComplete();};
 function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=realDate(o,baseIso);const rd=!!o.next&&o.next<=ti;if(d&&d>ti){if(rd)n++;return;}const sd=!!d&&d<=ti&&!(o.cnt>0);if(sd||rd)n++;};if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return n;}ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
+// 今天该做但还没开始（未点过加号 / 复习到期未做）→ 显示红点
+function isTodoToday(it){const o=get(it.id);if(o.del||o.purged)return false;const ti=todayIso();const d=realDate(o,it.baseIso);const rd=!!o.next&&o.next<=ti;if(d&&d>ti)return rd;const sd=!!d&&d<=ti&&!(o.cnt>0);return sd||rd;}
 // ---- 今日剩余任务估时（八股/算法 · 新学/复习 分类，跨两个模式统计）----
 const EST_MIN={guNew:10,guRev:4,algNew:25,algRev:10};   // 单题分钟数
 function taskBreakdown(){const ti=todayIso();const b={guNew:0,guRev:0,algNew:0,algRev:0};
@@ -1284,7 +1287,7 @@ function renderAlg(tb){
     const opened=openIds.has(it.id);
     const hasStuff=(st.codes&&st.codes.some(c=>(c.code||c)&&(c.code||c).trim&&(c.code||c).trim()))||(st.memo&&st.memo.trim());
     const tr=document.createElement("tr");tr.dataset.id=it.id;
-    tr.innerHTML='<td class="c">'+it.idx+'</td>'+
+    tr.innerHTML='<td class="c">'+(isTodoToday(it)?'<span class="tododot" title="今天还没开始"></span>':'')+it.idx+'</td>'+
       '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
       '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasStuff?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(it.q)+'</span><span class="dtag d'+it.lv+'">'+DL[it.lv]+'</span><span class="tag">'+esc(it.tag)+'</span><a class="tag lc" href="https://leetcode.cn/problems/'+it.slug+'/" target="_blank" rel="noopener" title="在力扣打开这道题">LC '+esc(it.num)+' ↗</a></td>'+
       '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
@@ -1365,7 +1368,7 @@ function render(){const tb=document.getElementById("tb");
     list.forEach(it=>{const st=get(it.id);
       const opened=openIds.has(it.id), hasNote=st.note&&st.note.trim();
       const tr=document.createElement("tr");tr.dataset.id=it.id;
-      tr.innerHTML='<td class="c">'+it.idx+'</td>'+
+      tr.innerHTML='<td class="c">'+(isTodoToday(it)?'<span class="tododot" title="今天还没开始"></span>':'')+it.idx+'</td>'+
         '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
         '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+(function(u){if(!u)return '';const jg=/javaguide\.cn/.test(u);return '<a class="tag lc" href="'+u+'" target="_blank" rel="noopener" title="'+(jg?'在 JavaGuide 打开这一题':'在小林coding打开这一题')+'">'+(jg?'JavaGuide':'小林')+' ↗</a>';})(xlLink(it.sec,it.tags,it.anc))+(it.jg?'<a class="tag lc" href="'+it.jg+'" target="_blank" rel="noopener" title="在 JavaGuide 打开这一题">JavaGuide ↗</a>':'')+'<span class="qedit" title="编辑题目">✎</span></td>'+
         '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
