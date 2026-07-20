@@ -905,7 +905,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.1</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.2</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -963,7 +963,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <div class="modal" id="focusModal"><div class="card" style="max-width:360px">
   <h3 style="font-size:16px;margin-bottom:8px">⏰ 时间到</h3>
   <p id="focusModalMsg" style="font-size:13px;color:#4b5563;margin-bottom:14px;line-height:1.6"></p>
-  <div class="acts"><button class="btn" id="focusStopBtn">停止复习</button><button class="btn pri" id="focusContBtn">继续学习</button></div>
+  <div class="acts"><button class="btn" id="focusStopBtn">停止复习</button><button class="btn" id="focusStayBtn">继续本题</button><button class="btn pri" id="focusNextBtn">复习下一题</button></div>
 </div></div>
 <div id="toast"></div>
 <div class="modal" id="trimModal"><div class="card" style="max-width:430px">
@@ -1193,10 +1193,11 @@ function renderFocus(){if(!focusOn||!focusTask)return;const el=document.getEleme
   el.textContent=fmtMS(elapsed);
   document.getElementById("focusTime").classList.toggle("over",elapsed>=allot);
   if(!focusAlerted&&elapsed>=allot){focusAlerted=true;showFocusTimeup();}}
-function focusPause(){if(!focusOn)return;const btn=document.getElementById("focusPause");
-  if(focusRunning){focusElapsed+=Date.now()-focusStartMs;focusRunning=false;if(focusTick){clearInterval(focusTick);focusTick=null;}btn.textContent="▶ 继续";}
-  else{focusStartMs=Date.now();focusRunning=true;if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);btn.textContent="⏸ 暂停";}
+function focusSetRun(run){const btn=document.getElementById("focusPause");
+  if(run&&!focusRunning){focusStartMs=Date.now();focusRunning=true;if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);if(btn)btn.textContent="⏸ 暂停";}
+  else if(!run&&focusRunning){focusElapsed+=Date.now()-focusStartMs;focusRunning=false;if(focusTick){clearInterval(focusTick);focusTick=null;}if(btn)btn.textContent="▶ 继续";}
   renderFocus();}
+function focusPause(){if(!focusOn)return;focusSetRun(!focusRunning);}
 function loadFocusTask(t){focusTask=t;focusStartMs=Date.now();focusElapsed=0;focusRunning=true;focusAlerted=false;
   const pb=document.getElementById("focusPause");if(pb)pb.textContent="⏸ 暂停";
   const k=document.getElementById("focusKind");k.textContent=t.kind==="review"?"🔁 复习":"🆕 新学";k.className="fp-kind "+t.kind;
@@ -1214,14 +1215,15 @@ function endFocus(){focusOn=false;focusTask=null;focusRunning=false;if(focusTick
   document.getElementById("focusModal").classList.remove("show");}
 function focusComplete(){if(!focusTask)return;const o=get(focusTask.id);o.cnt=(o.cnt||0)+1;o.last=today();o.next=focusTask.isAlg?schedNextAlg(o.cnt,focusTask.idx):schedNext(o.cnt);save();render();toast("✓ 已完成，下一题");focusNext();}
 function focusSkip(){if(!focusTask)return;focusSkipped.add(focusTask.id);focusNext();}
-function showFocusTimeup(){const m=document.getElementById("focusModalMsg");if(m&&focusTask)m.textContent="「"+focusTask.q+"」的建议用时 "+focusMinFor(focusTask)+" 分钟已到。可以继续深入，或结束这一题。";document.getElementById("focusModal").classList.add("show");}
+function showFocusTimeup(){focusSetRun(false);const m=document.getElementById("focusModalMsg");if(m&&focusTask)m.textContent="「"+focusTask.q+"」的建议用时 "+focusMinFor(focusTask)+" 分钟已到（计时已暂停）。可以继续复习这一题、进入下一题，或停止。";document.getElementById("focusModal").classList.add("show");}
 document.getElementById("focusBtn").onclick=()=>{if(focusOn)endFocus();else startFocus();};
 document.getElementById("focusDone").onclick=focusComplete;
 document.getElementById("focusPause").onclick=focusPause;
 document.getElementById("focusSkip").onclick=focusSkip;
 document.getElementById("focusStop").onclick=endFocus;
-document.getElementById("focusContBtn").onclick=()=>document.getElementById("focusModal").classList.remove("show");
 document.getElementById("focusStopBtn").onclick=endFocus;
+document.getElementById("focusStayBtn").onclick=()=>{document.getElementById("focusModal").classList.remove("show");focusSetRun(true);};
+document.getElementById("focusNextBtn").onclick=()=>{document.getElementById("focusModal").classList.remove("show");focusComplete();};
 function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=realDate(o,baseIso);const rd=!!o.next&&o.next<=ti;if(d&&d>ti){if(rd)n++;return;}const sd=!!d&&d<=ti&&!(o.cnt>0);if(sd||rd)n++;};if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return n;}ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
 // ---- 今日剩余任务估时（八股/算法 · 新学/复习 分类，跨两个模式统计）----
 const EST_MIN={guNew:9,guRev:3,algNew:25,algRev:10};   // 单题分钟数
@@ -1281,7 +1283,7 @@ function renderAlg(tb){
     tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
     tr.querySelector(".qbtn").onclick=()=>{opened?openIds.delete(it.id):openIds.add(it.id);render();};
     tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
-    tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNextAlg(st.cnt,it.idx);save();render();};
+    tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNextAlg(st.cnt,it.idx);save();render();if(focusOn&&focusTask&&focusTask.id===it.id){toast("✓ 已完成，下一题");focusNext();}};
     tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNextAlg(st.cnt,it.idx);else delete st.next;}save();render();};
     const rv=tr.querySelector(".revdate");
     if(rv)rv.onclick=e=>{e.stopPropagation();openCal(rv,{selected:st.next,dot:false,clearLabel:"移出复习",quick:[3,7,14],
@@ -1368,7 +1370,7 @@ function render(){const tb=document.getElementById("tb");
       tr.querySelector(".qedit").onclick=e=>{e.stopPropagation();const cell=tr.querySelector(".q");cell.innerHTML='<input class="qin">';const inp=cell.querySelector(".qin");inp.value=qText(it);inp.focus();const commit=()=>{const v=inp.value.trim();if(v)get(it.id).q=v;save();render();};inp.onkeydown=ev=>{if(ev.key==="Enter")commit();else if(ev.key==="Escape")render();};inp.onblur=commit;};
       tr.querySelector(".qbtn").onclick=()=>{opened?openIds.delete(it.id):openIds.add(it.id);render();};
       tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
-      tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNext(st.cnt);save();render();};
+      tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNext(st.cnt);save();render();if(focusOn&&focusTask&&focusTask.id===it.id){toast("✓ 已完成，下一题");focusNext();}};
       tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNext(st.cnt);else delete st.next;}save();render();};
       tb.appendChild(tr);
       if(opened){
