@@ -930,6 +930,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   <span class="chip" data-date="today">📅 今天打卡</span>
   <span class="chip" data-date="tomorrow">明天</span>
   <span class="chip" data-date="review" title="按艾宾浩斯遗忘曲线，到期/逾期需复习的题">🔁 今日复习</span>
+  <span class="chip" data-date="solo" id="soloChip" title="只看专注面板里点选的那一题">🎯 选择</span>
   <span class="pickwrap" style="margin-left:8px"><button class="pickbtn" id="pickBtn">📅 选择日期</button></span>
 </div>
 <div class="toolbar">
@@ -1030,7 +1031,7 @@ window.IMG_UPLOADER=function(dataUrl){
   return fetch("https://api.imgbb.com/1/upload?key="+encodeURIComponent(imgKey),{method:"POST",body:fd})
     .then(r=>r.json()).then(j=>{if(j&&j.success&&j.data&&(j.data.display_url||j.data.url))return j.data.display_url||j.data.url;throw new Error("upload failed");});
 };
-let secFilter="all",lvlFilter="all",diffFilter="all",dateFilter="all",pickedDate="",starOnly=false,recycleMode=false,timer=null,openIds=new Set(),editors=[],retryTimer=null,stuckToday=new Set(),stuckDay="",restoring=false;
+let secFilter="all",lvlFilter="all",diffFilter="all",dateFilter="all",pickedDate="",soloId="",starOnly=false,recycleMode=false,timer=null,openIds=new Set(),editors=[],retryTimer=null,stuckToday=new Set(),stuckDay="",restoring=false;
 const DKEY=KEY+"_dirty";
 let dirty=localStorage.getItem(DKEY)==="1";
 let saveSeq=0;
@@ -1161,7 +1162,7 @@ pickBtn.onclick=e=>{e.stopPropagation();if(calBox.classList.contains("show")){ca
     onPick:iso=>{pickedDate=iso;dateFilter="pick";document.querySelectorAll('[data-date]').forEach(x=>x.classList.remove("active"));updatePickBtn();render();},
     onClear:()=>{pickedDate="";dateFilter="all";document.querySelectorAll('[data-date]').forEach(x=>x.classList.remove("active"));document.querySelector('[data-date="all"]').classList.add("active");updatePickBtn();render();}});};
 document.addEventListener("click",e=>{if(!calBox.contains(e.target)&&e.target!==pickBtn)calBox.classList.remove("show");});
-document.querySelectorAll('[data-date]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-date]').forEach(x=>x.classList.remove("active"));c.classList.add("active");dateFilter=c.dataset.date;pickedDate="";updatePickBtn();render();});
+document.querySelectorAll('[data-date]').forEach(c=>c.onclick=()=>{if(c.dataset.date==="solo"&&!soloId){toast("请先在专注面板点击题目标题选中一题");return;}document.querySelectorAll('[data-date]').forEach(x=>x.classList.remove("active"));c.classList.add("active");dateFilter=c.dataset.date;pickedDate="";updatePickBtn();render();});
 document.getElementById("starFilter").onclick=function(){starOnly=!starOnly;this.classList.toggle("active",starOnly);render();};
 document.getElementById("recycleBtn").onclick=function(){recycleMode=!recycleMode;this.classList.toggle("pri",recycleMode);render();};
 // ===== 学习计时器（正计时：开始/暂停/重置）=====
@@ -1221,16 +1222,14 @@ function endFocus(){focusOn=false;focusTask=null;focusRunning=false;if(focusTick
 function focusComplete(){if(!focusTask)return;const o=get(focusTask.id);o.cnt=(o.cnt||0)+1;o.last=today();o.next=focusTask.isAlg?schedNextAlg(o.cnt,focusTask.idx):schedNext(o.cnt);save();render();toast("✓ 已完成，下一题");focusNext();}
 function focusSkip(){if(!focusTask)return;focusSkipped.add(focusTask.id);focusNext();}
 function showFocusTimeup(){focusSetRun(false);const m=document.getElementById("focusModalMsg");if(m&&focusTask)m.textContent="「"+focusTask.q+"」的建议用时 "+focusMinFor(focusTask)+" 分钟已到（计时已暂停）。可以继续复习这一题、进入下一题，或停止。";document.getElementById("focusModal").classList.add("show");}
-function resetFiltersForJump(){secFilter="all";lvlFilter="all";diffFilter="all";dateFilter="all";pickedDate="";starOnly=false;
+function jumpToFocusItem(){if(!focusOn||!focusTask)return;soloId=focusTask.id;openIds.add(soloId);
+  secFilter="all";lvlFilter="all";diffFilter="all";starOnly=false;pickedDate="";dateFilter="solo";
   buildFilters();
   document.querySelectorAll('[data-lvl]').forEach(x=>x.classList.toggle("active",x.dataset.lvl==="all"));
   document.querySelectorAll('[data-diff]').forEach(x=>x.classList.toggle("active",x.dataset.diff==="all"));
-  document.querySelectorAll('[data-date]').forEach(x=>x.classList.toggle("active",x.dataset.date==="all"));
-  const sf=document.getElementById("starFilter");if(sf)sf.classList.remove("active");updatePickBtn();}
-function jumpToFocusItem(){if(!focusOn||!focusTask)return;const id=focusTask.id;openIds.add(id);render();
-  let row=document.querySelector('tr[data-id="'+id+'"]');
-  if(!row){resetFiltersForJump();openIds.add(id);render();row=document.querySelector('tr[data-id="'+id+'"]');}
-  if(row)row.scrollIntoView({behavior:"smooth",block:"center"});}
+  document.querySelectorAll('[data-date]').forEach(x=>x.classList.toggle("active",x.dataset.date==="solo"));
+  const sf=document.getElementById("starFilter");if(sf)sf.classList.remove("active");updatePickBtn();
+  render();}
 document.getElementById("focusQ").onclick=jumpToFocusItem;
 document.getElementById("focusBtn").onclick=()=>{if(focusOn)endFocus();else startFocus();};
 document.getElementById("focusDone").onclick=focusComplete;
@@ -1264,7 +1263,7 @@ function updateEstimate(){const el=document.getElementById("estLine");if(!el)ret
     +"<span class='estseg'>八股 "+fmtDur(guMin)+"<span class='estsub'>新学"+b.guNew+"·复习"+b.guRev+"</span></span>"
     +"<span class='estseg'>算法 "+fmtDur(algMin)+"<span class='estsub'>新学"+b.algNew+"·复习"+b.algRev+"</span></span>"
     +"<span class='esttot'>合计 "+fmtDur(total)+"</span>";}
-function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const reviewDue=!!o.next&&o.next<=ti;if(d&&d>ti)return reviewDue;const studyDue=!!d&&d<=ti&&!(o.cnt>0);const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
+function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="solo")return it.id===soloId;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const reviewDue=!!o.next&&o.next<=ti;if(d&&d>ti)return reviewDue;const studyDue=!!d&&d<=ti&&!(o.cnt>0);const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
   ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso,tags:it.tags,anc:it.anc,jg:it.jg});});
