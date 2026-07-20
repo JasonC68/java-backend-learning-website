@@ -594,7 +594,8 @@ body.dark .timer button:hover{background:#303030}
 .focusbar .fp-kind{font-size:12px;font-weight:600;padding:2px 9px;border-radius:8px;white-space:nowrap}
 .focusbar .fp-kind.new{background:#fee2e2;color:#b91c1c}
 .focusbar .fp-kind.review{background:#fecaca;color:#7f1d1d}
-.focusbar .fp-q{font-size:14px;color:#111827;font-weight:500}
+.focusbar .fp-q{font-size:14px;color:#111827;font-weight:500;cursor:pointer;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:3px;transition:text-decoration-color .15s}
+.focusbar .fp-q:hover{text-decoration-color:currentColor}
 .focusbar .fp-side{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .focusbar .fp-time{display:inline-flex;align-items:baseline;gap:6px;margin-right:2px}
 .focusbar .fp-time b{font-size:18px;font-variant-numeric:tabular-nums;color:#b91c1c;font-weight:600;min-width:52px;display:inline-block}
@@ -908,7 +909,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.3</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.4</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -916,7 +917,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   <span class="timer" id="timerBox" title="学习计时器：可随时开始 / 暂停 / 重置"><span class="tdot"></span><b id="timerDisp">00:00:00</b><button id="timerToggle" title="开始">▶</button><button id="timerReset" title="重置">↺</button></span>
 </div>
 <div class="focusbar" id="focusPanel" style="display:none">
-  <div class="fp-main"><span class="fp-kind" id="focusKind"></span><span class="fp-q" id="focusQ"></span></div>
+  <div class="fp-main"><span class="fp-kind" id="focusKind"></span><span class="fp-q" id="focusQ" title="点击跳到这道题并展开"></span></div>
   <div class="fp-side"><span class="fp-time" id="focusTime"><b id="focusDisp">00:00</b><span class="fp-allot" id="focusAllot"></span></span><button class="btn pri" id="focusDone">✓ 完成本题</button><button class="btn" id="focusPause" title="暂停/继续本题计时">⏸ 暂停</button><button class="btn" id="focusSkip" title="这题先跳过，换下一题">⏭ 跳过</button><button class="btn" id="focusStop">⏹ 结束</button></div>
 </div>
 <div class="toolbar" id="filters"></div>
@@ -1220,6 +1221,17 @@ function endFocus(){focusOn=false;focusTask=null;focusRunning=false;if(focusTick
 function focusComplete(){if(!focusTask)return;const o=get(focusTask.id);o.cnt=(o.cnt||0)+1;o.last=today();o.next=focusTask.isAlg?schedNextAlg(o.cnt,focusTask.idx):schedNext(o.cnt);save();render();toast("✓ 已完成，下一题");focusNext();}
 function focusSkip(){if(!focusTask)return;focusSkipped.add(focusTask.id);focusNext();}
 function showFocusTimeup(){focusSetRun(false);const m=document.getElementById("focusModalMsg");if(m&&focusTask)m.textContent="「"+focusTask.q+"」的建议用时 "+focusMinFor(focusTask)+" 分钟已到（计时已暂停）。可以继续复习这一题、进入下一题，或停止。";document.getElementById("focusModal").classList.add("show");}
+function resetFiltersForJump(){secFilter="all";lvlFilter="all";diffFilter="all";dateFilter="all";pickedDate="";starOnly=false;
+  buildFilters();
+  document.querySelectorAll('[data-lvl]').forEach(x=>x.classList.toggle("active",x.dataset.lvl==="all"));
+  document.querySelectorAll('[data-diff]').forEach(x=>x.classList.toggle("active",x.dataset.diff==="all"));
+  document.querySelectorAll('[data-date]').forEach(x=>x.classList.toggle("active",x.dataset.date==="all"));
+  const sf=document.getElementById("starFilter");if(sf)sf.classList.remove("active");updatePickBtn();}
+function jumpToFocusItem(){if(!focusOn||!focusTask)return;const id=focusTask.id;openIds.add(id);render();
+  let row=document.querySelector('tr[data-id="'+id+'"]');
+  if(!row){resetFiltersForJump();openIds.add(id);render();row=document.querySelector('tr[data-id="'+id+'"]');}
+  if(row)row.scrollIntoView({behavior:"smooth",block:"center"});}
+document.getElementById("focusQ").onclick=jumpToFocusItem;
 document.getElementById("focusBtn").onclick=()=>{if(focusOn)endFocus();else startFocus();};
 document.getElementById("focusDone").onclick=focusComplete;
 document.getElementById("focusPause").onclick=focusPause;
@@ -1272,7 +1284,7 @@ function renderAlg(tb){
   list.forEach(it=>{const st=get(it.id);
     const opened=openIds.has(it.id);
     const hasStuff=(st.codes&&st.codes.some(c=>(c.code||c)&&(c.code||c).trim&&(c.code||c).trim()))||(st.memo&&st.memo.trim());
-    const tr=document.createElement("tr");
+    const tr=document.createElement("tr");tr.dataset.id=it.id;
     tr.innerHTML='<td class="c">'+it.idx+'</td>'+
       '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
       '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasStuff?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(it.q)+'</span><span class="dtag d'+it.lv+'">'+DL[it.lv]+'</span><span class="tag">'+esc(it.tag)+'</span><a class="tag lc" href="https://leetcode.cn/problems/'+it.slug+'/" target="_blank" rel="noopener" title="在力扣打开这道题">LC '+esc(it.num)+' ↗</a></td>'+
@@ -1353,7 +1365,7 @@ function render(){const tb=document.getElementById("tb");
     }
     list.forEach(it=>{const st=get(it.id);
       const opened=openIds.has(it.id), hasNote=st.note&&st.note.trim();
-      const tr=document.createElement("tr");
+      const tr=document.createElement("tr");tr.dataset.id=it.id;
       tr.innerHTML='<td class="c">'+it.idx+'</td>'+
         '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
         '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+(function(u){if(!u)return '';const jg=/javaguide\.cn/.test(u);return '<a class="tag lc" href="'+u+'" target="_blank" rel="noopener" title="'+(jg?'在 JavaGuide 打开这一题':'在小林coding打开这一题')+'">'+(jg?'JavaGuide':'小林')+' ↗</a>';})(xlLink(it.sec,it.tags,it.anc))+(it.jg?'<a class="tag lc" href="'+it.jg+'" target="_blank" rel="noopener" title="在 JavaGuide 打开这一题">JavaGuide ↗</a>':'')+'<span class="qedit" title="编辑题目">✎</span></td>'+
