@@ -600,8 +600,12 @@ body.dark .timer button:hover{background:#303030}
 .focusbar .fp-time b{font-size:18px;font-variant-numeric:tabular-nums;color:#b91c1c;font-weight:600;min-width:52px;display:inline-block}
 .focusbar .fp-time.over b{color:#dc2626}
 .focusbar .fp-allot{font-size:12px;color:#6b7280;white-space:nowrap}
+#focusBtn{border-color:#dc2626;color:#b91c1c}
+#focusBtn:hover{background:#fef2f2}
 .focusbar .btn.pri,#focusModal .btn.pri,#focusBtn.pri{background:#dc2626;border-color:#dc2626;color:#fff}
 .focusbar .btn.pri:hover,#focusModal .btn.pri:hover,#focusBtn.pri:hover{background:#b91c1c;border-color:#b91c1c}
+body.dark #focusBtn{border-color:#dc2626;color:#fca5a5}
+body.dark #focusBtn:hover{background:#2a1416}
 body.dark .focusbar{background:#2a1416;border-color:#5f2626}
 body.dark .focusbar .fp-q{color:#e5e5e5}
 body.dark .focusbar .fp-time b{color:#fca5a5}
