@@ -1230,7 +1230,7 @@ document.getElementById("focusStayBtn").onclick=()=>{document.getElementById("fo
 document.getElementById("focusNextBtn").onclick=()=>{document.getElementById("focusModal").classList.remove("show");focusComplete();};
 function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=realDate(o,baseIso);const rd=!!o.next&&o.next<=ti;if(d&&d>ti){if(rd)n++;return;}const sd=!!d&&d<=ti&&!(o.cnt>0);if(sd||rd)n++;};if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return n;}ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
 // ---- 今日剩余任务估时（八股/算法 · 新学/复习 分类，跨两个模式统计）----
-const EST_MIN={guNew:9,guRev:3,algNew:25,algRev:10};   // 单题分钟数
+const EST_MIN={guNew:10,guRev:4,algNew:25,algRev:10};   // 单题分钟数
 function taskBreakdown(){const ti=todayIso();const b={guNew:0,guRev:0,algNew:0,algRev:0};
   const chk=(id,baseIso,isAlg)=>{const o=get(id);if(o.del||o.purged)return;
     const d=realDate(o,baseIso);const rd=!!o.next&&o.next<=ti;
