@@ -51,6 +51,9 @@ body.dark .timer button:hover{background:#303030}
 .focusbar .fp-allot{font-size:12px;color:#6b7280;white-space:nowrap}
 #focusBtn{border-color:#dc2626}
 #focusBtn:hover{background:#fef2f2}
+#focusBtn:disabled{border-color:#e5e7eb;color:#9ca3af;background:#f9fafb;cursor:not-allowed}
+#focusBtn:disabled:hover{background:#f9fafb}
+body.dark #focusBtn:disabled{border-color:#3a3a3a;color:#6b7280;background:#1c1c1c}
 .focusbar .btn.pri,#focusModal .btn.pri,#focusBtn.pri{background:#dc2626;border-color:#dc2626;color:#fff}
 .focusbar .btn.pri:hover,#focusModal .btn.pri:hover,#focusBtn.pri:hover{background:#b91c1c;border-color:#b91c1c}
 body.dark #focusBtn{border-color:#dc2626}
@@ -35604,7 +35607,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.3</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -35906,12 +35909,13 @@ function loadFocusTask(t){focusTask=t;focusStartMs=Date.now();focusElapsed=0;foc
 function focusNext(){const q=focusQueue().filter(t=>!focusSkipped.has(t.id));
   if(!q.length){const skipped=focusSkipped.size;endFocus();toast(skipped?"剩下的都跳过了，专注结束":"🎉 今日任务已全部完成");return;}
   loadFocusTask(q[0]);}
+function updateFocusBtn(){const b=document.getElementById("focusBtn");if(!b)return;const none=!focusOn&&focusQueue().length===0;b.disabled=none;b.title=none?"今天没有待办任务，暂时不用专注":"从今日任务里挑一题、按建议时长开始专注学习/复习";}
 function startFocus(){focusSkipped.clear();if(!focusQueue().length){toast("🎉 今日任务已全部完成");return;}
   focusOn=true;document.getElementById("focusPanel").style.display="";document.getElementById("focusBtn").classList.add("pri");focusNext();}
 function endFocus(){focusOn=false;focusTask=null;focusRunning=false;if(focusTick){clearInterval(focusTick);focusTick=null;}
   const p=document.getElementById("focusPanel");if(p)p.style.display="none";
   const b=document.getElementById("focusBtn");if(b)b.classList.remove("pri");
-  document.getElementById("focusModal").classList.remove("show");}
+  document.getElementById("focusModal").classList.remove("show");updateFocusBtn();}
 function focusComplete(){if(!focusTask)return;const o=get(focusTask.id);o.cnt=(o.cnt||0)+1;o.last=today();o.next=focusTask.isAlg?schedNextAlg(o.cnt,focusTask.idx):schedNext(o.cnt);save();render();toast("✓ 已完成，下一题");focusNext();}
 function focusSkip(){if(!focusTask)return;focusSkipped.add(focusTask.id);focusNext();}
 function showFocusTimeup(){focusSetRun(false);const m=document.getElementById("focusModalMsg");if(m&&focusTask)m.textContent="「"+focusTask.q+"」的建议用时 "+focusMinFor(focusTask)+" 分钟已到（计时已暂停）。可以继续复习这一题、进入下一题，或停止。";document.getElementById("focusModal").classList.add("show");}
@@ -35963,7 +35967,7 @@ function renderAlg(tb){
   const DL=["","简单","中等","困难"];
   const list=ALG.map(it=>Object.assign({},it,{baseIso:it.iso})).filter(it=>{const o=get(it.id);if(lvlFilter!=="all"&&o.lvl!=lvlFilter)return false;if(diffFilter!=="all"&&it.lv!=diffFilter)return false;if(starOnly&&!o.star)return false;if(!passDate(it))return false;return true;});
   {const tc=document.querySelector('[data-date="todayall"]');if(tc)tc.textContent="📌 今天任务："+todayCount();}
-  updateEstimate();
+  updateEstimate();updateFocusBtn();
   list.forEach(it=>{const st=get(it.id);
     const opened=openIds.has(it.id);
     const hasStuff=(st.codes&&st.codes.some(c=>(c.code||c)&&(c.code||c).trim&&(c.code||c).trim()))||(st.memo&&st.memo.trim());
@@ -36127,7 +36131,7 @@ function render(){const tb=document.getElementById("tb");
   document.getElementById("stat").innerHTML="已掌握(能讲框架+能扛追问)：<b>"+done+"</b> / "+tot+"　("+pct+"%)　·　<span style='color:#d97706'>眼熟 "+fam+"</span>　·　"+(pct>=GOAL?"<span style='color:#16a34a'>✅ 已过可投递线，可以开始投面试</span>":"<span style='color:#dc2626'>距可投递线(60%)还差 "+(GOAL-pct)+"%</span>");
   if(dateFilter==="todayall")saveStuck();
   {const tc=document.querySelector('[data-date="todayall"]');if(tc)tc.textContent="📌 今天任务："+todayCount();}
-  updateEstimate();
+  updateEstimate();updateFocusBtn();
   window.scrollTo(0,_sy);requestAnimationFrame(()=>window.scrollTo(0,_sy));}
 const modal=document.getElementById("modal");
 document.getElementById("cfgBtn").onclick=()=>{if(cfg){document.getElementById("supaUrl").value=cfg.url;document.getElementById("supaKey").value=cfg.key;}document.getElementById("imgKey").value=imgKey;modal.classList.add("show");};
