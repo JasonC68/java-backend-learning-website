@@ -575,6 +575,11 @@ h1{font-size:20px}
 .est .esttot{font-weight:600;color:#2563eb;white-space:nowrap}
 .est.none{color:#16a34a}
 .tododot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#dc2626;margin-right:5px;vertical-align:middle}
+.mv{display:inline-flex;flex-direction:column;gap:0;margin-left:6px;vertical-align:middle}
+.mv button{border:none;background:none;color:#c0c4cc;font-size:9px;line-height:9px;height:10px;padding:0;cursor:pointer}
+.mv button:hover{color:#2563eb}
+body.dark .mv button{color:#6b7280}
+body.dark .mv button:hover{color:#93c5fd}
 .timer{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;margin-left:auto}
 .timer .tdot{width:6px;height:6px;border-radius:50%;background:#cbd5e1;flex:none}
 .timer.run .tdot{background:#16a34a;animation:tblink 1s ease-in-out infinite}
@@ -1271,7 +1276,15 @@ function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
   ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso,tags:it.tags,anc:it.anc,jg:it.jg});});
   customList().forEach(c=>{(map[c.sec]||(map[c.sec]=[])).push({id:c.id,sec:c.sec,q:c.q,baseIso:"",custom:true,tags:[]});});
-  Object.keys(map).forEach(s=>map[s].forEach((it,i)=>it.idx=i+1));return map;}
+  Object.keys(map).forEach(s=>{const ord=state.__order&&state.__order[s];
+    if(ord&&ord.length){const pos={};ord.forEach((id,i)=>pos[id]=i);map[s].sort((a,b)=>((pos[a.id]!==undefined?pos[a.id]:1e9)-(pos[b.id]!==undefined?pos[b.id]:1e9)));}
+    map[s].forEach((it,i)=>it.idx=i+1);});return map;}
+// 手动上移/下移：在同板块内与相邻的可见题交换位置（序号随之自动更新）
+function moveItem(sec,id,dir){const full=sectionMap()[sec].map(x=>x.id);
+  const vis=full.filter(x=>!isDeleted(x)&&!isPurged(x));
+  const vi=vis.indexOf(id),vj=vi+dir;if(vi<0||vj<0||vj>=vis.length)return;
+  const fi=full.indexOf(id),fj=full.indexOf(vis[vj]);const t=full[fi];full[fi]=full[fj];full[fj]=t;
+  (state.__order||(state.__order={}))[sec]=full;save();render();}
 // date==="none" 表示手动清空为「未分配」，不再回落到默认建议日期
 function realDate(o,baseIso){if(o.date==="none")return "";return (o.date!==undefined&&o.date!=="")?o.date:(baseIso||"");}
 function itemDate(it){return realDate(get(it.id),it.baseIso);}
@@ -1374,6 +1387,9 @@ function render(){const tb=document.getElementById("tb");
         '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
         '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
         '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span class="revdate" title="点击调整/延后复习" style="font-size:11px;cursor:pointer;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
+      tr.cells[0].insertAdjacentHTML("beforeend",'<span class="mv"><button class="mvup" title="上移">▲</button><button class="mvdn" title="下移">▼</button></span>');
+      tr.querySelector(".mvup").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,-1);};
+      tr.querySelector(".mvdn").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,1);};
       const dc=tr.querySelector(".date");
       dc.onclick=e=>{e.stopPropagation();openCal(dc,{selected:itemDate(it),dot:true,clearLabel:"恢复默认",noneLabel:"清空日期",
         onPick:iso=>{get(it.id).date=iso;save();render();},
