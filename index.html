@@ -36194,7 +36194,7 @@ function renderBackups(){const a=loadBackups(),box=document.getElementById("bkLi
 }
 // ---- 缩减今日任务：把未完成的一部分挪到未来 ----
 function todayTaskItems(){const ti=todayIso();const res=[];
-  const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=realDate(o,baseIso);if(d&&d>ti)return;const reviewDue=!!o.next&&o.next<=ti;const studyDue=!!d&&d<=ti&&!(o.cnt>0);if(studyDue||reviewDue)res.push({id:id,reviewDue:reviewDue});};
+  const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=realDate(o,baseIso);if(d&&d>ti)return;const reviewDue=!!o.next&&o.next<=ti;const studyDue=!!d&&d<=ti&&!(o.cnt>0);if(studyDue||reviewDue)res.push({id:id,reviewDue:reviewDue,when:reviewDue?o.next:d});};
   if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return res;}
   ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return res;}
 const trimModal=document.getElementById("trimModal");
@@ -36209,7 +36209,7 @@ document.querySelectorAll("#trimModal [data-trim]").forEach(btn=>btn.onclick=()=
   const frac=parseFloat(btn.dataset.trim),N={"0.25":2,"0.5":4,"0.75":6}[btn.dataset.trim]||2;
   const list=trimListBy(trimType),total=list.length,toMove=Math.round(total*frac);
   if(toMove<=0){toast("没有可缩减的"+(trimType==="all"?"":TT_LABEL[trimType])+"任务");return;}
-  const moving=[];for(let j=0;j<toMove;j++)moving.push(list[Math.floor((j+0.5)*total/toMove)]);  // 等距采样均匀缩减
+  const moving=list.slice().sort((a,b)=>(b.when||"").localeCompare(a.when||"")).slice(0,toMove);  // 优先缩减「安排日期最晚」的任务，逾期越久的越先保留复习
   moving.forEach((m,k)=>{const off=(k%N)+1,o=get(m.id);if(m.reviewDue)o.next=addDays(todayIso(),off);else o.date=addDays(todayIso(),off);});
   save();render();trimModal.classList.remove("show");
 });
