@@ -549,6 +549,41 @@ assert len(ALG_SLUG)==100
 alg_items=[{"id":"alg"+str(i),"idx":i+1,"num":n,"q":t,"tag":g,"lv":ALG_LV[i],"slug":ALG_SLUG[i],"iso":(ALG_START+timedelta(days=i*30//100)).isoformat()} for i,(n,t,g) in enumerate(ALG_RAW)]
 ALGJS=json.dumps(alg_items,ensure_ascii=False)
 
+# ===== 内联 SVG 图标（单色、跟随 currentColor，离线自包含，替代所有 emoji）=====
+def _svg(inner, solid=False):
+    a='fill="currentColor" stroke="none"' if solid else 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'
+    return '<svg class="ic" viewBox="0 0 24 24" '+a+'>'+inner+'</svg>'
+ICONS = {
+ "target": _svg('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/>'),
+ "scissors": _svg('<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/>'),
+ "calendar": _svg('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'),
+ "review": _svg('<polyline points="21 4 21 9 16 9"/><path d="M20.4 14a8.5 8.5 0 1 1-1.9-8.6L21 9"/>'),
+ "pin": _svg('<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>'),
+ "star": _svg('<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'),
+ "cloud": _svg('<path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>'),
+ "download": _svg('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>'),
+ "upload": _svg('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>'),
+ "save": _svg('<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>'),
+ "trash": _svg('<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'),
+ "alarm": _svg('<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 1.5"/><path d="M5 3 2.5 5.5"/><path d="M19 3l2.5 2.5"/>'),
+ "stopwatch": _svg('<circle cx="12" cy="14" r="7"/><path d="M12 11v3l2 1"/><line x1="9.5" y1="3" x2="14.5" y2="3"/><line x1="12" y1="3" x2="12" y2="5"/>'),
+ "bulb": _svg('<line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/>'),
+ "note": _svg('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'),
+ "pencil": _svg('<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/>'),
+ "check": _svg('<polyline points="20 6 9 17 4 12"/>'),
+ "checkcircle": _svg('<path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><polyline points="22 4 12 14.1 9 11.1"/>'),
+ "x": _svg('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'),
+ "plus": _svg('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'),
+ "book": _svg('<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'),
+ "play": _svg('<polygon points="6 4 20 12 6 20 6 4"/>', solid=True),
+ "pause": _svg('<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>', solid=True),
+ "stop": _svg('<rect x="5" y="5" width="14" height="14" rx="2"/>', solid=True),
+ "skip": _svg('<polygon points="5 4 15 12 5 20 5 4"/><rect x="17" y="4" width="3" height="16" rx="1"/>', solid=True),
+ "reset": _svg('<polyline points="3 4 3 9 8 9"/><path d="M3.6 15a8.5 8.5 0 1 0 1.9-8.6L3 9"/>'),
+ "undo": _svg('<polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/>'),
+}
+IC_JSON = json.dumps(ICONS, ensure_ascii=False)
+
 html = '''<!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -574,6 +609,11 @@ h1{font-size:20px}
 .est .estsub{color:#9ca3af;font-size:12px;margin-left:4px}
 .est .esttot{font-weight:600;color:#2563eb;white-space:nowrap}
 .est.none{color:#16a34a}
+.ic{width:1em;height:1em;display:inline-block;vertical-align:-0.14em;flex:none}
+.rowfocus{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:8px;vertical-align:middle;font-size:14px;line-height:1}
+.rowfocus:hover{color:#dc2626}
+body.dark .rowfocus{color:#6b7280}
+body.dark .rowfocus:hover{color:#fca5a5}
 .tododot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#dc2626;margin-right:5px;vertical-align:middle}
 .mv{display:inline-flex;flex-direction:column;gap:0;margin-left:6px;vertical-align:middle}
 .mv button{border:none;background:none;color:#c0c4cc;font-size:9px;line-height:9px;height:10px;padding:0;cursor:pointer}
@@ -701,7 +741,7 @@ tbody tr:not(.sec-row):not(.ed-row):not(.add-row)>td{height:24px}
 .qbtn{cursor:pointer;display:inline-block}
 .qbtn:hover{color:#2563eb}
 .qbtn .arw{display:inline-block;width:14px;color:#9ca3af;font-size:11px}
-.qbtn.has::after{content:"📝";margin-left:5px;font-size:12px}
+.qbtn.has::after{content:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Cline x1='16' y1='13' x2='8' y2='13'/%3E%3Cline x1='16' y1='17' x2='8' y2='17'/%3E%3C/svg%3E");margin-left:5px;vertical-align:-1px}
 tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 .ehint{font-size:12px;color:#6b7280;margin-bottom:6px;overflow:hidden}
 .tgl{float:right;border:1px solid #d1d5db;background:#fff;border-radius:6px;padding:2px 12px;font-size:12px;cursor:pointer}
@@ -710,7 +750,7 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
 .fa{width:100%;min-height:200px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.6;padding:10px;border:1px solid #d1d5db;border-radius:6px;resize:vertical}
 .editor textarea{width:100%;min-height:220px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.6;padding:10px;border:1px solid #d1d5db;border-radius:6px;resize:vertical}
 .preview{min-height:120px;max-height:460px;overflow:auto;padding:8px 14px;border:1px solid #eee;border-radius:6px;background:#fff;font-size:13px;line-height:1.7}
-.preview:empty::before{content:"还没有内容，点 ✏️ 编辑开始写…";color:#bbb}
+.preview:empty::before{content:"还没有内容，点编辑开始写…";color:#bbb}
 .preview h1,.preview h2,.preview h3{font-size:14px;margin:8px 0 4px}
 .preview p{margin:5px 0}.preview ul,.preview ol{margin:5px 0 5px 20px}
 .preview code{background:#f3f4f6;padding:1px 4px;border-radius:4px;font-size:12px}
@@ -916,36 +956,36 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.4.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.4.4</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
   <div class="est" id="estLine" title="按单题估时算出的、完成今天剩余任务还需要多久（每完成一题自动减少）"></div>
-  <span class="timer" id="timerBox" title="学习计时器：可随时开始 / 暂停 / 重置"><span class="tdot"></span><b id="timerDisp">00:00:00</b><button id="timerToggle" title="开始">▶</button><button id="timerReset" title="重置">↺</button></span>
+  <span class="timer" id="timerBox" title="学习计时器：可随时开始 / 暂停 / 重置"><span class="tdot"></span><b id="timerDisp">00:00:00</b><button id="timerToggle" title="开始">@@play@@</button><button id="timerReset" title="重置">@@reset@@</button></span>
 </div>
 <div class="focusbar" id="focusPanel" style="display:none">
   <div class="fp-main"><span class="fp-kind" id="focusKind"></span><span class="fp-q" id="focusQ" title="点击跳到这道题并展开"></span></div>
-  <div class="fp-side"><span class="fp-time" id="focusTime"><b id="focusDisp">00:00</b><span class="fp-allot" id="focusAllot"></span></span><button class="btn pri" id="focusDone">✓ 完成本题</button><button class="btn" id="focusPause" title="暂停/继续本题计时">⏸ 暂停</button><button class="btn" id="focusSkip" title="这题先跳过，换下一题">⏭ 跳过</button><button class="btn" id="focusStop">⏹ 结束</button></div>
+  <div class="fp-side"><span class="fp-time" id="focusTime"><b id="focusDisp">00:00</b><span class="fp-allot" id="focusAllot"></span></span><button class="btn pri" id="focusDone">@@check@@ 完成本题</button><button class="btn" id="focusPause" title="暂停/继续本题计时">@@pause@@ 暂停</button><button class="btn" id="focusSkip" title="这题先跳过，换下一题">@@skip@@ 跳过</button><button class="btn" id="focusStop">@@stop@@ 结束</button></div>
 </div>
 <div class="toolbar" id="filters"></div>
 <div class="toolbar" id="dateBar">
   <span style="font-size:12px;color:#6b7280">按日期：</span>
   <span class="chip active" data-date="all">全部</span>
-  <span class="chip" data-date="todayall" title="今天要打卡的（点 ＋ 算完成）+ 之前没完成顺延的 + 今天到期/逾期要复习的">📌 今天任务</span>
-  <button class="btn" id="trimBtn" title="把今天未完成的一部分任务挪到未来" style="margin-left:2px">✂️ 缩减</button>
-  <button class="btn" id="focusBtn" title="从今日任务里挑一题、按建议时长开始专注学习/复习">🎯 专注</button>
-  <span class="chip" data-date="today">📅 今天打卡</span>
+  <span class="chip" data-date="todayall" title="今天要打卡的（点 ＋ 算完成）+ 之前没完成顺延的 + 今天到期/逾期要复习的">@@pin@@ 今天任务</span>
+  <button class="btn" id="trimBtn" title="把今天未完成的一部分任务挪到未来" style="margin-left:2px">@@scissors@@ 缩减</button>
+  <button class="btn" id="focusBtn" title="从今日任务里挑一题、按建议时长开始专注学习/复习">@@target@@ 专注</button>
+  <span class="chip" data-date="today">@@calendar@@ 今天打卡</span>
   <span class="chip" data-date="tomorrow">明天</span>
-  <span class="chip" data-date="review" title="按艾宾浩斯遗忘曲线，到期/逾期需复习的题">🔁 今日复习</span>
-  <span class="chip" data-date="solo" id="soloChip" title="只看专注面板里点选的那一题">🎯 选择</span>
-  <span class="pickwrap" style="margin-left:8px"><button class="pickbtn" id="pickBtn">📅 选择日期</button></span>
+  <span class="chip" data-date="review" title="按艾宾浩斯遗忘曲线，到期/逾期需复习的题">@@review@@ 今日复习</span>
+  <span class="chip" data-date="solo" id="soloChip" title="只看专注面板里点选的那一题">@@target@@ 选择</span>
+  <span class="pickwrap" style="margin-left:8px"><button class="pickbtn" id="pickBtn">@@calendar@@ 选择日期</button></span>
 </div>
 <div class="toolbar">
   <span style="font-size:12px;color:#6b7280">按掌握程度：</span>
   <span class="chip active" data-lvl="all">全部</span>
   <span class="chip" data-lvl="0">未开始</span><span class="chip" data-lvl="1">眼熟</span>
   <span class="chip" data-lvl="2">能讲框架</span><span class="chip" data-lvl="3">能扛追问</span>
-  <span class="chip" id="starFilter" style="margin-left:8px">⭐ 仅看收藏</span>
+  <span class="chip" id="starFilter" style="margin-left:8px">@@star@@ 仅看收藏</span>
 </div>
 <div class="toolbar" id="diffBar">
   <span style="font-size:12px;color:#6b7280">按难度：</span>
@@ -955,11 +995,11 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   <span class="chip" data-diff="3">困难</span>
 </div>
 <div class="toolbar">
-  <button class="btn pri" id="cfgBtn">☁️ 云同步设置</button>
-  <button class="btn" id="pull">⬇️ 手动拉取</button>
-  <button class="btn" id="push">⬆️ 手动上传</button>
-  <button class="btn" id="backupBtn">💾 备份</button>
-  <button class="btn" id="recycleBtn">🗑 回收站</button>
+  <button class="btn pri" id="cfgBtn">@@cloud@@ 云同步设置</button>
+  <button class="btn" id="pull">@@download@@ 手动拉取</button>
+  <button class="btn" id="push">@@upload@@ 手动上传</button>
+  <button class="btn" id="backupBtn">@@save@@ 备份</button>
+  <button class="btn" id="recycleBtn">@@trash@@ 回收站</button>
   <button class="btn" id="reset">清空</button>
 </div>
 <table><thead><tr>
@@ -973,14 +1013,14 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   <div class="acts"><button class="btn" id="cfNo">取消</button><button class="btn pri" id="cfYes">确定</button></div>
 </div></div>
 <div class="modal" id="focusModal"><div class="card" style="max-width:360px">
-  <h3 style="font-size:16px;margin-bottom:8px">⏰ 时间到</h3>
+  <h3 style="font-size:16px;margin-bottom:8px">@@alarm@@ 时间到</h3>
   <p id="focusModalMsg" style="font-size:13px;color:#4b5563;margin-bottom:14px;line-height:1.6"></p>
   <div class="acts"><button class="btn" id="focusStopBtn">停止复习</button><button class="btn" id="focusStayBtn">继续本题</button><button class="btn pri" id="focusNextBtn">复习下一题</button></div>
 </div></div>
 <div class="modal" id="focusPickModal"><div class="card" style="max-width:360px">
-  <h3 style="font-size:16px;margin-bottom:8px">🎯 开始专注</h3>
+  <h3 style="font-size:16px;margin-bottom:8px">@@target@@ 开始专注</h3>
   <p style="font-size:13px;color:#4b5563;margin-bottom:14px;line-height:1.6">先专注做哪一类？做完这一类会自动转入另一类。</p>
-  <div class="acts"><button class="btn" id="focusPickCancel">取消</button><button class="btn" id="focusPickReview">🔁 复习 <b id="focusPickReviewN"></b></button><button class="btn pri" id="focusPickNew">🆕 新学 <b id="focusPickNewN"></b></button></div>
+  <div class="acts"><button class="btn" id="focusPickCancel">取消</button><button class="btn" id="focusPickReview">@@review@@ 复习 <b id="focusPickReviewN"></b></button><button class="btn pri" id="focusPickNew">@@book@@ 新学 <b id="focusPickNewN"></b></button></div>
 </div></div>
 <div id="toast"></div>
 <div class="modal" id="trimModal"><div class="card" style="max-width:430px">
@@ -1003,12 +1043,12 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   <p style="font-size:12px;color:#6b7280;margin-bottom:10px">恢复会覆盖当前进度。云端只保留 1 份、跨设备可见；本地可存多份，只在本设备。</p>
   <div style="display:flex;gap:8px;margin-bottom:10px">
     <input id="bkLabel" placeholder="备注" style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
-    <button class="btn" id="bkNew">💾 本地备份</button>
-    <button class="btn pri" id="bkNewCloud">☁️ 云端备份</button>
+    <button class="btn" id="bkNew">@@save@@ 本地备份</button>
+    <button class="btn pri" id="bkNewCloud">@@cloud@@ 云端备份</button>
   </div>
-  <div style="font-size:12px;color:#6b7280;margin:6px 0 4px">☁️ 云端备份</div>
+  <div style="font-size:12px;color:#6b7280;margin:6px 0 4px">@@cloud@@ 云端备份</div>
   <div id="bkCloudList" style="max-height:200px;overflow:auto"></div>
-  <div style="font-size:12px;color:#6b7280;margin:10px 0 4px">💾 本地备份</div>
+  <div style="font-size:12px;color:#6b7280;margin:10px 0 4px">@@save@@ 本地备份</div>
   <div id="bkList" style="max-height:200px;overflow:auto"></div>
   <div class="acts">
     <button class="btn" id="bkImportBtn">导入文件</button><input type="file" id="bkImport" accept="application/json" style="display:none">
@@ -1030,6 +1070,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 </div></div>
 <script>
 const ITEMS=__ITEMS__, SECTIONS=__SEC__, ALG=__ALG__;
+const IC=@@IC_JSON@@;
 const KEY="review_tracker_v2", CFGKEY="sync_cfg_v1";
 const LVLS=["未开始","眼熟","能讲框架","能扛追问"];
 let state=JSON.parse(localStorage.getItem(KEY)||"{}");
@@ -1140,7 +1181,7 @@ document.querySelectorAll('[data-lvl]').forEach(c=>c.onclick=()=>{document.query
 document.querySelectorAll('[data-diff]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-diff]').forEach(x=>x.classList.remove("active"));c.classList.add("active");diffFilter=c.dataset.diff;render();});
 const pickBtn=document.getElementById("pickBtn"),calBox=document.getElementById("cal");
 let calRef=new Date(),calCtx=null;
-function updatePickBtn(){pickBtn.textContent=pickedDate?("📅 "+pickedDate.slice(5)):"📅 选择日期";}
+function updatePickBtn(){pickBtn.innerHTML=IC.calendar+(pickedDate?(" "+pickedDate.slice(5)):" 选择日期");}
 function studyDateSet(){const s=new Set();const add=(id,baseIso)=>{const d=realDate(get(id),baseIso);if(d)s.add(d);};if(mode==="alg"){ALG.forEach(it=>add(it.id,it.iso));return s;}ITEMS.forEach(it=>add(it.id,it.iso));customList().forEach(c=>add(c.id,""));return s;}
 function renderCal(){
   const sset=(calCtx&&calCtx.dot)?studyDateSet():new Set();
@@ -1182,15 +1223,15 @@ let timerElapsed=0,timerStart=0,timerRunning=false,timerTick=null;
 function fmtTimer(ms){let s=Math.floor(ms/1000);const h=Math.floor(s/3600);s-=h*3600;const m=Math.floor(s/60);s-=m*60;const p=n=>(n+"").padStart(2,"0");return p(h)+":"+p(m)+":"+p(s);}
 function renderTimer(){const d=document.getElementById("timerDisp");if(d)d.textContent=fmtTimer(timerElapsed+(timerRunning?Date.now()-timerStart:0));}
 function timerToggle(){const btn=document.getElementById("timerToggle"),box=document.getElementById("timerBox");
-  if(timerRunning){timerElapsed+=Date.now()-timerStart;timerRunning=false;if(timerTick){clearInterval(timerTick);timerTick=null;}btn.textContent="▶";btn.title="继续";btn.classList.remove("on");box.classList.remove("run");}
-  else{timerStart=Date.now();timerRunning=true;btn.textContent="⏸";btn.title="暂停";btn.classList.add("on");box.classList.add("run");if(timerTick)clearInterval(timerTick);timerTick=setInterval(renderTimer,250);}
+  if(timerRunning){timerElapsed+=Date.now()-timerStart;timerRunning=false;if(timerTick){clearInterval(timerTick);timerTick=null;}btn.innerHTML=IC.play;btn.title="继续";btn.classList.remove("on");box.classList.remove("run");}
+  else{timerStart=Date.now();timerRunning=true;btn.innerHTML=IC.pause;btn.title="暂停";btn.classList.add("on");box.classList.add("run");if(timerTick)clearInterval(timerTick);timerTick=setInterval(renderTimer,250);}
   renderTimer();}
-function timerReset(){timerElapsed=0;timerRunning=false;if(timerTick){clearInterval(timerTick);timerTick=null;}const btn=document.getElementById("timerToggle");if(btn){btn.textContent="▶";btn.title="开始";btn.classList.remove("on");}const box=document.getElementById("timerBox");if(box)box.classList.remove("run");renderTimer();}
+function timerReset(){timerElapsed=0;timerRunning=false;if(timerTick){clearInterval(timerTick);timerTick=null;}const btn=document.getElementById("timerToggle");if(btn){btn.innerHTML=IC.play;btn.title="开始";btn.classList.remove("on");}const box=document.getElementById("timerBox");if(box)box.classList.remove("run");renderTimer();}
 document.getElementById("timerToggle").onclick=timerToggle;
 document.getElementById("timerReset").onclick=timerReset;
 renderTimer();
-// ===== 🎯 专注学习/复习：挑一题 → 本题计时 → 到时提示 → 完成/跳过/结束 =====
-let focusOn=false,focusMode="gu",focusKindPref="review",focusTask=null,focusStartMs=0,focusElapsed=0,focusRunning=false,focusTick=null,focusAlerted=false;
+// ===== 专注学习/复习：挑一题 -> 本题计时 -> 到时提示 -> 完成/跳过/结束 =====
+let focusOn=false,focusMode="gu",focusKindPref="review",focusSource="today",focusSeq=[],focusSeqI=0,focusTask=null,focusStartMs=0,focusElapsed=0,focusRunning=false,focusTick=null,focusAlerted=false;
 const focusSkipped=new Set();
 function focusMs(){return focusElapsed+(focusRunning?Date.now()-focusStartMs:0);}
 function fmtMS(ms){let s=Math.floor(ms/1000);const h=Math.floor(s/3600);s-=h*3600;const m=Math.floor(s/60);s-=m*60;const p=n=>(n+"").padStart(2,"0");return (h?h+":":"")+p(m)+":"+p(s);}
@@ -1211,25 +1252,42 @@ function renderFocus(){if(!focusOn||!focusTask)return;const el=document.getEleme
   document.getElementById("focusTime").classList.toggle("over",elapsed>=allot);
   if(!focusAlerted&&elapsed>=allot){focusAlerted=true;showFocusTimeup();}}
 function focusSetRun(run){const btn=document.getElementById("focusPause");
-  if(run&&!focusRunning){focusStartMs=Date.now();focusRunning=true;if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);if(btn)btn.textContent="⏸ 暂停";}
-  else if(!run&&focusRunning){focusElapsed+=Date.now()-focusStartMs;focusRunning=false;if(focusTick){clearInterval(focusTick);focusTick=null;}if(btn)btn.textContent="▶ 继续";}
+  if(run&&!focusRunning){focusStartMs=Date.now();focusRunning=true;if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);if(btn)btn.innerHTML=IC.pause+" 暂停";}
+  else if(!run&&focusRunning){focusElapsed+=Date.now()-focusStartMs;focusRunning=false;if(focusTick){clearInterval(focusTick);focusTick=null;}if(btn)btn.innerHTML=IC.play+" 继续";}
   renderFocus();}
 function focusPause(){if(!focusOn)return;focusSetRun(!focusRunning);}
 function loadFocusTask(t){focusTask=t;focusStartMs=Date.now();focusElapsed=0;focusRunning=true;focusAlerted=false;
-  const pb=document.getElementById("focusPause");if(pb)pb.textContent="⏸ 暂停";
-  const k=document.getElementById("focusKind");k.textContent=t.kind==="review"?"🔁 复习":"🆕 新学";k.className="fp-kind "+t.kind;
+  const pb=document.getElementById("focusPause");if(pb)pb.innerHTML=IC.pause+" 暂停";
+  const k=document.getElementById("focusKind");k.innerHTML=(t.kind==="review"?IC.review+" 复习":IC.book+" 新学");k.className="fp-kind "+t.kind;
   document.getElementById("focusQ").textContent=(t.sec?("["+t.sec+"] "):"")+t.q;
   document.getElementById("focusAllot").textContent="/ 建议 "+fmtMS(focusMinFor(t)*60000);
   if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);renderFocus();}
-function focusNext(){const all=focusQueue(focusMode).filter(t=>!focusSkipped.has(t.id));
+function focusNext(){
+  if(focusSource==="seq"){focusSeqI++;
+    while(focusSeqI<focusSeq.length&&focusSkipped.has(focusSeq[focusSeqI].id))focusSeqI++;
+    if(focusSeqI>=focusSeq.length){endFocus();toast("这一组已专注完毕");return;}
+    loadFocusTask(focusSeq[focusSeqI]);return;}
+  const all=focusQueue(focusMode).filter(t=>!focusSkipped.has(t.id));
   const wantKind=focusKindPref==="new"?"new":"review";
   let q=all.filter(t=>t.kind===wantKind);
   if(!q.length){const other=all.filter(t=>t.kind!==wantKind);
-    if(other.length){focusKindPref=wantKind==="new"?"review":"new";toast(wantKind==="new"?"🆕 新学已全部完成，转入复习专注":"🔁 复习已全部完成，转入新学专注");q=other;}}
-  if(!q.length){const skipped=focusSkipped.size;endFocus();toast(skipped?"剩下的都跳过了，专注结束":"🎉 今日任务已全部完成");return;}
+    if(other.length){focusKindPref=wantKind==="new"?"review":"new";toast(wantKind==="new"?"新学已全部完成，转入复习专注":"复习已全部完成，转入新学专注");q=other;}}
+  if(!q.length){const skipped=focusSkipped.size;endFocus();toast(skipped?"剩下的都跳过了，专注结束":"今日任务已全部完成");return;}
   loadFocusTask(q[0]);}
+// 从某一题开始「顺序专注」：kind 由该题决定（已学过=复习，未开始=新学），沿列表顺序取同类题
+function buildFocusSeq(startId,kind){let ordered=[];
+  if(mode==="alg"){ordered=ALG.map(it=>({id:it.id,q:qText(it),sec:"算法",isAlg:true,idx:it.idx}));}
+  else{const map=sectionMap();SECTIONS.forEach(s=>{(map[s]||[]).forEach(it=>{if(!isDeleted(it.id)&&!isPurged(it.id))ordered.push({id:it.id,q:qText(it),sec:it.sec,isAlg:false});});});}
+  const si=ordered.findIndex(x=>x.id===startId);if(si<0)return [];
+  const wantReview=kind==="review";const seq=[];
+  for(let i=si;i<ordered.length;i++){const isRev=(get(ordered[i].id).cnt||0)>0;if(isRev===wantReview)seq.push(Object.assign({kind:kind},ordered[i]));}
+  return seq;}
+function focusFromItem(id){focusMode=mode;const kind=(get(id).cnt||0)>0?"review":"new";
+  focusSkipped.clear();focusSource="seq";focusKindPref=kind;focusSeq=buildFocusSeq(id,kind);focusSeqI=0;
+  if(!focusSeq.length){toast("没有可专注的题");return;}
+  focusOn=true;document.getElementById("focusPanel").style.display="";document.getElementById("focusBtn").classList.add("pri");loadFocusTask(focusSeq[0]);}
 function updateFocusBtn(){const b=document.getElementById("focusBtn");if(!b)return;const none=!focusOn&&focusQueue().length===0;b.disabled=none;b.title=none?"今天没有待办任务，暂时不用专注":"从今日任务里挑一题、按建议时长开始专注学习/复习";}
-function startFocus(pref){focusSkipped.clear();focusMode=mode;focusKindPref=(pref==="new")?"new":"review";if(!focusQueue(focusMode).length){toast("🎉 今日任务已全部完成");return;}
+function startFocus(pref){focusSkipped.clear();focusMode=mode;focusSource="today";focusKindPref=(pref==="new")?"new":"review";if(!focusQueue(focusMode).length){toast("今日任务已全部完成");return;}
   focusOn=true;document.getElementById("focusPanel").style.display="";document.getElementById("focusBtn").classList.add("pri");focusNext();}
 function endFocus(){focusOn=false;focusTask=null;focusRunning=false;if(focusTick){clearInterval(focusTick);focusTick=null;}
   const p=document.getElementById("focusPanel");if(p)p.style.display="none";
@@ -1251,7 +1309,7 @@ document.getElementById("focusQ").onclick=jumpToFocusItem;
 const focusPickModal=document.getElementById("focusPickModal");
 document.getElementById("focusBtn").onclick=()=>{if(focusOn){endFocus();return;}
   const q=focusQueue(mode),nNew=q.filter(t=>t.kind==="new").length,nRev=q.filter(t=>t.kind==="review").length;
-  if(!nNew&&!nRev){toast("🎉 今日任务已全部完成");return;}
+  if(!nNew&&!nRev){toast("今日任务已全部完成");return;}
   document.getElementById("focusPickNewN").textContent="("+nNew+")";document.getElementById("focusPickReviewN").textContent="("+nRev+")";
   const nb=document.getElementById("focusPickNew"),rb=document.getElementById("focusPickReview");nb.disabled=!nNew;rb.disabled=!nRev;
   focusPickModal.classList.add("show");};
@@ -1285,9 +1343,9 @@ function updateEstimate(){const el=document.getElementById("estLine");if(!el)ret
   const guMin=b.guNew*EST_MIN.guNew+b.guRev*EST_MIN.guRev;
   const algMin=b.algNew*EST_MIN.algNew+b.algRev*EST_MIN.algRev;
   const total=guMin+algMin;
-  if(total<=0){el.className="est none";el.innerHTML="⏱ 今日任务已全部完成，休息一下 🎉";return;}
+  if(total<=0){el.className="est none";el.innerHTML=IC.checkcircle+" 今日任务已全部完成，休息一下";return;}
   el.className="est";
-  el.innerHTML="<span class='estlabel'>⏱ 完成今日剩余任务还需：</span>"
+  el.innerHTML="<span class='estlabel'>"+IC.stopwatch+" 完成今日剩余任务还需：</span>"
     +"<span class='estseg'>八股 "+fmtDur(guMin)+"<span class='estsub'>新学"+b.guNew+"·复习"+b.guRev+"</span></span>"
     +"<span class='estseg'>算法 "+fmtDur(algMin)+"<span class='estsub'>新学"+b.algNew+"·复习"+b.algRev+"</span></span>"
     +"<span class='esttot'>合计 "+fmtDur(total)+"</span>";}
@@ -1314,7 +1372,7 @@ function renderAlg(tb){
   const sr=document.createElement("tr");sr.className="sec-row";sr.innerHTML='<td colspan="6">算法 · CodeTop 高频 Top 100</td>';tb.appendChild(sr);
   const DL=["","简单","中等","困难"];
   const list=ALG.map(it=>Object.assign({},it,{baseIso:it.iso})).filter(it=>{const o=get(it.id);if(lvlFilter!=="all"&&o.lvl!=lvlFilter)return false;if(diffFilter!=="all"&&it.lv!=diffFilter)return false;if(starOnly&&!o.star)return false;if(!passDate(it))return false;return true;});
-  {const tc=document.querySelector('[data-date="todayall"]');if(tc)tc.textContent="📌 今天任务："+todayCount();}
+  {const tc=document.querySelector('[data-date="todayall"]');if(tc)tc.innerHTML=IC.pin+" 今天任务："+todayCount();}
   updateEstimate();updateFocusBtn();
   list.forEach(it=>{const st=get(it.id);
     const opened=openIds.has(it.id);
@@ -1332,6 +1390,8 @@ function renderAlg(tb){
       onNone:()=>{get(it.id).date="none";save();render();},
       onClear:()=>{delete get(it.id).date;save();render();}});};
     tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
+    tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button>');
+    tr.querySelector(".rowfocus").onclick=e=>{e.stopPropagation();focusFromItem(it.id);};
     tr.querySelector(".qbtn").onclick=()=>{opened?openIds.delete(it.id):openIds.add(it.id);render();};
     tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
     tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNextAlg(st.cnt,it.idx);save();render();if(focusOn&&focusTask&&focusTask.id===it.id){toast("✓ 已完成，下一题");focusNext();}};
@@ -1353,8 +1413,8 @@ function renderAlg(tb){
       bar+='</div>';
       let body='';
       if(o.memoOn){
-        if(o.memoHide){const mf=plainFirstLine(o.memo);body+='<div class="memo-folded"><button class="memofold memobtn">▸</button><button class="memodel memobtn">✕</button>💡 助记'+(mf?'：'+esc(mf):'')+'</div>';}
-        else body+='<div class="memo-label">💡 助记</div><div class="memowrap"><button class="memofold memobtn" title="隐藏助记">▾</button><button class="memodel memobtn" title="删除助记">✕</button><div class="tui-memo"></div></div>';
+        if(o.memoHide){const mf=plainFirstLine(o.memo);body+='<div class="memo-folded"><button class="memofold memobtn">▸</button><button class="memodel memobtn">✕</button>'+IC.bulb+' 助记'+(mf?'：'+esc(mf):'')+'</div>';}
+        else body+='<div class="memo-label">'+IC.bulb+' 助记</div><div class="memowrap"><button class="memofold memobtn" title="隐藏助记">▾</button><button class="memodel memobtn" title="删除助记">✕</button><div class="tui-memo"></div></div>';
       }
       body+='<div class="codebox"></div>';
       td.innerHTML=bar+body;
@@ -1392,7 +1452,7 @@ function render(){const tb=document.getElementById("tb");
     if(recycleMode){
       list.forEach(it=>{const tr=document.createElement("tr");
         tr.innerHTML='<td class="c">'+it.idx+'</td><td class="c hide-sm date"></td><td class="q">'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</td>'+
-          '<td class="c" colspan="3"><button class="restore">↩ 恢复</button> <button class="purge">🗑 永久删除</button></td>';
+          '<td class="c" colspan="3"><button class="restore">'+IC.undo+' 恢复</button> <button class="purge">'+IC.trash+' 永久删除</button></td>';
         tr.querySelector(".restore").onclick=()=>{delete get(it.id).del;save();render();};
         tr.querySelector(".purge").onclick=()=>{confirmDlg("永久删除这道题？不可恢复",()=>{if(it.custom){state.__custom=customList().filter(c=>c.id!==it.id);delete state[it.id];}else{const o=get(it.id);delete o.del;o.purged=true;}save();render();});};
         tb.appendChild(tr);});
@@ -1410,6 +1470,8 @@ function render(){const tb=document.getElementById("tb");
       tr.cells[0].insertAdjacentHTML("beforeend",'<span class="mv"><button class="mvup" title="上移">▲</button><button class="mvdn" title="下移">▼</button></span>');
       tr.querySelector(".mvup").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,-1);};
       tr.querySelector(".mvdn").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,1);};
+      tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button>');
+      tr.querySelector(".rowfocus").onclick=e=>{e.stopPropagation();focusFromItem(it.id);};
       const dc=tr.querySelector(".date");
       dc.onclick=e=>{e.stopPropagation();openCal(dc,{selected:itemDate(it),dot:true,clearLabel:"恢复默认",noneLabel:"清空日期",
         onPick:iso=>{get(it.id).date=iso;save();render();},
@@ -1435,13 +1497,13 @@ function render(){const tb=document.getElementById("tb");
         let bar='<div class="ehint">';
         bar+=(!o.memoOn)?'<button class="ebtn addmemo">＋ 助记</button>':'';
         bar+='<button class="ebtn addcode">＋ 代码</button>';
-        bar+='<button class="del">🗑 删除</button></div>';
+        bar+='<button class="del">'+IC.trash+' 删除</button></div>';
         let body='';
         if(o.memoOn){
-          if(o.memoHide){const mf=plainFirstLine(o.memo);body+='<div class="memo-folded"><button class="memofold memobtn">▸</button><button class="memodel memobtn">✕</button>💡 助记'+(mf?'：'+esc(mf):'')+'</div>';}
-          else body+='<div class="memo-label">💡 助记</div><div class="memowrap"><button class="memofold memobtn" title="隐藏助记">▾</button><button class="memodel memobtn" title="删除助记">✕</button><div class="tui-memo"></div></div>';
+          if(o.memoHide){const mf=plainFirstLine(o.memo);body+='<div class="memo-folded"><button class="memofold memobtn">▸</button><button class="memodel memobtn">✕</button>'+IC.bulb+' 助记'+(mf?'：'+esc(mf):'')+'</div>';}
+          else body+='<div class="memo-label">'+IC.bulb+' 助记</div><div class="memowrap"><button class="memofold memobtn" title="隐藏助记">▾</button><button class="memodel memobtn" title="删除助记">✕</button><div class="tui-memo"></div></div>';
         }
-        if(o.noteHide)body+='<div class="note-folded"><button class="notefold notebtn" title="显示答案">▸</button>📝 答案已隐藏</div>';
+        if(o.noteHide)body+='<div class="note-folded"><button class="notefold notebtn" title="显示答案">▸</button>'+IC.note+' 答案已隐藏</div>';
         else body+='<div class="notewrap"><button class="notefold notebtn" title="隐藏答案">▾</button><div class="tui"></div></div>';
         if(o.codes&&o.codes.length)body+='<div class="codebox"></div>';
         td.innerHTML=bar+body;
@@ -1479,9 +1541,9 @@ function render(){const tb=document.getElementById("tb");
   document.getElementById("pbar").style.width=pct+"%";
   document.getElementById("pbar2").style.width=fpct+"%";
   const GOAL=60;
-  document.getElementById("stat").innerHTML="已掌握(能讲框架+能扛追问)：<b>"+done+"</b> / "+tot+"　("+pct+"%)　·　<span style='color:#d97706'>眼熟 "+fam+"</span>　·　"+(pct>=GOAL?"<span style='color:#16a34a'>✅ 已过可投递线，可以开始投面试</span>":"<span style='color:#dc2626'>距可投递线(60%)还差 "+(GOAL-pct)+"%</span>");
+  document.getElementById("stat").innerHTML="已掌握(能讲框架+能扛追问)：<b>"+done+"</b> / "+tot+"　("+pct+"%)　·　<span style='color:#d97706'>眼熟 "+fam+"</span>　·　"+(pct>=GOAL?"<span style='color:#16a34a'>"+IC.checkcircle+" 已过可投递线，可以开始投面试</span>":"<span style='color:#dc2626'>距可投递线(60%)还差 "+(GOAL-pct)+"%</span>");
   if(dateFilter==="todayall")saveStuck();
-  {const tc=document.querySelector('[data-date="todayall"]');if(tc)tc.textContent="📌 今天任务："+todayCount();}
+  {const tc=document.querySelector('[data-date="todayall"]');if(tc)tc.innerHTML=IC.pin+" 今天任务："+todayCount();}
   updateEstimate();updateFocusBtn();
   window.scrollTo(0,_sy);requestAnimationFrame(()=>window.scrollTo(0,_sy));}
 const modal=document.getElementById("modal");
@@ -1537,9 +1599,9 @@ const bkModal=document.getElementById("bkModal");
 // ---- 云端备份：每个备份单独一个小仓库，主进度只存索引（不会撑爆主仓库）----
 function bkIndex(){return state.__bkIndex||(state.__bkIndex=[]);}
 function renderCloud(){const box=document.getElementById("bkCloudList");
-  if(!cfg){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">配置「☁️ 云同步」后可用</div>';return;}
+  if(!cfg){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">配置「'+IC.cloud+' 云同步」后可用</div>';return;}
   const a=bkIndex();
-  if(!a.length){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">还没有云端备份，点上方「☁️ 云端备份」创建</div>';return;}
+  if(!a.length){box.innerHTML='<div style="color:#9ca3af;font-size:13px;padding:8px">还没有云端备份，点上方「'+IC.cloud+' 云端备份」创建</div>';return;}
   box.innerHTML=a.map((b,i)=>'<div class="bk-item"><div class="meta"><div>'+(esc(b.label)||"备份")+'</div><div class="t">'+fmtTs(b.ts)+'</div></div><button class="rb" data-i="'+i+'">恢复</button><button class="cvt" data-i="'+i+'" title="转为本地备份，云端这份会删除">转为本地</button><button class="db" data-i="'+i+'">删除</button></div>').join("");
   box.querySelectorAll(".cvt").forEach(btn=>btn.onclick=async()=>{const i=+btn.dataset.i,b=bkIndex()[i];
     btn.disabled=true;btn.textContent="转换中…";
@@ -1570,8 +1632,8 @@ async function doCloudBackup(old){const btn=document.getElementById("bkNewCloud"
     state.__bkIndex=[{ts:Date.now(),label:lbl,bin:rid}];
     document.getElementById("bkLabel").value="";save();renderCloud();toast(old?"已覆盖云端备份":"云端备份完成");}
   catch(e){toast("云端备份失败，检查网络/配置");}
-  btn.disabled=false;btn.textContent="☁️ 云端备份";}
-document.getElementById("bkNewCloud").onclick=()=>{if(!cfg){toast("请先配置「☁️ 云同步」");return;}
+  btn.disabled=false;btn.innerHTML=IC.cloud+" 云端备份";}
+document.getElementById("bkNewCloud").onclick=()=>{if(!cfg){toast("请先配置「云同步」");return;}
   const old=bkIndex()[0];
   if(old)confirmDlg("云端只保留 1 份备份。新建会覆盖现有的（"+fmtTs(old.ts)+"），确定吗？",()=>doCloudBackup(old));
   else doCloudBackup(null);};
@@ -1591,6 +1653,9 @@ window.addEventListener("focus",autoSync);
 setInterval(autoSync,60000);
 </script></body></html>'''
 html = html.replace("__ITEMS__", JS).replace("__SEC__", SEC).replace("__ALG__", ALGJS)
+html = html.replace("@@IC_JSON@@", IC_JSON)
+for _name,_svg_str in ICONS.items():
+    html = html.replace("@@"+_name+"@@", _svg_str)
 pm_css = open("/tmp/tui/node_modules/prosemirror-view/style/prosemirror.css", encoding="utf-8").read()
 pm_css += "\n" + open("/tmp/tui/node_modules/prosemirror-gapcursor/style/gapcursor.css", encoding="utf-8").read()
 pm_css = pm_css.replace("</style", "<\\/style")
