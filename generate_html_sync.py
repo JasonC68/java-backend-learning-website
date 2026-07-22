@@ -1261,7 +1261,8 @@ function loadFocusTask(t){focusTask=t;focusStartMs=Date.now();focusElapsed=0;foc
   const k=document.getElementById("focusKind");k.innerHTML=(t.kind==="review"?IC.review+" 复习":IC.book+" 新学");k.className="fp-kind "+t.kind;
   document.getElementById("focusQ").textContent=(t.sec?("["+t.sec+"] "):"")+t.q;
   document.getElementById("focusAllot").textContent="/ 建议 "+fmtMS(focusMinFor(t)*60000);
-  if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);renderFocus();}
+  if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);renderFocus();
+  if(dateFilter==="solo"){soloId=t.id;openIds.add(t.id);render();}}
 function focusNext(){
   if(focusSource==="seq"){focusSeqI++;
     while(focusSeqI<focusSeq.length&&focusSkipped.has(focusSeq[focusSeqI].id))focusSeqI++;
@@ -1285,7 +1286,7 @@ function buildFocusSeq(startId,kind){let ordered=[];
 function focusFromItem(id){focusMode=mode;const kind=(get(id).cnt||0)>0?"review":"new";
   focusSkipped.clear();focusSource="seq";focusKindPref=kind;focusSeq=buildFocusSeq(id,kind);focusSeqI=0;
   if(!focusSeq.length){toast("没有可专注的题");return;}
-  focusOn=true;document.getElementById("focusPanel").style.display="";document.getElementById("focusBtn").classList.add("pri");loadFocusTask(focusSeq[0]);}
+  focusOn=true;document.getElementById("focusPanel").style.display="";document.getElementById("focusBtn").classList.add("pri");loadFocusTask(focusSeq[0]);jumpToFocusItem();}
 function updateFocusBtn(){const b=document.getElementById("focusBtn");if(!b)return;const none=!focusOn&&focusQueue().length===0;b.disabled=none;b.title=none?"今天没有待办任务，暂时不用专注":"从今日任务里挑一题、按建议时长开始专注学习/复习";}
 function startFocus(pref){focusSkipped.clear();focusMode=mode;focusSource="today";focusKindPref=(pref==="new")?"new":"review";if(!focusQueue(focusMode).length){toast("今日任务已全部完成");return;}
   focusOn=true;document.getElementById("focusPanel").style.display="";document.getElementById("focusBtn").classList.add("pri");focusNext();}
