@@ -583,6 +583,8 @@ ICONS = {
  "subadd": '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v6a3 3 0 0 0 3 3h2"/><line x1="17" y1="9" x2="17" y2="17"/><line x1="13" y1="13" x2="21" y2="13"/></svg>',
  "chevrondown": _svg('<polyline points="6 9 12 15 18 9"/>'),
  "chevronright": _svg('<polyline points="9 6 15 12 9 18"/>'),
+ "triup": '<svg class="ic" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M3 16h18L12 9z"/></svg>',
+ "tridown": '<svg class="ic" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M3 8h18l-9 7z"/></svg>',
  "undo": _svg('<polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/>'),
 }
 IC_JSON = json.dumps(ICONS, ensure_ascii=False)
@@ -617,7 +619,7 @@ h1{font-size:20px}
 body:not(.algmode) .est .estseg.gu{background:#eff6ff;border-color:#dbeafe}
 body:not(.algmode) .est .estseg.gu .estname{color:#1d4ed8}
 body.algmode .est .estseg.alg{background:#f5f3ff;border-color:#e9d5ff}
-body.algmode .est .estseg.alg .estname{color:#7c3aed}
+body.algmode .est .estseg.alg .estname{color:#5f43a8}
 .est .esttot{font-weight:600;color:#2563eb;white-space:nowrap}
 .est.none{color:#16a34a}
 .ic{width:1em;height:1em;display:inline-block;vertical-align:-0.14em;flex:none}
@@ -865,7 +867,7 @@ body.dark .memo-folded:hover{background:#332a0c}
 .blkctl button{border:none;background:rgba(0,0,0,.06);color:#6b7280;border-radius:6px;width:20px;height:20px;font-size:11px;line-height:1;cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center}
 .blkctl button:hover{background:rgba(0,0,0,.14);color:#111}
 .blkctl button:disabled{opacity:.3;cursor:default}
-.blkctl .blkup,.blkctl .blkdn{font-size:8px}
+.blkctl .blkup .ic,.blkctl .blkdn .ic{width:14px;height:14px}
 .blkctl .blkfd .ic{width:13px;height:13px}
 .blkctl .blkdel:hover{background:rgba(220,38,38,.2);color:#b91c1c}
 .blkadd{position:relative;height:22px;margin:2px 0 6px;cursor:pointer}
@@ -885,10 +887,10 @@ body.dark .blkadd button:hover{background:#172033}
 .memofold,.notefold{display:inline-flex;align-items:center;justify-content:center}
 .memofold .ic,.notefold .ic{width:13px;height:13px}
 body.algmode .learnwrap{background:#f5f3ff;border-color:#ddd6fe}
-body.algmode .learn-folded{color:#7c3aed}
+body.algmode .learn-folded{color:#5f43a8}
 body.dark.algmode .learnwrap{background:#1e1633;border-color:#3b2a5e}
 body.dark.algmode .learn-folded{color:#c4b5fd}
-body.algmode .blkadd button{border-color:#c4b5fd;color:#7c3aed}
+body.algmode .blkadd button{border-color:#c4b5fd;color:#5f43a8}
 body.algmode .blkadd button:hover{background:#f5f3ff}
 body.dark.algmode .blkadd button{border-color:#57419e;color:#c4b5fd}
 body.dark.algmode .blkadd button:hover{background:#1e1633}
@@ -1021,20 +1023,20 @@ body:not(.algmode) .timer{border-color:#93c5fd}
 body.dark:not(.algmode) .timer{border-color:#365a9e}
 body.algmode .timer{border-color:#c4b5fd}
 body.dark.algmode .timer{border-color:#57419e}
-body.algmode .est .esttot,body.algmode .est .esttot{color:#7c3aed}
+body.algmode .est .esttot,body.algmode .est .esttot{color:#5f43a8}
 body.dark.algmode .est .esttot{color:#a78bfa}
 body.algmode tr.sec-row td{background:#f3edfb;color:#5b21b6}
 body.dark.algmode tr.sec-row td{background:#2c2540;color:#c4b5fd}
-body.algmode .chip.active,body.dark.algmode .chip.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
-body.algmode .theme button.on,body.dark.algmode .theme button.on{background:#7c3aed;color:#fff}
-body.algmode .toolbar .btn.pri,body.algmode #bkModal .btn.pri,body.dark.algmode .toolbar .btn.pri,body.dark.algmode #bkModal .btn.pri{background:#7c3aed;border-color:#7c3aed;color:#fff}
-body.algmode .toolbar .btn.pri:hover,body.algmode #bkModal .btn.pri:hover{background:#6d28d9;border-color:#6d28d9}
-body.algmode .timer button.on{background:#7c3aed;border-color:#7c3aed}
+body.algmode .chip.active,body.dark.algmode .chip.active{background:#5f43a8;color:#fff;border-color:#5f43a8}
+body.algmode .theme button.on,body.dark.algmode .theme button.on{background:#5f43a8;color:#fff}
+body.algmode .toolbar .btn.pri,body.algmode #bkModal .btn.pri,body.dark.algmode .toolbar .btn.pri,body.dark.algmode #bkModal .btn.pri{background:#5f43a8;border-color:#5f43a8;color:#fff}
+body.algmode .toolbar .btn.pri:hover,body.algmode #bkModal .btn.pri:hover{background:#4f388c;border-color:#4f388c}
+body.algmode .timer button.on{background:#5f43a8;border-color:#5f43a8}
 body.algmode .tag,body.dark.algmode .tag{color:#5b21b6;background:#f3edfb;border-color:#ddd6fe}
 body.dark.algmode .tag{color:#c4b5fd;background:#241b3a;border-color:#3b2a5e}
-body.algmode .tag.lc:hover,body.dark.algmode .tag.lc:hover{background:#7c3aed;color:#fff;border-color:#7c3aed}
-body.algmode .bk-item .rb,body.dark.algmode .bk-item .rb{color:#7c3aed;border-color:#c4b5fd}
-body.algmode .qbtn:hover{color:#7c3aed}
+body.algmode .tag.lc:hover,body.dark.algmode .tag.lc:hover{background:#5f43a8;color:#fff;border-color:#5f43a8}
+body.algmode .bk-item .rb,body.dark.algmode .bk-item .rb{color:#5f43a8;border-color:#c4b5fd}
+body.algmode .qbtn:hover{color:#5f43a8}
 body.algmode .pill.busy,body.dark.algmode .pill.busy{background:#ede9fe;color:#5b21b6}
 .ProseMirror:focus{outline:none}
 .ProseMirror>:first-child{margin-top:0}
@@ -1061,7 +1063,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.7.0</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.7.2</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1286,7 +1288,7 @@ function renderGroupBlocks(host,g,o,gi,mount){
       dn:()=>{if(idx<g.blocks.length-1){const t=g.blocks[idx+1];g.blocks[idx+1]=g.blocks[idx];g.blocks[idx]=t;save();render();}},
       fold:()=>{b.fold=!b.fold;save();render();},
       del:()=>{confirmDlg(b.t==="learn"?"删除这个学习框？":"删除这个代码框？",()=>{g.blocks.splice(idx,1);clean();save();render();});}};
-    const ctl='<span class="blkctl"><button class="blkup" title="上移"'+(idx===0?' disabled':'')+'>▲</button><button class="blkdn" title="下移"'+(idx===g.blocks.length-1?' disabled':'')+'>▼</button><button class="blkfd" title="折叠/展开">'+(b.fold?IC.chevronright:IC.chevrondown)+'</button><button class="blkdel" title="删除">✕</button></span>';
+    const ctl='<span class="blkctl"><button class="blkup" title="上移"'+(idx===0?' disabled':'')+'>'+IC.triup+'</button><button class="blkdn" title="下移"'+(idx===g.blocks.length-1?' disabled':'')+'>'+IC.tridown+'</button><button class="blkfd" title="折叠/展开">'+(b.fold?IC.chevronright:IC.chevrondown)+'</button><button class="blkdel" title="删除">✕</button></span>';
     renderOneBlock(host,b,ctl,cbs);
   });
   const az=document.createElement("div");az.className="blkadd";
