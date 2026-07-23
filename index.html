@@ -19,7 +19,8 @@ h1{font-size:20px}
 .estrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 12px}
 .est{font-size:13px;color:#374151;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
 .est .estlabel{color:#6b7280}
-.est .estseg{display:inline-flex;align-items:baseline;gap:7px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:4px 12px;white-space:nowrap}
+.est .estseg{display:inline-flex;align-items:baseline;gap:7px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:4px 12px;white-space:nowrap;font:inherit;cursor:pointer;transition:border-color .12s,box-shadow .12s}
+.est .estseg:hover{border-color:#94a3b8;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .est .estseg .estname{font-weight:600;font-size:12px;color:#6b7280}
 .est .estseg b{font-weight:400;color:#374151}
 .est .estsub{color:#9ca3af;font-size:12px}
@@ -35710,7 +35711,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.6.7</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.6.8</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -36162,9 +36163,10 @@ function updateEstimate(){const el=document.getElementById("estLine");if(!el)ret
   if(total<=0){el.className="est none";el.innerHTML=IC.checkcircle+" 今日任务已全部完成，休息一下";return;}
   el.className="est";
   el.innerHTML="<span class='estlabel' title='完成今日剩余任务还需'>"+IC.stopwatch+"</span>"
-    +"<span class='estseg gu'><span class='estname'>八股</span><b>"+fmtDur(guMin)+"</b><span class='estsub'>新学"+b.guNew+"·复习"+b.guRev+"</span></span>"
-    +"<span class='estseg alg'><span class='estname'>算法</span><b>"+fmtDur(algMin)+"</b><span class='estsub'>新学"+b.algNew+"·复习"+b.algRev+"</span></span>"
-    +"<span class='esttot'>合计 "+fmtDur(total)+"</span>";}
+    +"<button class='estseg gu' data-m='gu' title='切到八股'><span class='estname'>八股</span><b>"+fmtDur(guMin)+"</b><span class='estsub'>新学"+b.guNew+"·复习"+b.guRev+"</span></button>"
+    +"<button class='estseg alg' data-m='alg' title='切到算法'><span class='estname'>算法</span><b>"+fmtDur(algMin)+"</b><span class='estsub'>新学"+b.algNew+"·复习"+b.algRev+"</span></button>"
+    +"<span class='esttot'>合计 "+fmtDur(total)+"</span>";
+  el.querySelectorAll(".estseg[data-m]").forEach(s=>s.onclick=()=>{const m=s.dataset.m;if(m!==mode){mode=m;localStorage.setItem("mode_v1",mode);applyMode();}});}
 function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="solo")return it.id===soloId||it.parent===soloId;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const reviewDue=!!o.next&&o.next<=ti;if(d&&d>ti)return reviewDue;const studyDue=!!d&&d<=ti&&!(o.cnt>0);const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
