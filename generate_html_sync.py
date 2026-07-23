@@ -659,7 +659,7 @@ body.dark .timer b{color:#e5e5e5}
 body.dark .timer .tdot{background:#4b5563}
 body.dark .timer button{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
 body.dark .timer button:hover{background:#303030}
-@media(max-width:640px){.timer{width:100%;box-sizing:border-box;justify-content:flex-start}}
+@media(max-width:640px){.timer{margin-left:0;width:auto;justify-content:flex-start}}
 .focusbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:10px 14px;margin:0 0 12px}
 .focusbar .fp-main{display:flex;align-items:center;gap:8px;flex:1;min-width:220px}
 .focusbar .fp-kind{font-size:12px;font-weight:600;padding:2px 9px;border-radius:8px;white-space:nowrap}
@@ -1031,10 +1031,10 @@ body.algmode .chip.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
 body.dark.algmode .chip.active{background:#7a3fe0;border-color:#7a3fe0}
 body.algmode .theme button.on{background:#7c3aed;color:#fff}
 body.dark.algmode .theme button.on{background:#7a3fe0}
-body.algmode .toolbar .btn.pri,body.algmode #bkModal .btn.pri{background:#7c3aed;border-color:#7c3aed;color:#fff}
-body.dark.algmode .toolbar .btn.pri,body.dark.algmode #bkModal .btn.pri{background:#7a3fe0;border-color:#7a3fe0}
-body.algmode .toolbar .btn.pri:hover,body.algmode #bkModal .btn.pri:hover{background:#6d28d9;border-color:#6d28d9}
-body.dark.algmode .toolbar .btn.pri:hover,body.dark.algmode #bkModal .btn.pri:hover{background:#574095;border-color:#574095}
+body.algmode .toolbar .btn.pri,body.algmode #bkModal .btn.pri,body.algmode #modal .btn.pri,body.algmode #cfModal .btn.pri{background:#7c3aed;border-color:#7c3aed;color:#fff}
+body.dark.algmode .toolbar .btn.pri,body.dark.algmode #bkModal .btn.pri,body.dark.algmode #modal .btn.pri,body.dark.algmode #cfModal .btn.pri{background:#7a3fe0;border-color:#7a3fe0}
+body.algmode .toolbar .btn.pri:hover,body.algmode #bkModal .btn.pri:hover,body.algmode #modal .btn.pri:hover,body.algmode #cfModal .btn.pri:hover{background:#6d28d9;border-color:#6d28d9}
+body.dark.algmode .toolbar .btn.pri:hover,body.dark.algmode #bkModal .btn.pri:hover,body.dark.algmode #modal .btn.pri:hover,body.dark.algmode #cfModal .btn.pri:hover{background:#574095;border-color:#574095}
 body.algmode .timer button.on{background:#7c3aed;border-color:#7c3aed}
 body.dark.algmode .timer button.on{background:#7a3fe0;border-color:#7a3fe0}
 body.algmode .tag,body.dark.algmode .tag{color:#5b21b6;background:#f3edfb;border-color:#ddd6fe}
@@ -1071,7 +1071,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.7.7</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.7.8</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
