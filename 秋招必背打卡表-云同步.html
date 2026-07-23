@@ -35891,8 +35891,8 @@ function renderTimer(){const d=document.getElementById("timerDisp");if(d)d.textC
 function timerToggle(){const btn=document.getElementById("timerToggle"),box=document.getElementById("timerBox");
   if(timerRunning){timerElapsed+=Date.now()-timerStart;timerRunning=false;if(timerTick){clearInterval(timerTick);timerTick=null;}btn.innerHTML=IC.play;btn.title="继续";btn.classList.remove("on");box.classList.remove("run");}
   else{timerStart=Date.now();timerRunning=true;btn.innerHTML=IC.pause;btn.title="暂停";btn.classList.add("on");box.classList.add("run");if(timerTick)clearInterval(timerTick);timerTick=setInterval(renderTimer,250);}
-  renderTimer();}
-function timerReset(){timerElapsed=0;timerRunning=false;if(timerTick){clearInterval(timerTick);timerTick=null;}const btn=document.getElementById("timerToggle");if(btn){btn.innerHTML=IC.play;btn.title="开始";btn.classList.remove("on");}const box=document.getElementById("timerBox");if(box)box.classList.remove("run");renderTimer();}
+  renderTimer();saveFocusUI();}
+function timerReset(){timerElapsed=0;timerRunning=false;if(timerTick){clearInterval(timerTick);timerTick=null;}const btn=document.getElementById("timerToggle");if(btn){btn.innerHTML=IC.play;btn.title="开始";btn.classList.remove("on");}const box=document.getElementById("timerBox");if(box)box.classList.remove("run");renderTimer();saveFocusUI();}
 document.getElementById("timerToggle").onclick=timerToggle;
 document.getElementById("timerReset").onclick=timerReset;
 renderTimer();
@@ -35900,6 +35900,25 @@ renderTimer();
 let focusOn=false,focusMode="gu",focusKindPref="review",focusSource="today",focusSeq=[],focusSeqI=0,focusTask=null,focusStartMs=0,focusElapsed=0,focusRunning=false,focusTick=null,focusAlerted=false;
 const focusSkipped=new Set();
 function focusMs(){return focusElapsed+(focusRunning?Date.now()-focusStartMs:0);}
+// ---- 专注/计时器状态本地持久化（仅本机，不上云；刷新后自动恢复）----
+const FUIKEY="focusui_v1";
+function saveFocusUI(){try{localStorage.setItem(FUIKEY,JSON.stringify({
+  t:{el:timerElapsed,run:timerRunning,st:timerStart},
+  f:focusOn?{on:1,mode:focusMode,pref:focusKindPref,src:focusSource,seq:focusSeq,si:focusSeqI,task:focusTask,sk:[...focusSkipped],st:focusStartMs,el:focusElapsed,run:focusRunning,al:focusAlerted}:{on:0}
+}));}catch(e){}}
+function restoreFocusUI(){let d;try{d=JSON.parse(localStorage.getItem(FUIKEY)||"null");}catch(e){}if(!d)return;
+  if(d.t){timerElapsed=d.t.el||0;timerStart=d.t.st||Date.now();timerRunning=!!d.t.run;
+    const btn=document.getElementById("timerToggle"),box=document.getElementById("timerBox");
+    if(timerRunning){if(btn){btn.innerHTML=IC.pause;btn.title="暂停";btn.classList.add("on");}if(box)box.classList.add("run");if(timerTick)clearInterval(timerTick);timerTick=setInterval(renderTimer,250);}
+    renderTimer();}
+  if(d.f&&d.f.on&&d.f.task){focusOn=true;focusMode=d.f.mode;focusKindPref=d.f.pref;focusSource=d.f.src;focusSeq=d.f.seq||[];focusSeqI=d.f.si||0;focusTask=d.f.task;focusSkipped.clear();(d.f.sk||[]).forEach(x=>focusSkipped.add(x));focusStartMs=d.f.st||Date.now();focusElapsed=d.f.el||0;focusRunning=!!d.f.run;focusAlerted=!!d.f.al;
+    document.getElementById("focusPanel").style.display="";document.getElementById("focusBtn").classList.add("pri");
+    const t=focusTask,k=document.getElementById("focusKind");k.innerHTML=(t.kind==="review"?IC.review+" 复习":IC.book+" 新学");k.className="fp-kind "+t.kind;
+    document.getElementById("focusQ").textContent=(t.sec?("["+t.sec+"] "):"")+t.q;
+    document.getElementById("focusAllot").textContent="/ 建议 "+fmtMS(focusMinFor(t)*60000);
+    const pb=document.getElementById("focusPause");if(pb)pb.innerHTML=focusRunning?(IC.pause+" 暂停"):(IC.play+" 继续");
+    if(focusRunning){if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);}
+    renderFocus();}}
 function fmtMS(ms){let s=Math.floor(ms/1000);const h=Math.floor(s/3600);s-=h*3600;const m=Math.floor(s/60);s-=m*60;const p=n=>(n+"").padStart(2,"0");return (h?h+":":"")+p(m)+":"+p(s);}
 function focusMinFor(t){return t.isAlg?(t.kind==="review"?EST_MIN.algRev:EST_MIN.algNew):(t.kind==="review"?EST_MIN.guRev:EST_MIN.guNew);}
 function focusQueue(m){m=m||mode;const ti=todayIso();const rev=[],neu=[];
@@ -35920,14 +35939,14 @@ function renderFocus(){if(!focusOn||!focusTask)return;const el=document.getEleme
 function focusSetRun(run){const btn=document.getElementById("focusPause");
   if(run&&!focusRunning){focusStartMs=Date.now();focusRunning=true;if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);if(btn)btn.innerHTML=IC.pause+" 暂停";}
   else if(!run&&focusRunning){focusElapsed+=Date.now()-focusStartMs;focusRunning=false;if(focusTick){clearInterval(focusTick);focusTick=null;}if(btn)btn.innerHTML=IC.play+" 继续";}
-  renderFocus();}
+  renderFocus();saveFocusUI();}
 function focusPause(){if(!focusOn)return;focusSetRun(!focusRunning);}
 function loadFocusTask(t){focusTask=t;focusStartMs=Date.now();focusElapsed=0;focusRunning=true;focusAlerted=false;
   const pb=document.getElementById("focusPause");if(pb)pb.innerHTML=IC.pause+" 暂停";
   const k=document.getElementById("focusKind");k.innerHTML=(t.kind==="review"?IC.review+" 复习":IC.book+" 新学");k.className="fp-kind "+t.kind;
   document.getElementById("focusQ").textContent=(t.sec?("["+t.sec+"] "):"")+t.q;
   document.getElementById("focusAllot").textContent="/ 建议 "+fmtMS(focusMinFor(t)*60000);
-  if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);renderFocus();
+  if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);renderFocus();saveFocusUI();
   if(dateFilter==="solo"){soloId=t.id;openIds.add(t.id);render();}}
 function focusNext(){
   if(focusSource==="seq"){focusSeqI++;
@@ -35959,7 +35978,7 @@ function startFocus(pref){focusSkipped.clear();focusMode=mode;focusSource="today
 function endFocus(){focusOn=false;focusTask=null;focusRunning=false;if(focusTick){clearInterval(focusTick);focusTick=null;}
   const p=document.getElementById("focusPanel");if(p)p.style.display="none";
   const b=document.getElementById("focusBtn");if(b)b.classList.remove("pri");
-  document.getElementById("focusModal").classList.remove("show");updateFocusBtn();}
+  document.getElementById("focusModal").classList.remove("show");updateFocusBtn();saveFocusUI();}
 function focusComplete(){if(!focusTask)return;const o=get(focusTask.id);o.cnt=(o.cnt||0)+1;o.last=today();o.next=focusTask.isAlg?schedNextAlg(o.cnt,focusTask.idx):schedNext(o.cnt);save();render();toast("✓ 已完成，下一题");focusNext();}
 function focusSkip(){if(!focusTask)return;focusSkipped.add(focusTask.id);focusNext();}
 function showFocusTimeup(){focusSetRun(false);const m=document.getElementById("focusModalMsg");if(m&&focusTask)m.textContent="「"+focusTask.q+"」的建议用时 "+focusMinFor(focusTask)+" 分钟已到（计时已暂停）。可以继续复习这一题、进入下一题，或停止。";document.getElementById("focusModal").classList.add("show");}
@@ -36314,6 +36333,7 @@ document.getElementById("cfNo").onclick=()=>{document.getElementById("cfModal").
 function applyMode(){document.querySelectorAll("#modeSw button").forEach(b=>b.classList.toggle("on",b.dataset.mode===mode));document.getElementById("filters").style.display=mode==="alg"?"none":"";document.getElementById("diffBar").style.display=mode==="alg"?"":"none";render();}
 document.querySelectorAll("#modeSw button").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;localStorage.setItem("mode_v1",mode);applyMode();});
 loadStuck();buildFilters();applyMode();
+restoreFocusUI();
 if(cfg){if(dirty){setPill("有未同步的改动，正在上传…","busy");push();}else{setPill("正在拉取…","busy");pull();}}else{setPill("未配置云同步");}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")autoSync();});
 window.addEventListener("focus",autoSync);
