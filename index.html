@@ -35968,7 +35968,9 @@ function focusMetaOf(id,kind){if(mode==="alg"){const it=ALG.find(x=>x.id===id);i
   const it=ITEMS.find(x=>x.id===id);if(it)return {id:id,kind:kind,isAlg:false,q:qText(it),sec:it.sec};
   const c=customList().find(x=>x.id===id);if(c)return {id:id,kind:kind,isAlg:false,q:qText(c),sec:c.sec};return null;}
 // 从某一题开始专注：这题作为第一题，之后按「今日应复习/学习」的队列顺序跳转（可能跨板块）
-function focusFromItem(id){focusMode=mode;const kind=(get(id).cnt||0)>0?"review":"new";
+function focusFromItem(id){
+  if(focusOn&&focusTask&&focusTask.id===id){jumpToFocusItem();return;}  // 已在专注这一题：保持不变，不重置计时
+  focusMode=mode;const kind=(get(id).cnt||0)>0?"review":"new";
   focusSkipped.clear();focusSource="today";focusKindPref=kind;
   const meta=focusMetaOf(id,kind);if(!meta){toast("没有可专注的题");return;}
   const pos=focusOrderIndex();focusPos=(pos[id]!==undefined?pos[id]:-1);   // 之后从这题位置往下继续
