@@ -969,7 +969,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.5.3</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.5.4</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1405,6 +1405,10 @@ let newSubId=null;
 function startQEdit(it,tr,sel){const cell=tr.querySelector(".q");cell.innerHTML='<input class="qin">';const inp=cell.querySelector(".qin");inp.value=qText(it);inp.focus();if(sel)inp.select();
   const commit=()=>{const v=inp.value.trim();if(v)get(it.id).q=v;save();render();};
   inp.onkeydown=ev=>{if(ev.key==="Enter")commit();else if(ev.key==="Escape")render();};inp.onblur=commit;}
+// 题目：单击展开/收起，双击改标题
+function wireQClick(qb,it,tr){let ct=null;
+  qb.onclick=()=>{if(ct)return;ct=setTimeout(()=>{ct=null;openIds.has(it.id)?openIds.delete(it.id):openIds.add(it.id);render();},220);};
+  qb.ondblclick=e=>{e.preventDefault();if(ct){clearTimeout(ct);ct=null;}startQEdit(it,tr,false);};}
 // 在某题下方加一个「子问题」（自建题，绿色标签），排到该题已有子问题的最后、进入编辑态
 function addSubQuestion(parentId,sec){const id="c_"+Date.now();customList().push({id:id,sec:sec,q:"子问题",sub:true,parent:parentId});
   const p=ITEMS.find(x=>x.id===parentId);const pdate=realDate(get(parentId),p?p.iso:"");if(pdate)get(id).date=pdate;   // 建议日期与原问题一致
@@ -1450,7 +1454,7 @@ function renderAlg(tb){
     tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
     tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button>');
     tr.querySelector(".rowfocus").onclick=e=>{e.stopPropagation();focusFromItem(it.id);};
-    tr.querySelector(".qbtn").onclick=()=>{opened?openIds.delete(it.id):openIds.add(it.id);render();};
+    wireQClick(tr.querySelector(".qbtn"),it,tr);
     tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
     tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNextAlg(st.cnt,it.idx);save();render();if(focusOn&&focusTask&&focusTask.id===it.id){toast("✓ 已完成，下一题");focusNext();}};
     tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNextAlg(st.cnt,it.idx);else delete st.next;}save();render();};
@@ -1545,7 +1549,7 @@ function render(){const tb=document.getElementById("tb");
         onQuick:n=>{st.next=addDays(st.next||todayIso(),n);save();render();}});};
       tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
       tr.querySelector(".qedit").onclick=e=>{e.stopPropagation();startQEdit(it,tr,false);};
-      tr.querySelector(".qbtn").onclick=()=>{opened?openIds.delete(it.id):openIds.add(it.id);render();};
+      wireQClick(tr.querySelector(".qbtn"),it,tr);
       tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
       tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNext(st.cnt);save();render();if(focusOn&&focusTask&&focusTask.id===it.id){toast("✓ 已完成，下一题");focusNext();}};
       tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNext(st.cnt);else delete st.next;}save();render();};
