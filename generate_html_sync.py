@@ -581,6 +581,8 @@ ICONS = {
  "skip": _svg('<polygon points="5 4 15 12 5 20 5 4"/><rect x="17" y="4" width="3" height="16" rx="1"/>', solid=True),
  "reset": _svg('<polyline points="3 4 3 9 8 9"/><path d="M3.6 15a8.5 8.5 0 1 0 1.9-8.6L3 9"/>'),
  "subadd": '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v6a3 3 0 0 0 3 3h2"/><line x1="17" y1="9" x2="17" y2="17"/><line x1="13" y1="13" x2="21" y2="13"/></svg>',
+ "chevrondown": _svg('<polyline points="6 9 12 15 18 9"/>'),
+ "chevronright": _svg('<polyline points="9 6 15 12 9 18"/>'),
  "undo": _svg('<polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/>'),
 }
 IC_JSON = json.dumps(ICONS, ensure_ascii=False)
@@ -606,8 +608,14 @@ h1{font-size:20px}
 .estrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 12px}
 .est{font-size:13px;color:#374151;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
 .est .estlabel{color:#6b7280}
-.est .estseg{background:#f3f4f6;border-radius:8px;padding:3px 10px;white-space:nowrap}
-.est .estsub{color:#9ca3af;font-size:12px;margin-left:4px}
+.est .estseg{display:inline-flex;align-items:baseline;gap:7px;border:1px solid #e5e7eb;border-radius:8px;padding:4px 12px;white-space:nowrap}
+.est .estseg .estname{font-weight:600;font-size:12px}
+.est .estseg b{font-weight:600;color:#111827}
+.est .estsub{color:#9ca3af;font-size:12px}
+.est .estseg.gu{background:#eff6ff;border-color:#dbeafe}
+.est .estseg.gu .estname{color:#1d4ed8}
+.est .estseg.alg{background:#f5f3ff;border-color:#e9d5ff}
+.est .estseg.alg .estname{color:#7c3aed}
 .est .esttot{font-weight:600;color:#2563eb;white-space:nowrap}
 .est.none{color:#16a34a}
 .ic{width:1em;height:1em;display:inline-block;vertical-align:-0.14em;flex:none}
@@ -852,10 +860,23 @@ body.dark .memo-folded:hover{background:#332a0c}
 .studyblk-head .blkfoldall:hover{color:#111}
 .studyblk-body{padding:8px 8px 2px}
 .blkctl{position:absolute;top:5px;right:7px;z-index:3;display:inline-flex;gap:3px}
-.blkctl button{border:none;background:rgba(0,0,0,.06);color:#6b7280;border-radius:6px;width:20px;height:20px;font-size:11px;line-height:1;cursor:pointer;padding:0}
+.blkctl button{border:none;background:rgba(0,0,0,.06);color:#6b7280;border-radius:6px;width:20px;height:20px;font-size:11px;line-height:1;cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center}
 .blkctl button:hover{background:rgba(0,0,0,.14);color:#111}
 .blkctl button:disabled{opacity:.3;cursor:default}
+.blkctl .blkup,.blkctl .blkdn{font-size:8px}
+.blkctl .blkfd .ic{width:13px;height:13px}
 .blkctl .blkdel:hover{background:rgba(220,38,38,.2);color:#b91c1c}
+.blkadd{position:relative;height:22px;margin:2px 0 6px;cursor:pointer}
+.blkadd::before{content:"";position:absolute;left:8px;right:8px;top:11px;border-top:1px dashed #cbd5e1;opacity:.7;transition:opacity .15s}
+.blkadd:hover::before{opacity:0}
+.blkadd .ba-btns{position:absolute;inset:0;display:flex;gap:8px;justify-content:center;align-items:center;opacity:0;transition:opacity .15s}
+.blkadd:hover .ba-btns{opacity:1}
+.blkadd button{font-size:12px;border:1px dashed #93c5fd;background:#fff;color:#1d4ed8;border-radius:6px;padding:2px 12px;cursor:pointer;line-height:1.4}
+.blkadd button:hover{background:#eff6ff}
+body.dark .blkadd::before{border-color:#3a3a3a}
+body.dark .blkadd button{background:#1f1f1f;border-color:#3a5a8a;color:#93c5fd}
+body.dark .blkadd button:hover{background:#172033}
+.studyblk-head .blkfoldall .ic{width:13px;height:13px;vertical-align:-2px}
 .codewrap .blkctl button{background:rgba(255,255,255,.08);color:#aaa}
 .codewrap .blkctl button:hover{background:rgba(255,255,255,.18);color:#fff}
 .codewrap .blkctl .blkdel:hover{background:rgba(248,113,113,.35);color:#fff}
@@ -916,7 +937,12 @@ body.dark{background:#1a1a1a;color:#e5e5e5}
 body.dark .bar{background:#3a3a3a}
 body.dark .statline{color:#d4d4d4}
 body.dark .est{color:#d4d4d4}
-body.dark .est .estseg{background:#262626}
+body.dark .est .estseg{background:#262626;border-color:#3a3a3a}
+body.dark .est .estseg b{color:#e5e5e5}
+body.dark .est .estseg.gu{background:#172033;border-color:#254264}
+body.dark .est .estseg.gu .estname{color:#93c5fd}
+body.dark .est .estseg.alg{background:#1e1633;border-color:#3b2a5e}
+body.dark .est .estseg.alg .estname{color:#c4b5fd}
 body.dark .est .esttot{color:#60a5fa}
 body.dark .est.none{color:#4ade80}
 body.dark .pill{background:#3a3a3a;color:#d4d4d4}
@@ -996,7 +1022,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.6.0</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.6.2</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1190,7 +1216,7 @@ function renderBlocks(host,o,mount){host.innerHTML="";
     const dn=()=>{if(idx<o.blocks.length-1){const t=o.blocks[idx+1];o.blocks[idx+1]=o.blocks[idx];o.blocks[idx]=t;save();render();}};
     const fold=()=>{b.fold=!b.fold;save();render();};
     const del=()=>{confirmDlg(b.t==="learn"?"删除这个学习框？":"删除这个代码框？",()=>{o.blocks.splice(idx,1);if(!o.blocks.length)delete o.blocks;save();render();});};
-    const ctl='<span class="blkctl"><button class="blkup" title="上移"'+(idx===0?' disabled':'')+'>▲</button><button class="blkdn" title="下移"'+(idx===o.blocks.length-1?' disabled':'')+'>▼</button><button class="blkfd" title="折叠/展开">'+(b.fold?"▸":"▾")+'</button><button class="blkdel" title="删除">✕</button></span>';
+    const ctl='<span class="blkctl"><button class="blkup" title="上移"'+(idx===0?' disabled':'')+'>▲</button><button class="blkdn" title="下移"'+(idx===o.blocks.length-1?' disabled':'')+'>▼</button><button class="blkfd" title="折叠/展开">'+(b.fold?IC.chevronright:IC.chevrondown)+'</button><button class="blkdel" title="删除">✕</button></span>';
     if(b.t==="learn"){
       const box=document.createElement("div");box.className="learnwrap"+(b.fold?" folded":"");
       if(b.fold){const mf=plainFirstLine(b.html);box.innerHTML=ctl+'<div class="learn-folded">'+IC.book+' 学习'+(mf?'：'+esc(mf):'')+'</div>';const lf=box.querySelector(".learn-folded");lf.onclick=e=>{if(e.target.closest(".blkctl"))return;b.fold=false;save();render();};}
@@ -1212,7 +1238,13 @@ function renderBlocks(host,o,mount){host.innerHTML="";
       }
       host.appendChild(box);wireBlkCtl(box,up,dn,fold,del);
     }
-  });}
+  });
+  // 底部悬停即显的快捷添加区（光标移到最后一个框下方时出现）
+  const az=document.createElement("div");az.className="blkadd";
+  az.innerHTML='<div class="ba-btns"><button class="ba-learn">＋ 学习</button><button class="ba-code">＋ 代码</button></div>';
+  az.querySelector(".ba-learn").onclick=()=>{(o.blocks||(o.blocks=[])).push({t:"learn",html:""});save();render();};
+  az.querySelector(".ba-code").onclick=()=>{(o.blocks||(o.blocks=[])).push({t:"code",code:""});save();render();};
+  host.appendChild(az);}
 // ===== 小林coding 跳转：板块 -> 页面，tag -> 页内小标题锚点（锚点对不上时自动停在页顶，退化为板块级）=====
 const XLURL={"集合":"https://xiaolincoding.com/interview/collections.html","并发/多线程":"https://xiaolincoding.com/interview/juc.html","MySQL":"https://xiaolincoding.com/interview/mysql.html","JVM":"https://xiaolincoding.com/interview/jvm.html","Spring":"https://xiaolincoding.com/interview/spring.html","计算机网络":"https://xiaolincoding.com/interview/network.html","Redis":"https://xiaolincoding.com/interview/redis.html","操作系统":"https://xiaolincoding.com/interview/os.html","Java基础":"https://xiaolincoding.com/interview/java.html","扩展(MyBatis/MQ/分布式)":"https://xiaolincoding.com/interview/mq.html","AI·Agent":"https://xiaolinnote.com/ai/agent/agent_info.html","AI·RAG":"https://xiaolinnote.com/ai/rag/rag_info.html","AI·工具调用":"https://xiaolinnote.com/ai/tools/tools_info.html","AI·大模型基础":"https://xiaolinnote.com/ai/llm/llm_info.html"};
 function xlSlug(s){return (s||"").toLowerCase().replace(/[^a-z0-9\\u4e00-\\u9fa5]+/g,"-").replace(/^-+|-+$/g,"");}
@@ -1442,8 +1474,8 @@ function updateEstimate(){const el=document.getElementById("estLine");if(!el)ret
   if(total<=0){el.className="est none";el.innerHTML=IC.checkcircle+" 今日任务已全部完成，休息一下";return;}
   el.className="est";
   el.innerHTML="<span class='estlabel'>"+IC.stopwatch+" 完成今日剩余任务还需：</span>"
-    +"<span class='estseg'>八股 "+fmtDur(guMin)+"<span class='estsub'>新学"+b.guNew+"·复习"+b.guRev+"</span></span>"
-    +"<span class='estseg'>算法 "+fmtDur(algMin)+"<span class='estsub'>新学"+b.algNew+"·复习"+b.algRev+"</span></span>"
+    +"<span class='estseg gu'><span class='estname'>八股</span><b>"+fmtDur(guMin)+"</b><span class='estsub'>新学"+b.guNew+"·复习"+b.guRev+"</span></span>"
+    +"<span class='estseg alg'><span class='estname'>算法</span><b>"+fmtDur(algMin)+"</b><span class='estsub'>新学"+b.algNew+"·复习"+b.algRev+"</span></span>"
     +"<span class='esttot'>合计 "+fmtDur(total)+"</span>";}
 function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="solo")return it.id===soloId||it.parent===soloId;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const reviewDue=!!o.next&&o.next<=ti;if(d&&d>ti)return reviewDue;const studyDue=!!d&&d<=ti&&!(o.cnt>0);const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
@@ -1632,7 +1664,7 @@ function render(){const tb=document.getElementById("tb");
         }
         if(o.noteHide)body+='<div class="note-folded"><button class="notefold notebtn" title="显示答案">▸</button>'+IC.note+' 答案已隐藏</div>';
         else body+='<div class="notewrap"><button class="notefold notebtn" title="隐藏答案">▾</button><div class="tui"></div></div>';
-        if(o.blocks&&o.blocks.length)body+='<div class="studyblk"><div class="studyblk-head"><button class="blkfoldall" title="折叠/展开学习板块">'+(o.blkFold?"▸":"▾")+'</button>'+IC.book+' 学习板块 · '+o.blocks.length+' 个'+(o.blkFold?'（已折叠）':'')+'</div>'+(o.blkFold?'':'<div class="studyblk-body"></div>')+'</div>';
+        if(o.blocks&&o.blocks.length)body+='<div class="studyblk"><div class="studyblk-head"><button class="blkfoldall" title="折叠/展开学习板块">'+(o.blkFold?IC.chevronright:IC.chevrondown)+'</button>'+IC.book+' 学习板块'+(o.blkFold?'（已折叠）':'')+'</div>'+(o.blkFold?'':'<div class="studyblk-body"></div>')+'</div>';
         td.innerHTML=bar+body;
         const addb=td.querySelector(".addmemo");if(addb)addb.onclick=()=>{o.memoOn=true;o.memoHide=false;save();render();};
         const delMemo=()=>confirmDlg("删除助记？",()=>{o.memoOn=false;delete o.memo;o.memoHide=false;save();render();});
