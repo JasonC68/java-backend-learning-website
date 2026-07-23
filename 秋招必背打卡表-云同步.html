@@ -35622,7 +35622,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.4.5</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.4.6</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -35897,21 +35897,21 @@ document.getElementById("timerToggle").onclick=timerToggle;
 document.getElementById("timerReset").onclick=timerReset;
 renderTimer();
 // ===== 专注学习/复习：挑一题 -> 本题计时 -> 到时提示 -> 完成/跳过/结束 =====
-let focusOn=false,focusMode="gu",focusKindPref="review",focusSource="today",focusSeq=[],focusSeqI=0,focusTask=null,focusStartMs=0,focusElapsed=0,focusRunning=false,focusTick=null,focusAlerted=false;
+let focusOn=false,focusMode="gu",focusKindPref="review",focusSource="today",focusPos=-1,focusSeq=[],focusSeqI=0,focusTask=null,focusStartMs=0,focusElapsed=0,focusRunning=false,focusTick=null,focusAlerted=false;
 const focusSkipped=new Set();
 function focusMs(){return focusElapsed+(focusRunning?Date.now()-focusStartMs:0);}
 // ---- 专注/计时器状态本地持久化（仅本机，不上云；刷新后自动恢复）----
 const FUIKEY="focusui_v1";
 function saveFocusUI(){try{localStorage.setItem(FUIKEY,JSON.stringify({
   t:{el:timerElapsed,run:timerRunning,st:timerStart},
-  f:focusOn?{on:1,mode:focusMode,pref:focusKindPref,src:focusSource,seq:focusSeq,si:focusSeqI,task:focusTask,sk:[...focusSkipped],st:focusStartMs,el:focusElapsed,run:focusRunning,al:focusAlerted}:{on:0}
+  f:focusOn?{on:1,mode:focusMode,pref:focusKindPref,src:focusSource,pos:focusPos,task:focusTask,sk:[...focusSkipped],st:focusStartMs,el:focusElapsed,run:focusRunning,al:focusAlerted}:{on:0}
 }));}catch(e){}}
 function restoreFocusUI(){let d;try{d=JSON.parse(localStorage.getItem(FUIKEY)||"null");}catch(e){}if(!d)return;
   if(d.t){timerElapsed=d.t.el||0;timerStart=d.t.st||Date.now();timerRunning=!!d.t.run;
     const btn=document.getElementById("timerToggle"),box=document.getElementById("timerBox");
     if(timerRunning){if(btn){btn.innerHTML=IC.pause;btn.title="暂停";btn.classList.add("on");}if(box)box.classList.add("run");if(timerTick)clearInterval(timerTick);timerTick=setInterval(renderTimer,250);}
     renderTimer();}
-  if(d.f&&d.f.on&&d.f.task){focusOn=true;focusMode=d.f.mode;focusKindPref=d.f.pref;focusSource=d.f.src;focusSeq=d.f.seq||[];focusSeqI=d.f.si||0;focusTask=d.f.task;focusSkipped.clear();(d.f.sk||[]).forEach(x=>focusSkipped.add(x));focusStartMs=d.f.st||Date.now();focusElapsed=d.f.el||0;focusRunning=!!d.f.run;focusAlerted=!!d.f.al;
+  if(d.f&&d.f.on&&d.f.task){focusOn=true;focusMode=d.f.mode;focusKindPref=d.f.pref;focusSource=d.f.src;focusPos=(d.f.pos!==undefined?d.f.pos:-1);focusTask=d.f.task;focusSkipped.clear();(d.f.sk||[]).forEach(x=>focusSkipped.add(x));focusStartMs=d.f.st||Date.now();focusElapsed=d.f.el||0;focusRunning=!!d.f.run;focusAlerted=!!d.f.al;
     document.getElementById("focusPanel").style.display="";document.getElementById("focusBtn").classList.add("pri");
     const t=focusTask,k=document.getElementById("focusKind");k.innerHTML=(t.kind==="review"?IC.review+" 复习":IC.book+" 新学");k.className="fp-kind "+t.kind;
     document.getElementById("focusQ").textContent=(t.sec?("["+t.sec+"] "):"")+t.q;
@@ -35948,14 +35948,21 @@ function loadFocusTask(t){focusTask=t;focusStartMs=Date.now();focusElapsed=0;foc
   document.getElementById("focusAllot").textContent="/ 建议 "+fmtMS(focusMinFor(t)*60000);
   if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);renderFocus();saveFocusUI();
   if(dateFilter==="solo"){soloId=t.id;openIds.add(t.id);render();}}
+// 列表里全部题目的顺序（用于「从当前位置往下」找下一题）
+function focusOrderIndex(){const ids=[];if(focusMode==="alg"){ALG.forEach(it=>ids.push(it.id));}
+  else{const map=sectionMap();SECTIONS.forEach(s=>{(map[s]||[]).forEach(it=>ids.push(it.id));});}
+  const pos={};ids.forEach((id,i)=>pos[id]=i);return pos;}
 function focusNext(){
-  const all=focusQueue(focusMode).filter(t=>!focusSkipped.has(t.id));
+  const pos=focusOrderIndex();
+  const all=focusQueue(focusMode).filter(t=>!focusSkipped.has(t.id)).map(t=>Object.assign({},t,{_p:pos[t.id]!==undefined?pos[t.id]:1e9}));
+  // 从当前题位置往下取下一个到期题；到底后再回到最靠前的到期题（保证今日任务都能覆盖）
+  const pick=a=>{const after=a.filter(t=>t._p>focusPos).sort((x,y)=>x._p-y._p);if(after.length)return after[0];const s=a.slice().sort((x,y)=>x._p-y._p);return s[0]||null;};
   const wantKind=focusKindPref==="new"?"new":"review";
-  let q=all.filter(t=>t.kind===wantKind);
-  if(!q.length){const other=all.filter(t=>t.kind!==wantKind);
-    if(other.length){focusKindPref=wantKind==="new"?"review":"new";toast(wantKind==="new"?"新学已全部完成，转入复习专注":"复习已全部完成，转入新学专注");q=other;}}
-  if(!q.length){const skipped=focusSkipped.size;endFocus();toast(skipped?"剩下的都跳过了，专注结束":"今日任务已全部完成");return;}
-  loadFocusTask(q[0]);}
+  let nx=pick(all.filter(t=>t.kind===wantKind));
+  if(!nx){const other=all.filter(t=>t.kind!==wantKind);
+    if(other.length){focusKindPref=wantKind==="new"?"review":"new";toast(wantKind==="new"?"新学已全部完成，转入复习专注":"复习已全部完成，转入新学专注");nx=pick(other);}}
+  if(!nx){const skipped=focusSkipped.size;endFocus();toast(skipped?"剩下的都跳过了，专注结束":"今日任务已全部完成");return;}
+  focusPos=nx._p;loadFocusTask(nx);}
 // 取某一题的元信息（用于「从这题开始专注」的第一题，允许不在今日队列里）
 function focusMetaOf(id,kind){if(mode==="alg"){const it=ALG.find(x=>x.id===id);if(!it)return null;return {id:id,kind:kind,isAlg:true,q:qText(it),sec:"算法",idx:it.idx};}
   const it=ITEMS.find(x=>x.id===id);if(it)return {id:id,kind:kind,isAlg:false,q:qText(it),sec:it.sec};
@@ -35964,9 +35971,10 @@ function focusMetaOf(id,kind){if(mode==="alg"){const it=ALG.find(x=>x.id===id);i
 function focusFromItem(id){focusMode=mode;const kind=(get(id).cnt||0)>0?"review":"new";
   focusSkipped.clear();focusSource="today";focusKindPref=kind;
   const meta=focusMetaOf(id,kind);if(!meta){toast("没有可专注的题");return;}
+  const pos=focusOrderIndex();focusPos=(pos[id]!==undefined?pos[id]:-1);   // 之后从这题位置往下继续
   focusOn=true;document.getElementById("focusPanel").style.display="";document.getElementById("focusBtn").classList.add("pri");loadFocusTask(meta);jumpToFocusItem();}
 function updateFocusBtn(){const b=document.getElementById("focusBtn");if(!b)return;const none=!focusOn&&focusQueue().length===0;b.disabled=none;b.title=none?"今天没有待办任务，暂时不用专注":"从今日任务里挑一题、按建议时长开始专注学习/复习";}
-function startFocus(pref){focusSkipped.clear();focusMode=mode;focusSource="today";focusKindPref=(pref==="new")?"new":"review";if(!focusQueue(focusMode).length){toast("今日任务已全部完成");return;}
+function startFocus(pref){focusSkipped.clear();focusMode=mode;focusSource="today";focusKindPref=(pref==="new")?"new":"review";focusPos=-1;if(!focusQueue(focusMode).length){toast("今日任务已全部完成");return;}
   focusOn=true;document.getElementById("focusPanel").style.display="";document.getElementById("focusBtn").classList.add("pri");focusNext();}
 function endFocus(){focusOn=false;focusTask=null;focusRunning=false;if(focusTick){clearInterval(focusTick);focusTick=null;}
   const p=document.getElementById("focusPanel");if(p)p.style.display="none";
