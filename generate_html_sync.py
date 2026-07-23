@@ -580,6 +580,7 @@ ICONS = {
  "stop": _svg('<rect x="5" y="5" width="14" height="14" rx="2"/>', solid=True),
  "skip": _svg('<polygon points="5 4 15 12 5 20 5 4"/><rect x="17" y="4" width="3" height="16" rx="1"/>', solid=True),
  "reset": _svg('<polyline points="3 4 3 9 8 9"/><path d="M3.6 15a8.5 8.5 0 1 0 1.9-8.6L3 9"/>'),
+ "subadd": '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v6a3 3 0 0 0 3 3h2"/><line x1="17" y1="9" x2="17" y2="17"/><line x1="13" y1="13" x2="21" y2="13"/></svg>',
  "undo": _svg('<polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/>'),
 }
 IC_JSON = json.dumps(ICONS, ensure_ascii=False)
@@ -614,10 +615,14 @@ h1{font-size:20px}
 .rowfocus:hover{color:#dc2626}
 body.dark .rowfocus{color:#6b7280}
 body.dark .rowfocus:hover{color:#fca5a5}
-.rowsub{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:14px;line-height:1}
+.rowsub{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:15px;line-height:1}
 .rowsub:hover{color:#ea580c}
 body.dark .rowsub{color:#6b7280}
 body.dark .rowsub:hover{color:#fdba74}
+.rowdel{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:14px;line-height:1}
+.rowdel:hover{color:#dc2626}
+body.dark .rowdel{color:#6b7280}
+body.dark .rowdel:hover{color:#fca5a5}
 .tododot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#dc2626;margin-right:5px;vertical-align:middle}
 .mv{display:inline-flex;flex-direction:column;gap:0;margin-left:6px;vertical-align:middle}
 .mv button{border:none;background:none;color:#c0c4cc;font-size:9px;line-height:9px;height:10px;padding:0;cursor:pointer}
@@ -960,7 +965,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.5.0</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.5.1</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1376,11 +1381,11 @@ function updateEstimate(){const el=document.getElementById("estLine");if(!el)ret
     +"<span class='estseg'>八股 "+fmtDur(guMin)+"<span class='estsub'>新学"+b.guNew+"·复习"+b.guRev+"</span></span>"
     +"<span class='estseg'>算法 "+fmtDur(algMin)+"<span class='estsub'>新学"+b.algNew+"·复习"+b.algRev+"</span></span>"
     +"<span class='esttot'>合计 "+fmtDur(total)+"</span>";}
-function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="solo")return it.id===soloId;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const reviewDue=!!o.next&&o.next<=ti;if(d&&d>ti)return reviewDue;const studyDue=!!d&&d<=ti&&!(o.cnt>0);const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
+function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="solo")return it.id===soloId||it.parent===soloId;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const reviewDue=!!o.next&&o.next<=ti;if(d&&d>ti)return reviewDue;const studyDue=!!d&&d<=ti&&!(o.cnt>0);const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
   ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso,tags:it.tags,anc:it.anc,jg:it.jg});});
-  customList().forEach(c=>{(map[c.sec]||(map[c.sec]=[])).push({id:c.id,sec:c.sec,q:c.q,baseIso:"",custom:true,sub:c.sub,tags:[]});});
+  customList().forEach(c=>{(map[c.sec]||(map[c.sec]=[])).push({id:c.id,sec:c.sec,q:c.q,baseIso:"",custom:true,sub:c.sub,parent:c.parent,tags:[]});});
   Object.keys(map).forEach(s=>{const ord=state.__order&&state.__order[s];
     if(ord&&ord.length){const pos={};ord.forEach((id,i)=>pos[id]=i);map[s].sort((a,b)=>((pos[a.id]!==undefined?pos[a.id]:1e9)-(pos[b.id]!==undefined?pos[b.id]:1e9)));}
     map[s].forEach((it,i)=>it.idx=i+1);});return map;}
@@ -1396,7 +1401,8 @@ function startQEdit(it,tr,sel){const cell=tr.querySelector(".q");cell.innerHTML=
   const commit=()=>{const v=inp.value.trim();if(v)get(it.id).q=v;save();render();};
   inp.onkeydown=ev=>{if(ev.key==="Enter")commit();else if(ev.key==="Escape")render();};inp.onblur=commit;}
 // 在某题下方加一个「子问题」（自建题，橙色标签），并排到该题正下方、进入编辑态
-function addSubQuestion(parentId,sec){const id="c_"+Date.now();customList().push({id:id,sec:sec,q:"子问题",sub:true});
+function addSubQuestion(parentId,sec){const id="c_"+Date.now();customList().push({id:id,sec:sec,q:"子问题",sub:true,parent:parentId});
+  const p=ITEMS.find(x=>x.id===parentId);const pdate=realDate(get(parentId),p?p.iso:"");if(pdate)get(id).date=pdate;   // 建议日期与原问题一致
   let ids=(sectionMap()[sec]||[]).map(x=>x.id).filter(x=>x!==id);const pi=ids.indexOf(parentId);ids.splice(pi<0?ids.length:pi+1,0,id);
   (state.__order||(state.__order={}))[sec]=ids;newSubId=id;save();render();}
 // date==="none" 表示手动清空为「未分配」，不再回落到默认建议日期
@@ -1506,9 +1512,10 @@ function render(){const tb=document.getElementById("tb");
       tr.cells[0].insertAdjacentHTML("beforeend",'<span class="mv"><button class="mvup" title="上移">▲</button><button class="mvdn" title="下移">▼</button></span>');
       tr.querySelector(".mvup").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,-1);};
       tr.querySelector(".mvdn").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,1);};
-      tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button><button class="rowsub" title="在下面加一个子问题">'+IC.plus+'</button>');
+      tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button><button class="rowsub" title="在下面加一个子问题">'+IC.subadd+'</button><button class="rowdel" title="删除这道题">'+IC.trash+'</button>');
       tr.querySelector(".rowfocus").onclick=e=>{e.stopPropagation();focusFromItem(it.id);};
       tr.querySelector(".rowsub").onclick=e=>{e.stopPropagation();addSubQuestion(it.id,it.sec);};
+      tr.querySelector(".rowdel").onclick=e=>{e.stopPropagation();confirmDlg("删除这道题？可在回收站恢复",()=>{get(it.id).del=true;openIds.delete(it.id);save();render();});};
       const dc=tr.querySelector(".date");
       dc.onclick=e=>{e.stopPropagation();openCal(dc,{selected:itemDate(it),dot:true,clearLabel:"恢复默认",noneLabel:"清空日期",
         onPick:iso=>{get(it.id).date=iso;save();render();},
@@ -1535,7 +1542,7 @@ function render(){const tb=document.getElementById("tb");
         let bar='<div class="ehint">';
         bar+=(!o.memoOn)?'<button class="ebtn addmemo">＋ 助记</button>':'';
         bar+='<button class="ebtn addcode">＋ 代码</button>';
-        bar+='<button class="del">'+IC.trash+' 删除</button></div>';
+        bar+='</div>';
         let body='';
         if(o.memoOn){
           if(o.memoHide){const mf=plainFirstLine(o.memo);body+='<div class="memo-folded"><button class="memofold memobtn">▸</button><button class="memodel memobtn">✕</button>'+IC.bulb+' 助记'+(mf?'：'+esc(mf):'')+'</div>';}
@@ -1554,7 +1561,6 @@ function render(){const tb=document.getElementById("tb");
         td.querySelector(".addcode").onclick=()=>{o.codes=o.codes||[];o.codes.push({code:""});save();render();};
         const nw=td.querySelector(".notewrap");if(nw)nw.querySelector(".notefold").onclick=e=>{e.stopPropagation();o.noteHide=true;save();render();};
         const nfold=td.querySelector(".note-folded");if(nfold)nfold.onclick=()=>{o.noteHide=false;save();render();};
-        td.querySelector(".del").onclick=()=>{get(it.id).del=true;openIds.delete(it.id);save();render();};
         er.appendChild(td);tb.appendChild(er);
         const mount=(host,getv,setv,ph)=>{if(window.MDEditor){editors.push(window.MDEditor(host,getv()||"",(html)=>{setv(html);save();}));}else{host.innerHTML='<textarea class="fa" placeholder="'+(ph||"")+'"></textarea>';const ta=host.querySelector(".fa");ta.value=getv()||"";ta.oninput=()=>{setv(ta.value);save();};}};
         if(o.memoOn&&!o.memoHide)mount(td.querySelector(".tui-memo"),()=>o.memo,v=>o.memo=v,"写助记/口诀…");
