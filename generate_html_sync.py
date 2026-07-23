@@ -608,14 +608,15 @@ h1{font-size:20px}
 .estrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 12px}
 .est{font-size:13px;color:#374151;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
 .est .estlabel{color:#6b7280}
-.est .estseg{display:inline-flex;align-items:baseline;gap:7px;border:1px solid #e5e7eb;border-radius:8px;padding:4px 12px;white-space:nowrap}
-.est .estseg .estname{font-weight:600;font-size:12px}
-.est .estseg b{font-weight:600;color:#111827}
+.est .estseg{display:inline-flex;align-items:baseline;gap:7px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:4px 12px;white-space:nowrap}
+.est .estseg .estname{font-weight:600;font-size:12px;color:#6b7280}
+.est .estseg b{font-weight:400;color:#374151}
 .est .estsub{color:#9ca3af;font-size:12px}
-.est .estseg.gu{background:#eff6ff;border-color:#dbeafe}
-.est .estseg.gu .estname{color:#1d4ed8}
-.est .estseg.alg{background:#f5f3ff;border-color:#e9d5ff}
-.est .estseg.alg .estname{color:#7c3aed}
+/* 每个板块只在自己的页面显示主题色，在对方页面为灰白色 */
+body:not(.algmode) .est .estseg.gu{background:#eff6ff;border-color:#dbeafe}
+body:not(.algmode) .est .estseg.gu .estname{color:#1d4ed8}
+body.algmode .est .estseg.alg{background:#f5f3ff;border-color:#e9d5ff}
+body.algmode .est .estseg.alg .estname{color:#7c3aed}
 .est .esttot{font-weight:600;color:#2563eb;white-space:nowrap}
 .est.none{color:#16a34a}
 .ic{width:1em;height:1em;display:inline-block;vertical-align:-0.14em;flex:none}
@@ -938,11 +939,12 @@ body.dark .bar{background:#3a3a3a}
 body.dark .statline{color:#d4d4d4}
 body.dark .est{color:#d4d4d4}
 body.dark .est .estseg{background:#262626;border-color:#3a3a3a}
-body.dark .est .estseg b{color:#e5e5e5}
-body.dark .est .estseg.gu{background:#172033;border-color:#254264}
-body.dark .est .estseg.gu .estname{color:#93c5fd}
-body.dark .est .estseg.alg{background:#1e1633;border-color:#3b2a5e}
-body.dark .est .estseg.alg .estname{color:#c4b5fd}
+body.dark .est .estseg .estname{color:#9ca3af}
+body.dark .est .estseg b{color:#d4d4d4}
+body.dark:not(.algmode) .est .estseg.gu{background:#172033;border-color:#254264}
+body.dark:not(.algmode) .est .estseg.gu .estname{color:#93c5fd}
+body.dark.algmode .est .estseg.alg{background:#1e1633;border-color:#3b2a5e}
+body.dark.algmode .est .estseg.alg .estname{color:#c4b5fd}
 body.dark .est .esttot{color:#60a5fa}
 body.dark .est.none{color:#4ade80}
 body.dark .pill{background:#3a3a3a;color:#d4d4d4}
@@ -1040,7 +1042,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.6.5</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.6.6</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
