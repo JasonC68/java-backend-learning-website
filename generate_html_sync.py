@@ -614,6 +614,10 @@ h1{font-size:20px}
 .rowfocus:hover{color:#dc2626}
 body.dark .rowfocus{color:#6b7280}
 body.dark .rowfocus:hover{color:#fca5a5}
+.rowsub{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:14px;line-height:1}
+.rowsub:hover{color:#ea580c}
+body.dark .rowsub{color:#6b7280}
+body.dark .rowsub:hover{color:#fdba74}
 .tododot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#dc2626;margin-right:5px;vertical-align:middle}
 .mv{display:inline-flex;flex-direction:column;gap:0;margin-left:6px;vertical-align:middle}
 .mv button{border:none;background:none;color:#c0c4cc;font-size:9px;line-height:9px;height:10px;padding:0;cursor:pointer}
@@ -956,7 +960,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.4.6</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.5.0</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1376,7 +1380,7 @@ function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="solo")r
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
   ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso,tags:it.tags,anc:it.anc,jg:it.jg});});
-  customList().forEach(c=>{(map[c.sec]||(map[c.sec]=[])).push({id:c.id,sec:c.sec,q:c.q,baseIso:"",custom:true,tags:[]});});
+  customList().forEach(c=>{(map[c.sec]||(map[c.sec]=[])).push({id:c.id,sec:c.sec,q:c.q,baseIso:"",custom:true,sub:c.sub,tags:[]});});
   Object.keys(map).forEach(s=>{const ord=state.__order&&state.__order[s];
     if(ord&&ord.length){const pos={};ord.forEach((id,i)=>pos[id]=i);map[s].sort((a,b)=>((pos[a.id]!==undefined?pos[a.id]:1e9)-(pos[b.id]!==undefined?pos[b.id]:1e9)));}
     map[s].forEach((it,i)=>it.idx=i+1);});return map;}
@@ -1386,6 +1390,15 @@ function moveItem(sec,id,dir){const full=sectionMap()[sec].map(x=>x.id);
   const vi=vis.indexOf(id),vj=vi+dir;if(vi<0||vj<0||vj>=vis.length)return;
   const fi=full.indexOf(id),fj=full.indexOf(vis[vj]);const t=full[fi];full[fi]=full[fj];full[fj]=t;
   (state.__order||(state.__order={}))[sec]=full;save();render();}
+// 行内编辑题目文案（sel=true 时全选，便于「子问题」直接覆盖输入）
+let newSubId=null;
+function startQEdit(it,tr,sel){const cell=tr.querySelector(".q");cell.innerHTML='<input class="qin">';const inp=cell.querySelector(".qin");inp.value=qText(it);inp.focus();if(sel)inp.select();
+  const commit=()=>{const v=inp.value.trim();if(v)get(it.id).q=v;save();render();};
+  inp.onkeydown=ev=>{if(ev.key==="Enter")commit();else if(ev.key==="Escape")render();};inp.onblur=commit;}
+// 在某题下方加一个「子问题」（自建题，橙色标签），并排到该题正下方、进入编辑态
+function addSubQuestion(parentId,sec){const id="c_"+Date.now();customList().push({id:id,sec:sec,q:"子问题",sub:true});
+  let ids=(sectionMap()[sec]||[]).map(x=>x.id).filter(x=>x!==id);const pi=ids.indexOf(parentId);ids.splice(pi<0?ids.length:pi+1,0,id);
+  (state.__order||(state.__order={}))[sec]=ids;newSubId=id;save();render();}
 // date==="none" 表示手动清空为「未分配」，不再回落到默认建议日期
 function realDate(o,baseIso){if(o.date==="none")return "";return (o.date!==undefined&&o.date!=="")?o.date:(baseIso||"");}
 function itemDate(it){return realDate(get(it.id),it.baseIso);}
@@ -1474,7 +1487,7 @@ function render(){const tb=document.getElementById("tb");
     const sr=document.createElement("tr");sr.className="sec-row";sr.innerHTML='<td colspan="6">'+esc(s)+'</td>';tb.appendChild(sr);
     if(recycleMode){
       list.forEach(it=>{const tr=document.createElement("tr");
-        tr.innerHTML='<td class="c">'+it.idx+'</td><td class="c hide-sm date"></td><td class="q">'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</td>'+
+        tr.innerHTML='<td class="c">'+it.idx+'</td><td class="c hide-sm date"></td><td class="q">'+esc(qText(it))+(it.custom?(it.sub?' <span style="color:#ea580c;font-size:11px">·子问题</span>':' <span style="color:#9333ea;font-size:11px">·自建</span>'):'')+'</td>'+
           '<td class="c" colspan="3"><button class="restore">'+IC.undo+' 恢复</button> <button class="purge">'+IC.trash+' 永久删除</button></td>';
         tr.querySelector(".restore").onclick=()=>{delete get(it.id).del;save();render();};
         tr.querySelector(".purge").onclick=()=>{confirmDlg("永久删除这道题？不可恢复",()=>{if(it.custom){state.__custom=customList().filter(c=>c.id!==it.id);delete state[it.id];}else{const o=get(it.id);delete o.del;o.purged=true;}save();render();});};
@@ -1486,15 +1499,16 @@ function render(){const tb=document.getElementById("tb");
       const tr=document.createElement("tr");tr.dataset.id=it.id;
       tr.innerHTML='<td class="c">'+(isTodoToday(it)?'<span class="tododot" title="今天还没开始"></span>':'')+it.idx+'</td>'+
         '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
-        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?' <span style="color:#9333ea;font-size:11px">·自建</span>':'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+(function(u){if(!u)return '';const jg=/javaguide\.cn/.test(u);return '<a class="tag lc" href="'+u+'" target="_blank" rel="noopener" title="'+(jg?'在 JavaGuide 打开这一题':'在小林coding打开这一题')+'">'+(jg?'JavaGuide':'小林')+' ↗</a>';})(xlLink(it.sec,it.tags,it.anc))+(it.jg?'<a class="tag lc" href="'+it.jg+'" target="_blank" rel="noopener" title="在 JavaGuide 打开这一题">JavaGuide ↗</a>':'')+'<span class="qedit" title="编辑题目">✎</span></td>'+
+        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?(it.sub?' <span style="color:#ea580c;font-size:11px">·子问题</span>':' <span style="color:#9333ea;font-size:11px">·自建</span>'):'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+(function(u){if(!u)return '';const jg=/javaguide\.cn/.test(u);return '<a class="tag lc" href="'+u+'" target="_blank" rel="noopener" title="'+(jg?'在 JavaGuide 打开这一题':'在小林coding打开这一题')+'">'+(jg?'JavaGuide':'小林')+' ↗</a>';})(xlLink(it.sec,it.tags,it.anc))+(it.jg?'<a class="tag lc" href="'+it.jg+'" target="_blank" rel="noopener" title="在 JavaGuide 打开这一题">JavaGuide ↗</a>':'')+'<span class="qedit" title="编辑题目">✎</span></td>'+
         '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
         '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
         '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span class="revdate" title="点击调整/延后复习" style="font-size:11px;cursor:pointer;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
       tr.cells[0].insertAdjacentHTML("beforeend",'<span class="mv"><button class="mvup" title="上移">▲</button><button class="mvdn" title="下移">▼</button></span>');
       tr.querySelector(".mvup").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,-1);};
       tr.querySelector(".mvdn").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,1);};
-      tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button>');
+      tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button><button class="rowsub" title="在下面加一个子问题">'+IC.plus+'</button>');
       tr.querySelector(".rowfocus").onclick=e=>{e.stopPropagation();focusFromItem(it.id);};
+      tr.querySelector(".rowsub").onclick=e=>{e.stopPropagation();addSubQuestion(it.id,it.sec);};
       const dc=tr.querySelector(".date");
       dc.onclick=e=>{e.stopPropagation();openCal(dc,{selected:itemDate(it),dot:true,clearLabel:"恢复默认",noneLabel:"清空日期",
         onPick:iso=>{get(it.id).date=iso;save();render();},
@@ -1506,12 +1520,13 @@ function render(){const tb=document.getElementById("tb");
         onClear:()=>{delete st.next;save();render();},
         onQuick:n=>{st.next=addDays(st.next||todayIso(),n);save();render();}});};
       tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
-      tr.querySelector(".qedit").onclick=e=>{e.stopPropagation();const cell=tr.querySelector(".q");cell.innerHTML='<input class="qin">';const inp=cell.querySelector(".qin");inp.value=qText(it);inp.focus();const commit=()=>{const v=inp.value.trim();if(v)get(it.id).q=v;save();render();};inp.onkeydown=ev=>{if(ev.key==="Enter")commit();else if(ev.key==="Escape")render();};inp.onblur=commit;};
+      tr.querySelector(".qedit").onclick=e=>{e.stopPropagation();startQEdit(it,tr,false);};
       tr.querySelector(".qbtn").onclick=()=>{opened?openIds.delete(it.id):openIds.add(it.id);render();};
       tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
       tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNext(st.cnt);save();render();if(focusOn&&focusTask&&focusTask.id===it.id){toast("✓ 已完成，下一题");focusNext();}};
       tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNext(st.cnt);else delete st.next;}save();render();};
       tb.appendChild(tr);
+      if(it.id===newSubId){newSubId=null;startQEdit(it,tr,true);}
       if(opened){
         const er=document.createElement("tr");er.className="ed-row";
         const td=document.createElement("td");td.colSpan=6;const o=st;
