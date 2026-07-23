@@ -956,7 +956,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.4.4</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.4.5</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1283,10 +1283,6 @@ function loadFocusTask(t){focusTask=t;focusStartMs=Date.now();focusElapsed=0;foc
   if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);renderFocus();saveFocusUI();
   if(dateFilter==="solo"){soloId=t.id;openIds.add(t.id);render();}}
 function focusNext(){
-  if(focusSource==="seq"){focusSeqI++;
-    while(focusSeqI<focusSeq.length&&focusSkipped.has(focusSeq[focusSeqI].id))focusSeqI++;
-    if(focusSeqI>=focusSeq.length){endFocus();toast("这一组已专注完毕");return;}
-    loadFocusTask(focusSeq[focusSeqI]);return;}
   const all=focusQueue(focusMode).filter(t=>!focusSkipped.has(t.id));
   const wantKind=focusKindPref==="new"?"new":"review";
   let q=all.filter(t=>t.kind===wantKind);
@@ -1294,18 +1290,15 @@ function focusNext(){
     if(other.length){focusKindPref=wantKind==="new"?"review":"new";toast(wantKind==="new"?"新学已全部完成，转入复习专注":"复习已全部完成，转入新学专注");q=other;}}
   if(!q.length){const skipped=focusSkipped.size;endFocus();toast(skipped?"剩下的都跳过了，专注结束":"今日任务已全部完成");return;}
   loadFocusTask(q[0]);}
-// 从某一题开始「顺序专注」：kind 由该题决定（已学过=复习，未开始=新学），沿列表顺序取同类题
-function buildFocusSeq(startId,kind){let ordered=[];
-  if(mode==="alg"){ordered=ALG.map(it=>({id:it.id,q:qText(it),sec:"算法",isAlg:true,idx:it.idx}));}
-  else{const map=sectionMap();SECTIONS.forEach(s=>{(map[s]||[]).forEach(it=>{if(!isDeleted(it.id)&&!isPurged(it.id))ordered.push({id:it.id,q:qText(it),sec:it.sec,isAlg:false});});});}
-  const si=ordered.findIndex(x=>x.id===startId);if(si<0)return [];
-  const wantReview=kind==="review";const seq=[];
-  for(let i=si;i<ordered.length;i++){const isRev=(get(ordered[i].id).cnt||0)>0;if(isRev===wantReview)seq.push(Object.assign({kind:kind},ordered[i]));}
-  return seq;}
+// 取某一题的元信息（用于「从这题开始专注」的第一题，允许不在今日队列里）
+function focusMetaOf(id,kind){if(mode==="alg"){const it=ALG.find(x=>x.id===id);if(!it)return null;return {id:id,kind:kind,isAlg:true,q:qText(it),sec:"算法",idx:it.idx};}
+  const it=ITEMS.find(x=>x.id===id);if(it)return {id:id,kind:kind,isAlg:false,q:qText(it),sec:it.sec};
+  const c=customList().find(x=>x.id===id);if(c)return {id:id,kind:kind,isAlg:false,q:qText(c),sec:c.sec};return null;}
+// 从某一题开始专注：这题作为第一题，之后按「今日应复习/学习」的队列顺序跳转（可能跨板块）
 function focusFromItem(id){focusMode=mode;const kind=(get(id).cnt||0)>0?"review":"new";
-  focusSkipped.clear();focusSource="seq";focusKindPref=kind;focusSeq=buildFocusSeq(id,kind);focusSeqI=0;
-  if(!focusSeq.length){toast("没有可专注的题");return;}
-  focusOn=true;document.getElementById("focusPanel").style.display="";document.getElementById("focusBtn").classList.add("pri");loadFocusTask(focusSeq[0]);jumpToFocusItem();}
+  focusSkipped.clear();focusSource="today";focusKindPref=kind;
+  const meta=focusMetaOf(id,kind);if(!meta){toast("没有可专注的题");return;}
+  focusOn=true;document.getElementById("focusPanel").style.display="";document.getElementById("focusBtn").classList.add("pri");loadFocusTask(meta);jumpToFocusItem();}
 function updateFocusBtn(){const b=document.getElementById("focusBtn");if(!b)return;const none=!focusOn&&focusQueue().length===0;b.disabled=none;b.title=none?"今天没有待办任务，暂时不用专注":"从今日任务里挑一题、按建议时长开始专注学习/复习";}
 function startFocus(pref){focusSkipped.clear();focusMode=mode;focusSource="today";focusKindPref=(pref==="new")?"new":"review";if(!focusQueue(focusMode).length){toast("今日任务已全部完成");return;}
   focusOn=true;document.getElementById("focusPanel").style.display="";document.getElementById("focusBtn").classList.add("pri");focusNext();}
