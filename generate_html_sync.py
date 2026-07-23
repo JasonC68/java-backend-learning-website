@@ -1042,7 +1042,7 @@ body.dark.algmode .tag{color:#c4b5fd;background:#262626;border-color:#3a3a3a}
 body.algmode .tag.lc:hover{background:#7c3aed;color:#fff;border-color:#7c3aed}
 body.dark.algmode .tag.lc:hover{background:#7a3fe0;border-color:#7a3fe0}
 body.algmode .bk-item .rb{color:#7c3aed;border-color:#c4b5fd}
-body.dark.algmode .bk-item .rb{color:#7a3fe0}
+body.dark.algmode .bk-item .rb{color:#d4d4d4;border-color:#3a3a3a}
 body.algmode .qbtn:hover{color:#7c3aed}
 body.dark.algmode .qbtn:hover{color:#a78bfa}
 body.algmode .pill.busy,body.dark.algmode .pill.busy{background:#ede9fe;color:#5b21b6}
@@ -1071,7 +1071,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.7.11</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.7.12</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
