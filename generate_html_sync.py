@@ -944,6 +944,18 @@ body.dark .est .estseg.gu .estname{color:#93c5fd}
 body.dark .est .estseg.alg{background:#1e1633;border-color:#3b2a5e}
 body.dark .est .estseg.alg .estname{color:#c4b5fd}
 body.dark .est .esttot{color:#60a5fa}
+/* 算法模式主题色：蓝 -> 紫（掌握度/难度/专注/学习等有语义的颜色不变）*/
+body.algmode th{background:#574191}
+body.algmode tr.sec-row td{background:#f3edfb;color:#5b21b6}
+body.dark.algmode tr.sec-row td{background:#2c2540;color:#c4b5fd}
+body.algmode .chip.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
+body.algmode #modeSw button.on{background:#7c3aed}
+body.algmode .toolbar .btn.pri{background:#7c3aed;border-color:#7c3aed}
+body.algmode .toolbar .btn.pri:hover{background:#6d28d9;border-color:#6d28d9}
+body.algmode .timer button.on{background:#7c3aed;border-color:#7c3aed}
+body.algmode .tag.lc:hover{background:#7c3aed;border-color:#7c3aed}
+body.algmode .qbtn:hover{color:#7c3aed}
+body.algmode .pill.busy{background:#ede9fe;color:#5b21b6}
 body.dark .est.none{color:#4ade80}
 body.dark .pill{background:#3a3a3a;color:#d4d4d4}
 body.dark .chip{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
@@ -1022,7 +1034,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.6.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.6.3</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1804,7 +1816,7 @@ if(window.matchMedia)try{matchMedia("(prefers-color-scheme: dark)").addEventList
 applyTheme();
 document.getElementById("cfYes").onclick=()=>{document.getElementById("cfModal").classList.remove("show");const f=cfCb;cfCb=null;if(f)f();};
 document.getElementById("cfNo").onclick=()=>{document.getElementById("cfModal").classList.remove("show");cfCb=null;};
-function applyMode(){document.querySelectorAll("#modeSw button").forEach(b=>b.classList.toggle("on",b.dataset.mode===mode));document.getElementById("filters").style.display=mode==="alg"?"none":"";document.getElementById("diffBar").style.display=mode==="alg"?"":"none";render();}
+function applyMode(){document.querySelectorAll("#modeSw button").forEach(b=>b.classList.toggle("on",b.dataset.mode===mode));document.body.classList.toggle("algmode",mode==="alg");document.getElementById("filters").style.display=mode==="alg"?"none":"";document.getElementById("diffBar").style.display=mode==="alg"?"":"none";render();}
 document.querySelectorAll("#modeSw button").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;localStorage.setItem("mode_v1",mode);applyMode();});
 loadStuck();buildFilters();applyMode();
 restoreFocusUI();
