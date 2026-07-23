@@ -844,6 +844,33 @@ body.dark .memo-folded:hover{background:#332a0c}
 .codewrap.folded{margin-bottom:6px}
 .codewrap.folded pre.foldline{min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:9px 64px 9px 14px}
 .codewrap.nodel .codefold{right:7px}
+/* 学习板块（学习框 + 代码框，可折叠、可排序、可删除）*/
+.studyblk{border:1px solid #e5e7eb;border-radius:8px;margin-top:8px;overflow:hidden}
+.studyblk-head{display:flex;align-items:center;gap:6px;background:#f3f4f6;padding:6px 10px;font-size:12px;color:#6b7280;font-weight:600}
+.studyblk-head .ic{width:1em;height:1em}
+.studyblk-head .blkfoldall{border:none;background:none;cursor:pointer;color:#6b7280;font-size:12px;padding:0 3px;line-height:1}
+.studyblk-head .blkfoldall:hover{color:#111}
+.studyblk-body{padding:8px 8px 2px}
+.blkctl{position:absolute;top:5px;right:7px;z-index:3;display:inline-flex;gap:3px}
+.blkctl button{border:none;background:rgba(0,0,0,.06);color:#6b7280;border-radius:6px;width:20px;height:20px;font-size:11px;line-height:1;cursor:pointer;padding:0}
+.blkctl button:hover{background:rgba(0,0,0,.14);color:#111}
+.blkctl button:disabled{opacity:.3;cursor:default}
+.blkctl .blkdel:hover{background:rgba(220,38,38,.2);color:#b91c1c}
+.codewrap .blkctl button{background:rgba(255,255,255,.08);color:#aaa}
+.codewrap .blkctl button:hover{background:rgba(255,255,255,.18);color:#fff}
+.codewrap .blkctl .blkdel:hover{background:rgba(248,113,113,.35);color:#fff}
+.codewrap.folded pre.foldline{padding-right:98px}
+.learnwrap{position:relative;border:1px solid #bfdbfe;border-radius:8px;background:#eff6ff;margin-bottom:8px;overflow:hidden}
+.learnwrap .tui-learn .ProseMirror{outline:none;min-height:64px;padding:10px 14px;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7;color:#1f2937;overflow-wrap:break-word;word-break:break-word}
+.learn-folded{padding:9px 98px 9px 14px;font-size:13px;color:#1d4ed8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.learnwrap.folded{margin-bottom:6px}
+body.dark .studyblk{border-color:#3a3a3a}
+body.dark .studyblk-head{background:#262626;color:#9ca3af}
+body.dark .blkctl button{background:rgba(255,255,255,.08);color:#9ca3af}
+body.dark .blkctl button:hover{background:rgba(255,255,255,.16);color:#e5e5e5}
+body.dark .learnwrap{background:#172033;border-color:#254264}
+body.dark .learnwrap .tui-learn .ProseMirror{color:#e5e5e5}
+body.dark .learn-folded{color:#93c5fd}
 .tag.lc{text-decoration:none;cursor:pointer}
 .tag.lc:hover{background:#2563eb;color:#fff;border-color:#2563eb}
 body.dark .tag.lc:hover{background:#2563eb;color:#fff;border-color:#2563eb}
@@ -969,7 +996,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.5.4</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.6.0</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1153,6 +1180,39 @@ function renderCodes(host,o,minOne){
     host.appendChild(box);
   });
 }
+// 学习板块：渲染有序的「学习框 / 代码框」，每块可上移/下移/折叠/删除
+function wireBlkCtl(box,up,dn,fold,del){const u=box.querySelector(".blkup"),d=box.querySelector(".blkdn"),f=box.querySelector(".blkfd"),x=box.querySelector(".blkdel");
+  if(u)u.onclick=e=>{e.stopPropagation();up();};if(d)d.onclick=e=>{e.stopPropagation();dn();};
+  if(f)f.onclick=e=>{e.stopPropagation();fold();};if(x)x.onclick=e=>{e.stopPropagation();del();};}
+function renderBlocks(host,o,mount){host.innerHTML="";
+  (o.blocks||[]).forEach((b,idx)=>{
+    const up=()=>{if(idx>0){const t=o.blocks[idx-1];o.blocks[idx-1]=o.blocks[idx];o.blocks[idx]=t;save();render();}};
+    const dn=()=>{if(idx<o.blocks.length-1){const t=o.blocks[idx+1];o.blocks[idx+1]=o.blocks[idx];o.blocks[idx]=t;save();render();}};
+    const fold=()=>{b.fold=!b.fold;save();render();};
+    const del=()=>{confirmDlg(b.t==="learn"?"删除这个学习框？":"删除这个代码框？",()=>{o.blocks.splice(idx,1);if(!o.blocks.length)delete o.blocks;save();render();});};
+    const ctl='<span class="blkctl"><button class="blkup" title="上移"'+(idx===0?' disabled':'')+'>▲</button><button class="blkdn" title="下移"'+(idx===o.blocks.length-1?' disabled':'')+'>▼</button><button class="blkfd" title="折叠/展开">'+(b.fold?"▸":"▾")+'</button><button class="blkdel" title="删除">✕</button></span>';
+    if(b.t==="learn"){
+      const box=document.createElement("div");box.className="learnwrap"+(b.fold?" folded":"");
+      if(b.fold){const mf=plainFirstLine(b.html);box.innerHTML=ctl+'<div class="learn-folded">'+IC.book+' 学习'+(mf?'：'+esc(mf):'')+'</div>';const lf=box.querySelector(".learn-folded");lf.onclick=e=>{if(e.target.closest(".blkctl"))return;b.fold=false;save();render();};}
+      else box.innerHTML=ctl+'<div class="tui-learn"></div>';
+      host.appendChild(box);wireBlkCtl(box,up,dn,fold,del);
+      if(!b.fold)mount(box.querySelector(".tui-learn"),()=>b.html,v=>b.html=v,"写学习笔记…");
+    }else{
+      const box=document.createElement("div");box.className="codewrap"+(b.fold?" folded":"");
+      if(b.fold){const first=(b.code||"").split("\\n")[0]||"",more=(b.code||"").indexOf("\\n")>=0;
+        box.innerHTML=ctl+'<pre class="foldline"><code class="hljs"></code></pre>';
+        box.querySelector("code").innerHTML=highlightHTML(first)+(more?' <span style="color:#888">…</span>':"");
+        box.style.cursor="pointer";box.onclick=e=>{if(e.target.closest(".blkctl"))return;b.fold=false;save();render();};
+      }else{
+        box.innerHTML=ctl+'<pre aria-hidden="true"><code class="hljs"></code></pre><textarea spellcheck="false" placeholder="粘贴代码…"></textarea>';
+        const code=box.querySelector("code"),ta=box.querySelector("textarea");
+        const paint=()=>{const v=ta.value;code.innerHTML=highlightHTML(v)+(v.slice(-1)==="\\n"?"\\n":"");};
+        ta.value=b.code||"";paint();ta.oninput=()=>{b.code=ta.value;paint();save();};
+        ta.onkeydown=e=>{if(e.key==="Tab"){e.preventDefault();const s=ta.selectionStart,en=ta.selectionEnd;ta.value=ta.value.slice(0,s)+"  "+ta.value.slice(en);ta.selectionStart=ta.selectionEnd=s+2;b.code=ta.value;paint();save();}};
+      }
+      host.appendChild(box);wireBlkCtl(box,up,dn,fold,del);
+    }
+  });}
 // ===== 小林coding 跳转：板块 -> 页面，tag -> 页内小标题锚点（锚点对不上时自动停在页顶，退化为板块级）=====
 const XLURL={"集合":"https://xiaolincoding.com/interview/collections.html","并发/多线程":"https://xiaolincoding.com/interview/juc.html","MySQL":"https://xiaolincoding.com/interview/mysql.html","JVM":"https://xiaolincoding.com/interview/jvm.html","Spring":"https://xiaolincoding.com/interview/spring.html","计算机网络":"https://xiaolincoding.com/interview/network.html","Redis":"https://xiaolincoding.com/interview/redis.html","操作系统":"https://xiaolincoding.com/interview/os.html","Java基础":"https://xiaolincoding.com/interview/java.html","扩展(MyBatis/MQ/分布式)":"https://xiaolincoding.com/interview/mq.html","AI·Agent":"https://xiaolinnote.com/ai/agent/agent_info.html","AI·RAG":"https://xiaolinnote.com/ai/rag/rag_info.html","AI·工具调用":"https://xiaolinnote.com/ai/tools/tools_info.html","AI·大模型基础":"https://xiaolinnote.com/ai/llm/llm_info.html"};
 function xlSlug(s){return (s||"").toLowerCase().replace(/[^a-z0-9\\u4e00-\\u9fa5]+/g,"-").replace(/^-+|-+$/g,"");}
@@ -1558,10 +1618,11 @@ function render(){const tb=document.getElementById("tb");
       if(opened){
         const er=document.createElement("tr");er.className="ed-row";
         const td=document.createElement("td");td.colSpan=6;const o=st;
-        if(o.code!==undefined&&!o.codes){o.codes=o.code?[{code:o.code}]:[];delete o.code;delete o.codeOn;delete o.codeHide;}
-        if(o.codes)o.codes=o.codes.map(c=>typeof c==="string"?{code:c}:c);
+        if(o.code!==undefined&&!o.codes&&!o.blocks){o.codes=o.code?[{code:o.code}]:[];delete o.code;delete o.codeOn;delete o.codeHide;}
+        if(o.codes){o.codes.forEach(c=>{c=(typeof c==="string")?{code:c}:c;(o.blocks||(o.blocks=[])).push({t:"code",code:c.code||"",fold:!!c.fold});});delete o.codes;}
         let bar='<div class="ehint">';
         bar+=(!o.memoOn)?'<button class="ebtn addmemo">＋ 助记</button>':'';
+        bar+='<button class="ebtn addlearn">＋ 学习</button>';
         bar+='<button class="ebtn addcode">＋ 代码</button>';
         bar+='</div>';
         let body='';
@@ -1571,7 +1632,7 @@ function render(){const tb=document.getElementById("tb");
         }
         if(o.noteHide)body+='<div class="note-folded"><button class="notefold notebtn" title="显示答案">▸</button>'+IC.note+' 答案已隐藏</div>';
         else body+='<div class="notewrap"><button class="notefold notebtn" title="隐藏答案">▾</button><div class="tui"></div></div>';
-        if(o.codes&&o.codes.length)body+='<div class="codebox"></div>';
+        if(o.blocks&&o.blocks.length)body+='<div class="studyblk"><div class="studyblk-head"><button class="blkfoldall" title="折叠/展开学习板块">'+(o.blkFold?"▸":"▾")+'</button>'+IC.book+' 学习板块 · '+o.blocks.length+' 个'+(o.blkFold?'（已折叠）':'')+'</div>'+(o.blkFold?'':'<div class="studyblk-body"></div>')+'</div>';
         td.innerHTML=bar+body;
         const addb=td.querySelector(".addmemo");if(addb)addb.onclick=()=>{o.memoOn=true;o.memoHide=false;save();render();};
         const delMemo=()=>confirmDlg("删除助记？",()=>{o.memoOn=false;delete o.memo;o.memoHide=false;save();render();});
@@ -1579,14 +1640,16 @@ function render(){const tb=document.getElementById("tb");
         if(mw){mw.querySelector(".memofold").onclick=e=>{e.stopPropagation();o.memoHide=true;save();render();};mw.querySelector(".memodel").onclick=e=>{e.stopPropagation();delMemo();};}
         const mfold=td.querySelector(".memo-folded");
         if(mfold){mfold.querySelector(".memodel").onclick=e=>{e.stopPropagation();delMemo();};mfold.onclick=e=>{if(e.target.closest(".memodel"))return;o.memoHide=false;save();render();};}
-        td.querySelector(".addcode").onclick=()=>{o.codes=o.codes||[];o.codes.push({code:""});save();render();};
+        td.querySelector(".addcode").onclick=()=>{(o.blocks||(o.blocks=[])).push({t:"code",code:""});save();render();};
+        const addl=td.querySelector(".addlearn");if(addl)addl.onclick=()=>{(o.blocks||(o.blocks=[])).push({t:"learn",html:""});save();render();};
+        const bfa=td.querySelector(".blkfoldall");if(bfa)bfa.onclick=e=>{e.stopPropagation();o.blkFold=!o.blkFold;save();render();};
         const nw=td.querySelector(".notewrap");if(nw)nw.querySelector(".notefold").onclick=e=>{e.stopPropagation();o.noteHide=true;save();render();};
         const nfold=td.querySelector(".note-folded");if(nfold)nfold.onclick=()=>{o.noteHide=false;save();render();};
         er.appendChild(td);tb.appendChild(er);
         const mount=(host,getv,setv,ph)=>{if(window.MDEditor){editors.push(window.MDEditor(host,getv()||"",(html)=>{setv(html);save();}));}else{host.innerHTML='<textarea class="fa" placeholder="'+(ph||"")+'"></textarea>';const ta=host.querySelector(".fa");ta.value=getv()||"";ta.oninput=()=>{setv(ta.value);save();};}};
         if(o.memoOn&&!o.memoHide)mount(td.querySelector(".tui-memo"),()=>o.memo,v=>o.memo=v,"写助记/口诀…");
         if(!o.noteHide)mount(td.querySelector(".tui"),()=>st.note,v=>st.note=v,"# 在这里写你总结的答案…");
-        if(o.codes&&o.codes.length)renderCodes(td.querySelector(".codebox"),o);
+        if(o.blocks&&o.blocks.length&&!o.blkFold)renderBlocks(td.querySelector(".studyblk-body"),o,mount);
       }});
     if(lvlFilter==="all"&&dateFilter==="all"&&!starOnly){
       const ar=document.createElement("tr");ar.className="add-row";const td=document.createElement("td");td.colSpan=6;
