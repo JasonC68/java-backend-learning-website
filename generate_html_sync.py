@@ -999,6 +999,7 @@ body.dark .theme button:hover{color:#fff}
 body.dark .theme button.on{background:#2563eb;color:#fff}
 /* ===== 算法模式主题色：蓝 -> 紫（掌握度/难度/专注/学习等有语义的颜色不变）。放在暗色规则之后以覆盖平局 ===== */
 body.algmode th{background:#6d4bc4}
+body.dark.algmode th{background:#573f96}
 body.algmode .est .esttot,body.algmode .est .esttot{color:#7c3aed}
 body.dark.algmode .est .esttot{color:#a78bfa}
 body.algmode tr.sec-row td{background:#f3edfb;color:#5b21b6}
