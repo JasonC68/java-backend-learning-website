@@ -612,13 +612,17 @@ h1{font-size:20px}
 .est.none{color:#16a34a}
 .ic{width:1em;height:1em;display:inline-block;vertical-align:-0.14em;flex:none}
 .rowfocus{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:8px;vertical-align:middle;font-size:14px;line-height:1}
-.rowfocus:hover{color:#dc2626}
+.rowfocus:hover{color:#ea580c}
 body.dark .rowfocus{color:#6b7280}
-body.dark .rowfocus:hover{color:#fca5a5}
+body.dark .rowfocus:hover{color:#fdba74}
 .rowsub{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:15px;line-height:1}
-.rowsub:hover{color:#ea580c}
+.rowsub:hover{color:#16a34a}
 body.dark .rowsub{color:#6b7280}
-body.dark .rowsub:hover{color:#fdba74}
+body.dark .rowsub:hover{color:#4ade80}
+tr.flash>td{animation:rowflash 1.4s ease-out}
+@keyframes rowflash{0%,30%{background:#fef9c3}100%{background:transparent}}
+body.dark tr.flash>td{animation:rowflashd 1.4s ease-out}
+@keyframes rowflashd{0%,30%{background:#3f3a12}100%{background:transparent}}
 .rowdel{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:14px;line-height:1}
 .rowdel:hover{color:#dc2626}
 body.dark .rowdel{color:#6b7280}
@@ -644,32 +648,32 @@ body.dark .timer .tdot{background:#4b5563}
 body.dark .timer button{background:#262626;border-color:#3a3a3a;color:#d4d4d4}
 body.dark .timer button:hover{background:#303030}
 @media(max-width:640px){.timer{width:100%;box-sizing:border-box;justify-content:flex-start}}
-.focusbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:10px 14px;margin:0 0 12px}
+.focusbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:10px 14px;margin:0 0 12px}
 .focusbar .fp-main{display:flex;align-items:center;gap:8px;flex:1;min-width:220px}
 .focusbar .fp-kind{font-size:12px;font-weight:600;padding:2px 9px;border-radius:8px;white-space:nowrap}
-.focusbar .fp-kind.new{background:#fee2e2;color:#b91c1c}
-.focusbar .fp-kind.review{background:#fecaca;color:#7f1d1d}
+.focusbar .fp-kind.new{background:#ffedd5;color:#c2410c}
+.focusbar .fp-kind.review{background:#fed7aa;color:#9a3412}
 .focusbar .fp-q{font-size:14px;color:#111827;font-weight:500;cursor:pointer;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:3px;transition:text-decoration-color .15s}
 .focusbar .fp-q:hover{text-decoration-color:currentColor}
 .focusbar .fp-side{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .focusbar .fp-time{display:inline-flex;align-items:baseline;gap:6px;margin-right:2px}
-.focusbar .fp-time b{font-size:18px;font-variant-numeric:tabular-nums;color:#b91c1c;font-weight:600;min-width:52px;display:inline-block}
-.focusbar .fp-time.over b{color:#dc2626}
+.focusbar .fp-time b{font-size:18px;font-variant-numeric:tabular-nums;color:#ea580c;font-weight:600;min-width:52px;display:inline-block}
+.focusbar .fp-time.over b{color:#c2410c}
 .focusbar .fp-allot{font-size:12px;color:#6b7280;white-space:nowrap}
-#focusBtn{border-color:#dc2626}
-#focusBtn:hover{background:#fef2f2}
+#focusBtn{border-color:#ea580c}
+#focusBtn:hover{background:#fff7ed}
 #focusBtn:disabled{border-color:#e5e7eb;color:#9ca3af;background:#f9fafb;cursor:not-allowed}
 #focusBtn:disabled:hover{background:#f9fafb}
 body.dark #focusBtn:disabled{border-color:#3a3a3a;color:#6b7280;background:#1c1c1c}
-.focusbar .btn.pri,#focusModal .btn.pri,#focusBtn.pri,body.dark .focusbar .btn.pri,body.dark #focusModal .btn.pri,body.dark #focusBtn.pri{background:#dc2626;border-color:#dc2626;color:#fff}
-.focusbar .btn.pri:hover,#focusModal .btn.pri:hover,#focusBtn.pri:hover,body.dark .focusbar .btn.pri:hover,body.dark #focusModal .btn.pri:hover,body.dark #focusBtn.pri:hover{background:#b91c1c;border-color:#b91c1c}
-body.dark #focusBtn{border-color:#dc2626}
-body.dark #focusBtn:hover{background:#2a1416}
-body.dark .focusbar{background:#2a1416;border-color:#5f2626}
+.focusbar .btn.pri,#focusModal .btn.pri,#focusBtn.pri,body.dark .focusbar .btn.pri,body.dark #focusModal .btn.pri,body.dark #focusBtn.pri{background:#ea580c;border-color:#ea580c;color:#fff}
+.focusbar .btn.pri:hover,#focusModal .btn.pri:hover,#focusBtn.pri:hover,body.dark .focusbar .btn.pri:hover,body.dark #focusModal .btn.pri:hover,body.dark #focusBtn.pri:hover{background:#c2410c;border-color:#c2410c}
+body.dark #focusBtn{border-color:#ea580c}
+body.dark #focusBtn:hover{background:#2a1a0e}
+body.dark .focusbar{background:#2a1a0e;border-color:#6b3f16}
 body.dark .focusbar .fp-q{color:#e5e5e5}
-body.dark .focusbar .fp-time b{color:#fca5a5}
-body.dark .focusbar .fp-kind.new{background:#5a2323;color:#fca5a5}
-body.dark .focusbar .fp-kind.review{background:#491c1c;color:#fda4a4}
+body.dark .focusbar .fp-time b{color:#fdba74}
+body.dark .focusbar .fp-kind.new{background:#5a3a1a;color:#fdba74}
+body.dark .focusbar .fp-kind.review{background:#4a2f12;color:#fed7aa}
 @media(max-width:640px){.focusbar .fp-side{width:100%;justify-content:flex-start}}
 #focusPickModal .btn:disabled{opacity:.45;cursor:not-allowed}
 .toolbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;align-items:center}
@@ -965,7 +969,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.5.1</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.5.2</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1400,11 +1404,22 @@ let newSubId=null;
 function startQEdit(it,tr,sel){const cell=tr.querySelector(".q");cell.innerHTML='<input class="qin">';const inp=cell.querySelector(".qin");inp.value=qText(it);inp.focus();if(sel)inp.select();
   const commit=()=>{const v=inp.value.trim();if(v)get(it.id).q=v;save();render();};
   inp.onkeydown=ev=>{if(ev.key==="Enter")commit();else if(ev.key==="Escape")render();};inp.onblur=commit;}
-// 在某题下方加一个「子问题」（自建题，橙色标签），并排到该题正下方、进入编辑态
+// 在某题下方加一个「子问题」（自建题，绿色标签），排到该题已有子问题的最后、进入编辑态
 function addSubQuestion(parentId,sec){const id="c_"+Date.now();customList().push({id:id,sec:sec,q:"子问题",sub:true,parent:parentId});
   const p=ITEMS.find(x=>x.id===parentId);const pdate=realDate(get(parentId),p?p.iso:"");if(pdate)get(id).date=pdate;   // 建议日期与原问题一致
-  let ids=(sectionMap()[sec]||[]).map(x=>x.id).filter(x=>x!==id);const pi=ids.indexOf(parentId);ids.splice(pi<0?ids.length:pi+1,0,id);
+  let ids=(sectionMap()[sec]||[]).map(x=>x.id).filter(x=>x!==id);
+  const childOf=cid=>{const c=customList().find(x=>x.id===cid);return !!(c&&c.parent===parentId);};
+  let j=ids.indexOf(parentId);if(j<0)j=ids.length-1;while(j+1<ids.length&&childOf(ids[j+1]))j++;   // 跳过已有的子问题，插到最后
+  ids.splice(j+1,0,id);
   (state.__order||(state.__order={}))[sec]=ids;newSubId=id;save();render();}
+// 点击「·子问题」标签跳到其父问题（滚动定位并短暂高亮；被筛选隐藏时先放开筛选）
+function jumpToItem(id){let row=document.querySelector('tr[data-id="'+id+'"]');
+  if(!row){secFilter="all";lvlFilter="all";diffFilter="all";starOnly=false;pickedDate="";dateFilter="all";buildFilters();
+    document.querySelectorAll('[data-lvl]').forEach(x=>x.classList.toggle("active",x.dataset.lvl==="all"));
+    document.querySelectorAll('[data-diff]').forEach(x=>x.classList.toggle("active",x.dataset.diff==="all"));
+    document.querySelectorAll('[data-date]').forEach(x=>x.classList.toggle("active",x.dataset.date==="all"));
+    const sf=document.getElementById("starFilter");if(sf)sf.classList.remove("active");updatePickBtn();render();row=document.querySelector('tr[data-id="'+id+'"]');}
+  if(row){row.scrollIntoView({behavior:"smooth",block:"center"});row.classList.add("flash");setTimeout(()=>{try{row.classList.remove("flash");}catch(e){}},1400);}}
 // date==="none" 表示手动清空为「未分配」，不再回落到默认建议日期
 function realDate(o,baseIso){if(o.date==="none")return "";return (o.date!==undefined&&o.date!=="")?o.date:(baseIso||"");}
 function itemDate(it){return realDate(get(it.id),it.baseIso);}
@@ -1493,7 +1508,7 @@ function render(){const tb=document.getElementById("tb");
     const sr=document.createElement("tr");sr.className="sec-row";sr.innerHTML='<td colspan="6">'+esc(s)+'</td>';tb.appendChild(sr);
     if(recycleMode){
       list.forEach(it=>{const tr=document.createElement("tr");
-        tr.innerHTML='<td class="c">'+it.idx+'</td><td class="c hide-sm date"></td><td class="q">'+esc(qText(it))+(it.custom?(it.sub?' <span style="color:#ea580c;font-size:11px">·子问题</span>':' <span style="color:#9333ea;font-size:11px">·自建</span>'):'')+'</td>'+
+        tr.innerHTML='<td class="c">'+it.idx+'</td><td class="c hide-sm date"></td><td class="q">'+esc(qText(it))+(it.custom?(it.sub?' <span class="subparent" data-parent="'+it.parent+'" title="点击跳到父问题" style="color:#16a34a;font-size:11px;cursor:pointer">·子问题</span>':' <span style="color:#9333ea;font-size:11px">·自建</span>'):'')+'</td>'+
           '<td class="c" colspan="3"><button class="restore">'+IC.undo+' 恢复</button> <button class="purge">'+IC.trash+' 永久删除</button></td>';
         tr.querySelector(".restore").onclick=()=>{delete get(it.id).del;save();render();};
         tr.querySelector(".purge").onclick=()=>{confirmDlg("永久删除这道题？不可恢复",()=>{if(it.custom){state.__custom=customList().filter(c=>c.id!==it.id);delete state[it.id];}else{const o=get(it.id);delete o.del;o.purged=true;}save();render();});};
@@ -1505,7 +1520,7 @@ function render(){const tb=document.getElementById("tb");
       const tr=document.createElement("tr");tr.dataset.id=it.id;
       tr.innerHTML='<td class="c">'+(isTodoToday(it)?'<span class="tododot" title="今天还没开始"></span>':'')+it.idx+'</td>'+
         '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
-        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?(it.sub?' <span style="color:#ea580c;font-size:11px">·子问题</span>':' <span style="color:#9333ea;font-size:11px">·自建</span>'):'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+(function(u){if(!u)return '';const jg=/javaguide\.cn/.test(u);return '<a class="tag lc" href="'+u+'" target="_blank" rel="noopener" title="'+(jg?'在 JavaGuide 打开这一题':'在小林coding打开这一题')+'">'+(jg?'JavaGuide':'小林')+' ↗</a>';})(xlLink(it.sec,it.tags,it.anc))+(it.jg?'<a class="tag lc" href="'+it.jg+'" target="_blank" rel="noopener" title="在 JavaGuide 打开这一题">JavaGuide ↗</a>':'')+'<span class="qedit" title="编辑题目">✎</span></td>'+
+        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?(it.sub?' <span class="subparent" data-parent="'+it.parent+'" title="点击跳到父问题" style="color:#16a34a;font-size:11px;cursor:pointer">·子问题</span>':' <span style="color:#9333ea;font-size:11px">·自建</span>'):'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+(function(u){if(!u)return '';const jg=/javaguide\.cn/.test(u);return '<a class="tag lc" href="'+u+'" target="_blank" rel="noopener" title="'+(jg?'在 JavaGuide 打开这一题':'在小林coding打开这一题')+'">'+(jg?'JavaGuide':'小林')+' ↗</a>';})(xlLink(it.sec,it.tags,it.anc))+(it.jg?'<a class="tag lc" href="'+it.jg+'" target="_blank" rel="noopener" title="在 JavaGuide 打开这一题">JavaGuide ↗</a>':'')+'<span class="qedit" title="编辑题目">✎</span></td>'+
         '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
         '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
         '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span class="revdate" title="点击调整/延后复习" style="font-size:11px;cursor:pointer;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
@@ -1516,6 +1531,7 @@ function render(){const tb=document.getElementById("tb");
       tr.querySelector(".rowfocus").onclick=e=>{e.stopPropagation();focusFromItem(it.id);};
       tr.querySelector(".rowsub").onclick=e=>{e.stopPropagation();addSubQuestion(it.id,it.sec);};
       tr.querySelector(".rowdel").onclick=e=>{e.stopPropagation();confirmDlg("删除这道题？可在回收站恢复",()=>{get(it.id).del=true;openIds.delete(it.id);save();render();});};
+      const spx=tr.querySelector(".subparent");if(spx)spx.onclick=e=>{e.stopPropagation();jumpToItem(spx.dataset.parent);};
       const dc=tr.querySelector(".date");
       dc.onclick=e=>{e.stopPropagation();openCal(dc,{selected:itemDate(it),dot:true,clearLabel:"恢复默认",noneLabel:"清空日期",
         onPick:iso=>{get(it.id).date=iso;save();render();},
