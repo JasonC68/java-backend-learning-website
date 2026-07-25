@@ -42,13 +42,6 @@ body.dark .rowfocus:hover{color:#fdba74}
 .rowsub:hover{color:#16a34a}
 body.dark .rowsub{color:#6b7280}
 body.dark .rowsub:hover{color:#4ade80}
-/* 题目右侧操作组：固定在单元格右端、垂直居中，悬停行时才显示，避免和题干/标签挤在一起 */
-td.q{position:relative;padding-right:104px}
-.qacts{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:7px;opacity:0;transition:opacity .12s}
-tr:hover .qacts,.qacts:focus-within{opacity:1}
-@media(hover:none){.qacts{opacity:1}}
-.qacts>*{margin-left:0!important;font-size:14px}
-.qacts .qedit{font-size:13px}
 .rowsupp{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:14px;line-height:1}
 .rowsupp:hover{color:#db2777}
 body.dark .rowsupp{color:#6b7280}
@@ -169,7 +162,7 @@ body.dark .cal-quick button{background:#1e293b;border-color:#3a3a3a;color:#93c5f
 .cnt{display:inline-flex;align-items:center;gap:6px}
 .cnt button{width:24px;height:24px;border-radius:6px;border:1px solid #d1d5db;background:#fff;font-size:15px;line-height:1;cursor:pointer}
 .cnt button:hover{background:#eef2ff}.cnt b{min-width:18px;text-align:center;display:inline-block}
-.last{color:#6b7280;font-size:12px;white-space:nowrap}.q{line-height:1.4}
+.last{color:#6b7280;font-size:12px;white-space:nowrap}.q{line-height:1.7}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:9}
 .modal.show{display:flex}
 .card{background:#fff;border-radius:12px;padding:20px;max-width:440px;width:92%}
@@ -185,7 +178,7 @@ body.dark .cal-quick button{background:#1e293b;border-color:#3a3a3a;color:#93c5f
 .qin{width:92%;height:24px;line-height:22px;padding:0 8px;border:1px solid #93c5fd;border-radius:6px;font-size:13px;box-sizing:border-box;vertical-align:middle}
 .tag{display:inline-block;font-size:11px;color:#3730a3;background:#eef2ff;border:1px solid #e0e7ff;border-radius:10px;padding:0 7px;margin-left:6px;vertical-align:middle;white-space:nowrap}
 tbody tr:not(.sec-row):not(.ed-row):not(.add-row)>td{height:24px}
-.qbtn{cursor:pointer;display:inline-block}
+.qbtn{cursor:pointer;display:inline}
 .qbtn:hover{color:#2563eb}
 .qbtn .arw{display:inline-block;width:14px;color:#9ca3af;font-size:11px}
 .qbtn.has::after{content:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Cline x1='16' y1='13' x2='8' y2='13'/%3E%3Cline x1='16' y1='17' x2='8' y2='17'/%3E%3C/svg%3E");margin-left:5px;vertical-align:-1px}
@@ -224,8 +217,7 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
   tbody tr:not(.sec-row){display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:9px 6px}
   tbody tr:not(.sec-row)>td{display:block;border:none;padding:0;height:auto!important;width:auto!important;max-width:none!important;text-align:left}
   tr:not(.sec-row)>td.c:first-child{order:0;color:#9ca3af;font-size:12px;min-width:16px}
-  td.q{order:1;flex:1 1 62%;font-size:14px;position:static;padding-right:0}
-  .qacts{position:static;transform:none;opacity:1;margin-left:6px}
+  td.q{order:1;flex:1 1 62%;font-size:14px}
   td:nth-child(4){order:2}
   td:nth-child(5){order:3}
   tr.ed-row{display:block}
@@ -35806,7 +35798,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.0.0.3</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.0.0.4</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -36477,8 +36469,7 @@ function render(){const tb=document.getElementById("tb");
       tr.cells[0].insertAdjacentHTML("beforeend",'<span class="mv"><button class="mvup" title="上移">▲</button><button class="mvdn" title="下移">▼</button></span>');
       tr.querySelector(".mvup").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,-1);};
       tr.querySelector(".mvdn").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,1);};
-      tr.querySelector(".q").insertAdjacentHTML("beforeend",'<span class="qacts"><button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button><button class="rowsub" title="在下面加一个子问题">'+IC.subadd+'</button><button class="rowsupp" title="在下面加一个补充问题">'+IC.suppadd+'</button><button class="rowdel" title="删除这道题">'+IC.trash+'</button></span>');
-      {const qa=tr.querySelector(".qacts"),qe=tr.querySelector(".qedit");if(qa&&qe)qa.insertBefore(qe,qa.firstChild);}   // ✎ 收进右侧操作组
+      tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button><button class="rowsub" title="在下面加一个子问题">'+IC.subadd+'</button><button class="rowsupp" title="在下面加一个补充问题">'+IC.suppadd+'</button><button class="rowdel" title="删除这道题">'+IC.trash+'</button>');
       tr.querySelector(".rowfocus").onclick=e=>{e.stopPropagation();focusFromItem(it.id);};
       tr.querySelector(".rowsub").onclick=e=>{e.stopPropagation();addChild(it.id,it.sec,"sub");};
       tr.querySelector(".rowsupp").onclick=e=>{e.stopPropagation();addChild(it.id,it.sec,"supp");};
