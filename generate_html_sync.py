@@ -638,7 +638,7 @@ html = '''<!DOCTYPE html>
 <title>秋招必背打卡表 · 云同步</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;background:#f5f6f8;color:#1f2937;padding:16px 28px;max-width:1360px;margin:0 auto}
+body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;background:#f5f6f8;color:#1f2937;padding:16px;max-width:1100px;margin:0 auto}
 h1{font-size:20px}
 .row1{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .sub{color:#6b7280;font-size:13px;margin:4px 0 12px}
@@ -676,6 +676,13 @@ body.dark .rowfocus:hover{color:#fdba74}
 .rowsub:hover{color:#16a34a}
 body.dark .rowsub{color:#6b7280}
 body.dark .rowsub:hover{color:#4ade80}
+/* 题目右侧操作组：固定在单元格右端、垂直居中，悬停行时才显示，避免和题干/标签挤在一起 */
+td.q{position:relative;padding-right:104px}
+.qacts{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:7px;opacity:0;transition:opacity .12s}
+tr:hover .qacts,.qacts:focus-within{opacity:1}
+@media(hover:none){.qacts{opacity:1}}
+.qacts>*{margin-left:0!important;font-size:14px}
+.qacts .qedit{font-size:13px}
 .rowsupp{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:14px;line-height:1}
 .rowsupp:hover{color:#db2777}
 body.dark .rowsupp{color:#6b7280}
@@ -851,7 +858,8 @@ tr.ed-row td{background:#f8f9ff;padding:10px 14px}
   tbody tr:not(.sec-row){display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:9px 6px}
   tbody tr:not(.sec-row)>td{display:block;border:none;padding:0;height:auto!important;width:auto!important;max-width:none!important;text-align:left}
   tr:not(.sec-row)>td.c:first-child{order:0;color:#9ca3af;font-size:12px;min-width:16px}
-  td.q{order:1;flex:1 1 62%;font-size:14px}
+  td.q{order:1;flex:1 1 62%;font-size:14px;position:static;padding-right:0}
+  .qacts{position:static;transform:none;opacity:1;margin-left:6px}
   td:nth-child(4){order:2}
   td:nth-child(5){order:3}
   tr.ed-row{display:block}
@@ -1179,7 +1187,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.0.0.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.0.0.3</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1850,7 +1858,8 @@ function render(){const tb=document.getElementById("tb");
       tr.cells[0].insertAdjacentHTML("beforeend",'<span class="mv"><button class="mvup" title="上移">▲</button><button class="mvdn" title="下移">▼</button></span>');
       tr.querySelector(".mvup").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,-1);};
       tr.querySelector(".mvdn").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,1);};
-      tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button><button class="rowsub" title="在下面加一个子问题">'+IC.subadd+'</button><button class="rowsupp" title="在下面加一个补充问题">'+IC.suppadd+'</button><button class="rowdel" title="删除这道题">'+IC.trash+'</button>');
+      tr.querySelector(".q").insertAdjacentHTML("beforeend",'<span class="qacts"><button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button><button class="rowsub" title="在下面加一个子问题">'+IC.subadd+'</button><button class="rowsupp" title="在下面加一个补充问题">'+IC.suppadd+'</button><button class="rowdel" title="删除这道题">'+IC.trash+'</button></span>');
+      {const qa=tr.querySelector(".qacts"),qe=tr.querySelector(".qedit");if(qa&&qe)qa.insertBefore(qe,qa.firstChild);}   // ✎ 收进右侧操作组
       tr.querySelector(".rowfocus").onclick=e=>{e.stopPropagation();focusFromItem(it.id);};
       tr.querySelector(".rowsub").onclick=e=>{e.stopPropagation();addChild(it.id,it.sec,"sub");};
       tr.querySelector(".rowsupp").onclick=e=>{e.stopPropagation();addChild(it.id,it.sec,"supp");};
