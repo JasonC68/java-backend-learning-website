@@ -904,7 +904,8 @@ body.dark.algmode .blkadd button:hover{background:#1e1633}
 .codewrap .blkctl .blkdel:hover{background:rgba(248,113,113,.35);color:#fff}
 .codewrap.folded pre.foldline{padding-right:98px}
 .learnwrap{position:relative;border:1px solid #bfdbfe;border-radius:8px;background:#eff6ff;margin-bottom:8px;overflow:hidden}
-.learnwrap .tui-learn .ProseMirror{outline:none;min-height:64px;padding:10px 14px;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7;color:#1f2937;overflow-wrap:break-word;word-break:break-word}
+.learnwrap .tui-learn .ProseMirror{outline:none;min-height:0;padding:8px 14px;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7;color:#1f2937;overflow-wrap:break-word;word-break:break-word}
+.learnwrap .tui-learn .ProseMirror>p:last-child{margin-bottom:0}
 .learn-folded{padding:9px 98px 9px 14px;font-size:13px;color:#1d4ed8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .learnwrap.folded{margin-bottom:6px}
 body.dark .studyblk{border-color:#3a3a3a}
@@ -1076,7 +1077,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.8.5</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.8.6</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
