@@ -1179,7 +1179,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.0.0.4</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.0.0.5</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1574,12 +1574,13 @@ function restoreFocusUI(){let d;try{d=JSON.parse(localStorage.getItem(FUIKEY)||"
 function fmtMS(ms){let s=Math.floor(ms/1000);const h=Math.floor(s/3600);s-=h*3600;const m=Math.floor(s/60);s-=m*60;const p=n=>(n+"").padStart(2,"0");return (h?h+":":"")+p(m)+":"+p(s);}
 function focusMinFor(t){return t.isAlg?(t.kind==="review"?EST_MIN.algRev:EST_MIN.algNew):(t.kind==="review"?EST_MIN.guRev:EST_MIN.guNew);}
 function focusQueue(m){m=m||mode;const ti=todayIso();const rev=[],neu=[];
+  const isProj=m==="proj";
   const push=(id,baseIso,isAlg,q,sec,idx)=>{const o=get(id);if(o.del||o.purged)return;
     const d=realDate(o,baseIso);const reviewDue=!!o.next&&o.next<=ti;
-    if(d&&d>ti){if(reviewDue)rev.push({id:id,kind:"review",isAlg:isAlg,q:q,sec:sec,idx:idx});return;}
+    if(d&&d>ti){if(reviewDue)rev.push({id:id,kind:"review",isAlg:isAlg,isProj:isProj,q:q,sec:sec,idx:idx});return;}
     const studyDue=!!d&&d<=ti&&!(o.cnt>0);
-    if(studyDue)neu.push({id:id,kind:"new",isAlg:isAlg,q:q,sec:sec,idx:idx});
-    else if(reviewDue)rev.push({id:id,kind:"review",isAlg:isAlg,q:q,sec:sec,idx:idx});};
+    if(studyDue)neu.push({id:id,kind:"new",isAlg:isAlg,isProj:isProj,q:q,sec:sec,idx:idx});
+    else if(reviewDue)rev.push({id:id,kind:"review",isAlg:isAlg,isProj:isProj,q:q,sec:sec,idx:idx});};
   if(m==="alg"){ALG.forEach(it=>push(it.id,it.iso,true,qText(it),"算法",it.idx));}
   else{const its=m==="proj"?PROJ:ITEMS,secs=m==="proj"?PROJSEC:SECTIONS;its.forEach(it=>push(it.id,it.iso,false,qText(it),it.sec));customList().filter(c=>secs.indexOf(c.sec)>=0).forEach(c=>push(c.id,"",false,qText(c),c.sec));}
   return rev.concat(neu);}   // 复习优先，再新学
@@ -1616,9 +1617,9 @@ function focusNext(){
   if(!nx){const skipped=focusSkipped.size;endFocus();toast(skipped?"剩下的都跳过了，专注结束":"今日任务已全部完成");return;}
   focusPos=nx._p;loadFocusTask(nx);}
 // 取某一题的元信息（用于「从这题开始专注」的第一题，允许不在今日队列里）
-function focusMetaOf(id,kind){if(mode==="alg"){const it=ALG.find(x=>x.id===id);if(!it)return null;return {id:id,kind:kind,isAlg:true,q:qText(it),sec:"算法",idx:it.idx};}
-  const it=findBuiltin(id);if(it)return {id:id,kind:kind,isAlg:false,q:qText(it),sec:it.sec};
-  const c=customList().find(x=>x.id===id);if(c)return {id:id,kind:kind,isAlg:false,q:qText(c),sec:c.sec};return null;}
+function focusMetaOf(id,kind){if(mode==="alg"){const it=ALG.find(x=>x.id===id);if(!it)return null;return {id:id,kind:kind,isAlg:true,isProj:false,q:qText(it),sec:"算法",idx:it.idx};}
+  const it=findBuiltin(id);if(it)return {id:id,kind:kind,isAlg:false,isProj:PROJSEC.indexOf(it.sec)>=0,q:qText(it),sec:it.sec};
+  const c=customList().find(x=>x.id===id);if(c)return {id:id,kind:kind,isAlg:false,isProj:PROJSEC.indexOf(c.sec)>=0,q:qText(c),sec:c.sec};return null;}
 // 从某一题开始专注：这题作为第一题，之后按「今日应复习/学习」的队列顺序跳转（可能跨板块）
 function focusFromItem(id){
   if(focusOn&&focusTask&&focusTask.id===id){jumpToFocusItem();return;}  // 已在专注这一题：保持不变，不重置计时
@@ -1638,7 +1639,7 @@ function focusComplete(){if(!focusTask)return;const o=get(focusTask.id);o.cnt=(o
 function focusSkip(){if(!focusTask)return;focusSkipped.add(focusTask.id);focusNext();}
 function showFocusTimeup(){focusSetRun(false);const m=document.getElementById("focusModalMsg");if(m&&focusTask)m.textContent="「"+focusTask.q+"」的建议用时 "+focusMinFor(focusTask)+" 分钟已到（计时已暂停）。可以继续复习这一题、进入下一题，或停止。";document.getElementById("focusModal").classList.add("show");}
 function jumpToFocusItem(){if(!focusOn||!focusTask)return;soloId=focusTask.id;openIds.add(soloId);
-  const wantMode=focusTask.isAlg?"alg":"gu";if(mode!==wantMode){mode=wantMode;localStorage.setItem("mode_v1",mode);applyMode();}
+  const wantMode=focusTask.isAlg?"alg":(focusTask.isProj?"proj":"gu");if(mode!==wantMode){mode=wantMode;localStorage.setItem("mode_v1",mode);applyMode();}
   secFilter="all";lvlFilter="all";diffFilter="all";starOnly=false;pickedDate="";dateFilter="solo";
   buildFilters();
   document.querySelectorAll('[data-lvl]').forEach(x=>x.classList.toggle("active",x.dataset.lvl==="all"));
