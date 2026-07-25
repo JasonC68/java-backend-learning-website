@@ -638,7 +638,7 @@ html = '''<!DOCTYPE html>
 <title>秋招必背打卡表 · 云同步</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;background:#f5f6f8;color:#1f2937;padding:16px;max-width:1100px;margin:0 auto}
+body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;background:#f5f6f8;color:#1f2937;padding:16px 28px;max-width:1360px;margin:0 auto}
 h1{font-size:20px}
 .row1{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .sub{color:#6b7280;font-size:13px;margin:4px 0 12px}
@@ -1110,7 +1110,7 @@ body.dark.algmode .cal-quick button{background:#1e1633;border-color:#3b2a5e;colo
 body.algmode td.date:hover{background:#f3edfb}
 body.dark.algmode td.date:hover{background:#2c2540}
 /* ===== 项目模式主题色：粉红（有语义的颜色不变）===== */
-body.projmode th{background:#c14d80}
+body.projmode th{background:#cf3f83}
 body.dark.projmode th{background:#7a2f52}
 body.projmode .est .esttot{color:#db2777}
 body.dark.projmode .est .esttot{color:#f9a8d4}
@@ -1179,7 +1179,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.0.0.0</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.0.0.2</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -2029,7 +2029,7 @@ if(window.matchMedia)try{matchMedia("(prefers-color-scheme: dark)").addEventList
 applyTheme();
 document.getElementById("cfYes").onclick=()=>{document.getElementById("cfModal").classList.remove("show");const f=cfCb;cfCb=null;if(f)f();};
 document.getElementById("cfNo").onclick=()=>{document.getElementById("cfModal").classList.remove("show");cfCb=null;};
-function applyMode(){document.querySelectorAll("#modeSw button").forEach(b=>b.classList.toggle("on",b.dataset.mode===mode));document.body.classList.toggle("algmode",mode==="alg");document.body.classList.toggle("projmode",mode==="proj");document.getElementById("filters").style.display=mode==="alg"?"none":"";document.getElementById("diffBar").style.display=mode==="alg"?"":"none";render();}
+function applyMode(){document.querySelectorAll("#modeSw button").forEach(b=>b.classList.toggle("on",b.dataset.mode===mode));document.body.classList.toggle("algmode",mode==="alg");document.body.classList.toggle("projmode",mode==="proj");document.getElementById("filters").style.display=mode==="alg"?"none":"";document.getElementById("diffBar").style.display=mode==="alg"?"":"none";secFilter="all";buildFilters();render();}
 document.querySelectorAll("#modeSw button").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;localStorage.setItem("mode_v1",mode);applyMode();});
 loadStuck();buildFilters();applyMode();
 restoreFocusUI();
