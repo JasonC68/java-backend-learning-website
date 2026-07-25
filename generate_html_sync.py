@@ -736,8 +736,8 @@ td.date input[type=date]{width:108px;box-sizing:border-box;font-size:12px;paddin
 .cal-day.sel{background:#2563eb;color:#fff}
 .cal-day .dot{position:absolute;left:50%;transform:translateX(-50%);bottom:2px;width:5px;height:5px;border-radius:50%;background:#dc2626}
 .cal-day.sel .dot{background:#fff}
-.cal-quick{display:flex;gap:4px;margin-top:8px}
-.cal-quick button{flex:1;font-size:11px;border:1px solid #93c5fd;background:#eff6ff;color:#2563eb;border-radius:6px;padding:4px 0;cursor:pointer}
+.cal-quick{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.cal-quick button{flex:1 1 30%;font-size:11px;border:1px solid #93c5fd;background:#eff6ff;color:#2563eb;border-radius:6px;padding:4px 0;cursor:pointer}
 .cal-quick button:hover{background:#dbeafe}
 body.dark .cal-quick button{background:#1e293b;border-color:#3a3a3a;color:#93c5fd}
 .cal-foot{display:flex;justify-content:space-between;gap:4px;margin-top:8px}
@@ -1051,6 +1051,16 @@ body.algmode .bk-item .rb{color:#7c3aed;border-color:#c4b5fd}
 body.dark.algmode .bk-item .rb{color:#d4d4d4;border-color:#3a3a3a}
 body.algmode .qbtn:hover{color:#7c3aed}
 body.dark.algmode .qbtn:hover{color:#a78bfa}
+body.algmode .cal-day.sel{background:#7c3aed}
+body.dark.algmode .cal-day.sel{background:#7a3fe0}
+body.algmode .cal-day.today{outline-color:#c4b5fd}
+body.algmode .cal-day:hover{background:#f3edfb}
+body.dark.algmode .cal-day:hover{background:#241b3a}
+body.algmode .cal-quick button{border-color:#c4b5fd;background:#f5f3ff;color:#7c3aed}
+body.algmode .cal-quick button:hover{background:#ede9fe}
+body.dark.algmode .cal-quick button{background:#1e1633;border-color:#3b2a5e;color:#c4b5fd}
+body.algmode td.date:hover{background:#f3edfb}
+body.dark.algmode td.date:hover{background:#2c2540}
 body.algmode .pill.busy,body.dark.algmode .pill.busy{background:#ede9fe;color:#5b21b6}
 .ProseMirror:focus{outline:none}
 .ProseMirror>:first-child{margin-top:0}
@@ -1077,7 +1087,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.8.7</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.8.8</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1406,7 +1416,7 @@ function renderCal(){
   for(let d=1;d<=days;d++){const iso=isoOf(new Date(y,m,d));
     html+='<div class="cal-day'+(iso===todayIso()?" today":"")+(iso===sel?" sel":"")+'" data-iso="'+iso+'">'+d+(sset.has(iso)?'<span class="dot"></span>':'')+'</div>';}
   html+='</div>';
-  if(calCtx&&calCtx.quick)html+='<div class="cal-quick">'+calCtx.quick.map(n=>'<button data-q="'+n+'">延后'+n+'天</button>').join('')+'</div>';
+  if(calCtx&&calCtx.quick)html+='<div class="cal-quick">'+calCtx.quick.map(n=>'<button data-q="'+n+'">'+(n<0?"提前"+(-n):"延后"+n)+'天</button>').join('')+'</div>';
   html+='<div class="cal-foot"><button id="calToday">今天</button>'+((calCtx&&calCtx.onNone)?'<button id="calNone">'+(calCtx.noneLabel||"清空日期")+'</button>':'')+((calCtx&&calCtx.onClear)?'<button id="calClear">'+(calCtx.clearLabel||"清除")+'</button>':'<span></span>')+'</div>';
   calBox.innerHTML=html;
   calBox.querySelector("#calPrev").onclick=e=>{e.stopPropagation();calRef=new Date(y,m-1,1);renderCal();};
@@ -1661,7 +1671,7 @@ function renderAlg(tb){
     tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNextAlg(st.cnt,it.idx);save();render();if(focusOn&&focusTask&&focusTask.id===it.id){toast("✓ 已完成，下一题");focusNext();}};
     tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNextAlg(st.cnt,it.idx);else delete st.next;}save();render();};
     const rv=tr.querySelector(".revdate");
-    if(rv)rv.onclick=e=>{e.stopPropagation();openCal(rv,{selected:st.next,dot:false,clearLabel:"移出复习",quick:[3,7,14],
+    if(rv)rv.onclick=e=>{e.stopPropagation();openCal(rv,{selected:st.next,dot:false,clearLabel:"移出复习",quick:[-1,-3,-5,3,7,14],
       onPick:iso=>{st.next=iso;save();render();},
       onClear:()=>{delete st.next;save();render();},
       onQuick:n=>{st.next=addDays(st.next||todayIso(),n);save();render();}});};
@@ -1752,7 +1762,7 @@ function render(){const tb=document.getElementById("tb");
         onNone:()=>{get(it.id).date="none";save();render();},
         onClear:()=>{delete get(it.id).date;save();render();}});};
       const rv=tr.querySelector(".revdate");
-      if(rv)rv.onclick=e=>{e.stopPropagation();openCal(rv,{selected:st.next,dot:false,clearLabel:"移出复习",quick:[3,7,14],
+      if(rv)rv.onclick=e=>{e.stopPropagation();openCal(rv,{selected:st.next,dot:false,clearLabel:"移出复习",quick:[-1,-3,-5,3,7,14],
         onPick:iso=>{st.next=iso;save();render();},
         onClear:()=>{delete st.next;save();render();},
         onQuick:n=>{st.next=addDays(st.next||todayIso(),n);save();render();}});};
