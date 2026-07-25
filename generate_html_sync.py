@@ -549,6 +549,48 @@ assert len(ALG_SLUG)==100
 alg_items=[{"id":"alg"+str(i),"idx":i+1,"num":n,"q":t,"tag":g,"lv":ALG_LV[i],"slug":ALG_SLUG[i],"iso":(ALG_START+timedelta(days=i*30//100)).isoformat()} for i,(n,t,g) in enumerate(ALG_RAW)]
 ALGJS=json.dumps(alg_items,ensure_ascii=False)
 
+# ===== 项目模块（主题色粉红）：每个项目一个板块，按顺序每天约 3 题 =====
+PROJ_START = date(2026,7,25); PROJ_PER_DAY = 3
+proj_data = {
+ "AutoOps OnCall Agent": [
+  "整体介绍一下这个 OnCall Agent 项目：解决什么痛点、核心能力、整体架构是怎样的？",
+  "为什么用 Spring AI Alibaba？相比自己直接调 LLM API 或用 LangChain4j 有什么取舍？",
+  "三类 Agent（Knowledge Index、Chat ReAct、Plan-Execute-Replan）各自职责是什么？为什么这样划分？",
+  "「以图编排组织工作流」具体是怎么做的？图编排相比顺序调用解决了什么问题？",
+  "技术栈里 Milvus / MySQL / Redis / MCP / SSE 各自承担什么角色？",
+  "日志查询、Prometheus 指标、内部文档检索是怎么封装成标准化 Tool 的？一个 Tool 的定义包含哪些要素？",
+  "LLM 如何自主完成工具选择、参数解析与组合调用？Function Calling 的底层原理是什么？",
+  "为什么用 MCP 协议接入外部工具？MCP 和 Function Calling 的区别与关系是什么？",
+  "工具调用失败 / 超时 / 返回异常时怎么处理？如何保证 Agent 整体的健壮性？",
+  "RAG 知识库的完整链路（文档切分 → Embedding → Milvus 入库 → Top-K 召回）讲一下？",
+  "文档分块（chunk）大小怎么定？过大过小分别有什么问题？你是怎么做对比实验的？",
+  "TopK 怎么选？过大过小的影响？「检索准确率 85%+」是怎么定义和测出来的？",
+  "Embedding 模型怎么选？向量库为什么选 Milvus（相比 pgvector / Faiss / ES 等）？",
+  "如何缓解 RAG 幻觉 / 召回不准？有没有做 rerank、多路召回、Query 改写？",
+  "知识库如何持续 / 增量更新？文档变更后怎么保证向量库同步？",
+  "ReAct 是什么？在多轮对话 Agent 里是怎么落地实现的？",
+  "「最近 N 轮原文 + 历史摘要」机制怎么设计的？为什么能把 Token 使用率降 60%？N 怎么定？",
+  "历史摘要是什么时候触发、怎么生成的？摘要丢失关键信息怎么办？",
+  "会话记忆按用户 ID 隔离，具体用什么结构存（Redis）？并发下的「串话」是怎么避免的？",
+  "SSE 流式输出怎么实现的？为什么能掩盖首 Token 延迟？SSE 和 WebSocket 怎么选？",
+  "Plan-Execute-Replan 是什么？和 ReAct 的区别？为什么运维排障用这个模式而不是 ReAct？",
+  "AIOps 排障闭环（告警接入 → 知识检索 → 步骤规划 → 工具取证 → 结果分析 → 生成建议）每一步怎么落地？",
+  "Replan（重规划）在什么情况下触发？怎么判断当前计划需要调整？",
+  "「故障响应时间由小时级降到分钟级」是怎么量化 / 验证的？",
+  "这个项目你觉得最大的难点是什么？你是怎么解决的？",
+  "LLM 输出不稳定（幻觉、格式错误）时如何兜底？（结构化输出 / 校验 / 重试）",
+  "Token 成本是怎么控制的？（上下文压缩、模型选型、Prompt Caching 等）",
+  "如果让你重做这个项目，你会怎么改进？还有哪些没做完 / 可优化的地方？",
+ ],
+}
+proj_items=[]; _pid=0
+for _sec,_qs in proj_data.items():
+    for _i,_q in enumerate(_qs,1):
+        _d=PROJ_START+timedelta(days=_pid//PROJ_PER_DAY)
+        proj_items.append({"id":"proj"+str(_pid),"sec":_sec,"idx":_i,"q":_q,"date":fmt_d(_d),"iso":_d.isoformat(),"anc":"","jg":"","tags":[]})
+        _pid+=1
+PROJJS=json.dumps(proj_items,ensure_ascii=False); PROJSEC=json.dumps(list(proj_data.keys()),ensure_ascii=False)
+
 # ===== 内联 SVG 图标（单色、跟随 currentColor，离线自包含，替代所有 emoji）=====
 def _svg(inner, solid=False):
     a='fill="currentColor" stroke="none"' if solid else 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'
@@ -617,10 +659,12 @@ h1{font-size:20px}
 .est .estseg b{font-weight:400;color:#374151}
 .est .estsub{color:#9ca3af;font-size:12px}
 /* 每个板块只在自己的页面显示主题色，在对方页面为灰白色 */
-body:not(.algmode) .est .estseg.gu{background:#eff6ff;border-color:#dbeafe}
-body:not(.algmode) .est .estseg.gu .estname{color:#1d4ed8}
+body:not(.algmode):not(.projmode) .est .estseg.gu{background:#eff6ff;border-color:#dbeafe}
+body:not(.algmode):not(.projmode) .est .estseg.gu .estname{color:#1d4ed8}
 body.algmode .est .estseg.alg{background:#f5f3ff;border-color:#e9d5ff}
 body.algmode .est .estseg.alg .estname{color:#7c3aed}
+body.projmode .est .estseg.proj{background:#fdf2f8;border-color:#fbcfe8}
+body.projmode .est .estseg.proj .estname{color:#db2777}
 .est .esttot{font-weight:600;color:#2563eb;white-space:nowrap}
 .est.none{color:#16a34a}
 .ic{width:1em;height:1em;display:inline-block;vertical-align:-0.14em;flex:none}
@@ -963,10 +1007,12 @@ body.dark .est{color:#d4d4d4}
 body.dark .est .estseg{background:#262626;border-color:#3a3a3a}
 body.dark .est .estseg .estname{color:#9ca3af}
 body.dark .est .estseg b{color:#d4d4d4}
-body.dark:not(.algmode) .est .estseg.gu{background:#172033;border-color:#254264}
-body.dark:not(.algmode) .est .estseg.gu .estname{color:#93c5fd}
+body.dark:not(.algmode):not(.projmode) .est .estseg.gu{background:#172033;border-color:#254264}
+body.dark:not(.algmode):not(.projmode) .est .estseg.gu .estname{color:#93c5fd}
 body.dark.algmode .est .estseg.alg{background:#1e1633;border-color:#3b2a5e}
 body.dark.algmode .est .estseg.alg .estname{color:#c4b5fd}
+body.dark.projmode .est .estseg.proj{background:#2a1522;border-color:#5f2640}
+body.dark.projmode .est .estseg.proj .estname{color:#f472b6}
 body.dark .est .esttot{color:#60a5fa}
 body.dark .est.none{color:#4ade80}
 body.dark .pill{background:#3a3a3a;color:#d4d4d4}
@@ -1025,10 +1071,12 @@ body.dark .theme button.on{background:#2563eb;color:#fff}
 /* ===== 算法模式主题色：蓝 -> 紫（掌握度/难度/专注/学习等有语义的颜色不变）。放在暗色规则之后以覆盖平局 ===== */
 body.algmode th{background:#6d4bc4}
 body.dark.algmode th{background:#573f96}
-body:not(.algmode) .timer{border-color:#93c5fd}
-body.dark:not(.algmode) .timer{border-color:#365a9e}
+body:not(.algmode):not(.projmode) .timer{border-color:#93c5fd}
+body.dark:not(.algmode):not(.projmode) .timer{border-color:#365a9e}
 body.algmode .timer{border-color:#c4b5fd}
 body.dark.algmode .timer{border-color:#57419e}
+body.projmode .timer{border-color:#f9a8d4}
+body.dark.projmode .timer{border-color:#7a3556}
 body.algmode .est .esttot{color:#7c3aed}
 body.dark.algmode .est .esttot{color:#a78bfa}
 body.algmode tr.sec-row td{background:#f3edfb;color:#5b21b6}
@@ -1061,6 +1109,50 @@ body.algmode .cal-quick button:hover{background:#ede9fe}
 body.dark.algmode .cal-quick button{background:#1e1633;border-color:#3b2a5e;color:#c4b5fd}
 body.algmode td.date:hover{background:#f3edfb}
 body.dark.algmode td.date:hover{background:#2c2540}
+/* ===== 项目模式主题色：粉红（有语义的颜色不变）===== */
+body.projmode th{background:#c14d80}
+body.dark.projmode th{background:#7a2f52}
+body.projmode .est .esttot{color:#db2777}
+body.dark.projmode .est .esttot{color:#f9a8d4}
+body.projmode tr.sec-row td{background:#fdf2f8;color:#9d174d}
+body.dark.projmode tr.sec-row td{background:#2c1520;color:#f9a8d4}
+body.projmode .chip.active{background:#db2777;color:#fff;border-color:#db2777}
+body.dark.projmode .chip.active{background:#ec4899;border-color:#ec4899}
+body.projmode .theme button.on{background:#db2777;color:#fff}
+body.dark.projmode .theme button.on{background:#ec4899}
+body.projmode .toolbar .btn.pri,body.projmode #bkModal .btn.pri,body.projmode #modal .btn.pri,body.projmode #cfModal .btn.pri{background:#db2777;border-color:#db2777;color:#fff}
+body.dark.projmode .toolbar .btn.pri,body.dark.projmode #bkModal .btn.pri,body.dark.projmode #modal .btn.pri,body.dark.projmode #cfModal .btn.pri{background:#ec4899;border-color:#ec4899}
+body.projmode .toolbar .btn.pri:hover,body.projmode #bkModal .btn.pri:hover,body.projmode #modal .btn.pri:hover,body.projmode #cfModal .btn.pri:hover{background:#be185d;border-color:#be185d}
+body.dark.projmode .toolbar .btn.pri:hover,body.dark.projmode #bkModal .btn.pri:hover,body.dark.projmode #modal .btn.pri:hover,body.dark.projmode #cfModal .btn.pri:hover{background:#db2777;border-color:#db2777}
+body.projmode .timer button.on{background:#db2777;border-color:#db2777}
+body.dark.projmode .timer button.on{background:#ec4899;border-color:#ec4899}
+body.projmode .tag{color:#9d174d;background:#fdf2f8;border-color:#fbcfe8}
+body.dark.projmode .tag{color:#f9a8d4;background:#262626;border-color:#3a3a3a}
+body.projmode .tag.lc:hover{background:#db2777;color:#fff;border-color:#db2777}
+body.dark.projmode .tag.lc:hover{background:#ec4899;border-color:#ec4899}
+body.projmode .bk-item .rb{color:#db2777;border-color:#fbcfe8}
+body.dark.projmode .bk-item .rb{color:#d4d4d4;border-color:#3a3a3a}
+body.projmode .qbtn:hover{color:#db2777}
+body.dark.projmode .qbtn:hover{color:#f472b6}
+body.projmode .learnwrap{background:#fdf2f8;border-color:#fbcfe8}
+body.projmode .learn-folded{color:#db2777}
+body.dark.projmode .learnwrap{background:#2a1522;border-color:#5f2640}
+body.dark.projmode .learn-folded{color:#f9a8d4}
+body.projmode .blkadd button{border-color:#fbcfe8;color:#db2777}
+body.projmode .blkadd button:hover{background:#fdf2f8}
+body.dark.projmode .blkadd button{border-color:#5f2640;color:#f9a8d4}
+body.dark.projmode .blkadd button:hover{background:#2a1522}
+body.projmode .cal-day.sel{background:#db2777}
+body.dark.projmode .cal-day.sel{background:#ec4899}
+body.projmode .cal-day.today{outline-color:#fbcfe8}
+body.projmode .cal-day:hover{background:#fdf2f8}
+body.dark.projmode .cal-day:hover{background:#2a1522}
+body.projmode .cal-quick button{border-color:#fbcfe8;background:#fdf2f8;color:#db2777}
+body.projmode .cal-quick button:hover{background:#fce7f3}
+body.dark.projmode .cal-quick button{background:#2a1522;border-color:#5f2640;color:#f9a8d4}
+body.projmode td.date:hover{background:#fdf2f8}
+body.dark.projmode td.date:hover{background:#2c1520}
+body.projmode #focusBtn{border-color:#db2777}
 body.algmode .pill.busy,body.dark.algmode .pill.busy{background:#ede9fe;color:#5b21b6}
 .ProseMirror:focus{outline:none}
 .ProseMirror>:first-child{margin-top:0}
@@ -1086,8 +1178,8 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__PM_JS__</script>
 <script>__HL_JS__</script>
 </head><body>
-<div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.8.8</span></div>
+<div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
+<div class="sub"><span style="color:#9ca3af">v3.0.0.0</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1200,7 +1292,11 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   </div>
 </div></div>
 <script>
-const ITEMS=__ITEMS__, SECTIONS=__SEC__, ALG=__ALG__;
+const ITEMS=__ITEMS__, SECTIONS=__SEC__, ALG=__ALG__, PROJ=__PROJ__, PROJSEC=__PROJSEC__;
+function activeItems(){return mode==="proj"?PROJ:ITEMS;}
+function activeSections(){return mode==="proj"?PROJSEC:SECTIONS;}
+function activeCustom(){const secs=activeSections();return customList().filter(c=>secs.indexOf(c.sec)>=0);}
+function findBuiltin(id){return ITEMS.find(x=>x.id===id)||PROJ.find(x=>x.id===id)||null;}
 const IC=@@IC_JSON@@;
 const KEY="review_tracker_v2", CFGKEY="sync_cfg_v1";
 const LVLS=["未开始","眼熟","能讲框架","能扛追问"];
@@ -1398,13 +1494,13 @@ async function pull(force){if(restoring)return;if(!cfg){toast("请先配置云�
   clearRetry();setPill("已拉取 "+nowt(),"ok");}catch(e){setPill("拉取失败，10秒后重试","warn");scheduleRetry();}}
 function buildFilters(){const f=document.getElementById("filters");f.innerHTML='<span style="font-size:12px;color:#6b7280">板块：</span>';
   const mk=(t,v)=>{const s=document.createElement("span");s.className="chip"+(v===secFilter?" active":"");s.textContent=t;s.onclick=()=>{secFilter=v;buildFilters();render();};return s;};
-  f.appendChild(mk("全部","all"));SECTIONS.forEach(s=>f.appendChild(mk(s,s)));}
+  f.appendChild(mk("全部","all"));activeSections().forEach(s=>f.appendChild(mk(s,s)));}
 document.querySelectorAll('[data-lvl]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-lvl]').forEach(x=>x.classList.remove("active"));c.classList.add("active");lvlFilter=c.dataset.lvl;render();});
 document.querySelectorAll('[data-diff]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-diff]').forEach(x=>x.classList.remove("active"));c.classList.add("active");diffFilter=c.dataset.diff;render();});
 const pickBtn=document.getElementById("pickBtn"),calBox=document.getElementById("cal");
 let calRef=new Date(),calCtx=null;
 function updatePickBtn(){pickBtn.innerHTML=IC.calendar+(pickedDate?(" "+pickedDate.slice(5)):" 选择日期");}
-function studyDateSet(){const s=new Set();const add=(id,baseIso)=>{const d=realDate(get(id),baseIso);if(d)s.add(d);};if(mode==="alg"){ALG.forEach(it=>add(it.id,it.iso));return s;}ITEMS.forEach(it=>add(it.id,it.iso));customList().forEach(c=>add(c.id,""));return s;}
+function studyDateSet(){const s=new Set();const add=(id,baseIso)=>{const d=realDate(get(id),baseIso);if(d)s.add(d);};if(mode==="alg"){ALG.forEach(it=>add(it.id,it.iso));return s;}activeItems().forEach(it=>add(it.id,it.iso));activeCustom().forEach(c=>add(c.id,""));return s;}
 function renderCal(){
   const sset=(calCtx&&calCtx.dot)?studyDateSet():new Set();
   const sel=calCtx?calCtx.selected:"";
@@ -1485,7 +1581,7 @@ function focusQueue(m){m=m||mode;const ti=todayIso();const rev=[],neu=[];
     if(studyDue)neu.push({id:id,kind:"new",isAlg:isAlg,q:q,sec:sec,idx:idx});
     else if(reviewDue)rev.push({id:id,kind:"review",isAlg:isAlg,q:q,sec:sec,idx:idx});};
   if(m==="alg"){ALG.forEach(it=>push(it.id,it.iso,true,qText(it),"算法",it.idx));}
-  else{ITEMS.forEach(it=>push(it.id,it.iso,false,qText(it),it.sec));customList().forEach(c=>push(c.id,"",false,qText(c),c.sec));}
+  else{const its=m==="proj"?PROJ:ITEMS,secs=m==="proj"?PROJSEC:SECTIONS;its.forEach(it=>push(it.id,it.iso,false,qText(it),it.sec));customList().filter(c=>secs.indexOf(c.sec)>=0).forEach(c=>push(c.id,"",false,qText(c),c.sec));}
   return rev.concat(neu);}   // 复习优先，再新学
 function renderFocus(){if(!focusOn||!focusTask)return;const el=document.getElementById("focusDisp");if(!el)return;
   const elapsed=focusMs(),allot=focusMinFor(focusTask)*60000;
@@ -1506,7 +1602,7 @@ function loadFocusTask(t){focusTask=t;focusStartMs=Date.now();focusElapsed=0;foc
   if(dateFilter==="solo"){soloId=t.id;openIds.add(t.id);render();}}
 // 列表里全部题目的顺序（用于「从当前位置往下」找下一题）
 function focusOrderIndex(){const ids=[];if(focusMode==="alg"){ALG.forEach(it=>ids.push(it.id));}
-  else{const map=sectionMap();SECTIONS.forEach(s=>{(map[s]||[]).forEach(it=>ids.push(it.id));});}
+  else{const map=sectionMap(),secs=focusMode==="proj"?PROJSEC:SECTIONS;secs.forEach(s=>{(map[s]||[]).forEach(it=>ids.push(it.id));});}
   const pos={};ids.forEach((id,i)=>pos[id]=i);return pos;}
 function focusNext(){
   const pos=focusOrderIndex();
@@ -1521,7 +1617,7 @@ function focusNext(){
   focusPos=nx._p;loadFocusTask(nx);}
 // 取某一题的元信息（用于「从这题开始专注」的第一题，允许不在今日队列里）
 function focusMetaOf(id,kind){if(mode==="alg"){const it=ALG.find(x=>x.id===id);if(!it)return null;return {id:id,kind:kind,isAlg:true,q:qText(it),sec:"算法",idx:it.idx};}
-  const it=ITEMS.find(x=>x.id===id);if(it)return {id:id,kind:kind,isAlg:false,q:qText(it),sec:it.sec};
+  const it=findBuiltin(id);if(it)return {id:id,kind:kind,isAlg:false,q:qText(it),sec:it.sec};
   const c=customList().find(x=>x.id===id);if(c)return {id:id,kind:kind,isAlg:false,q:qText(c),sec:c.sec};return null;}
 // 从某一题开始专注：这题作为第一题，之后按「今日应复习/学习」的队列顺序跳转（可能跨板块）
 function focusFromItem(id){
@@ -1568,38 +1664,42 @@ document.getElementById("focusStop").onclick=endFocus;
 document.getElementById("focusStopBtn").onclick=endFocus;
 document.getElementById("focusStayBtn").onclick=()=>{document.getElementById("focusModal").classList.remove("show");focusSetRun(true);};
 document.getElementById("focusNextBtn").onclick=()=>{document.getElementById("focusModal").classList.remove("show");focusComplete();};
-function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=realDate(o,baseIso);const rd=!!o.next&&o.next<=ti;if(d&&d>ti){if(rd)n++;return;}const sd=!!d&&d<=ti&&!(o.cnt>0);if(sd||rd)n++;};if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return n;}ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return n;}
+function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=realDate(o,baseIso);const rd=!!o.next&&o.next<=ti;if(d&&d>ti){if(rd)n++;return;}const sd=!!d&&d<=ti&&!(o.cnt>0);if(sd||rd)n++;};if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return n;}activeItems().forEach(it=>chk(it.id,it.iso));activeCustom().forEach(c=>chk(c.id,""));return n;}
 // 今天该做但还没开始（未点过加号 / 复习到期未做）→ 显示红点
 function isTodoToday(it){const o=get(it.id);if(o.del||o.purged)return false;const ti=todayIso();const d=realDate(o,it.baseIso);const rd=!!o.next&&o.next<=ti;if(d&&d>ti)return rd;const sd=!!d&&d<=ti&&!(o.cnt>0);return sd||rd;}
 // ---- 今日剩余任务估时（八股/算法 · 新学/复习 分类，跨两个模式统计）----
-const EST_MIN={guNew:10,guRev:4,algNew:25,algRev:10};   // 单题分钟数
-function taskBreakdown(){const ti=todayIso();const b={guNew:0,guRev:0,algNew:0,algRev:0};
-  const chk=(id,baseIso,isAlg)=>{const o=get(id);if(o.del||o.purged)return;
+const EST_MIN={guNew:10,guRev:4,algNew:25,algRev:10,projNew:10,projRev:4};   // 单题分钟数
+function taskBreakdown(){const ti=todayIso();const b={guNew:0,guRev:0,algNew:0,algRev:0,projNew:0,projRev:0};
+  const chk=(id,baseIso,k)=>{const o=get(id);if(o.del||o.purged)return;
     const d=realDate(o,baseIso);const rd=!!o.next&&o.next<=ti;
-    if(d&&d>ti){if(rd){if(isAlg)b.algRev++;else b.guRev++;}return;}
+    if(d&&d>ti){if(rd)b[k+"Rev"]++;return;}
     const sd=!!d&&d<=ti&&!(o.cnt>0);
-    if(sd){if(isAlg)b.algNew++;else b.guNew++;}
-    else if(rd){if(isAlg)b.algRev++;else b.guRev++;}};
-  ITEMS.forEach(it=>chk(it.id,it.iso,false));customList().forEach(c=>chk(c.id,"",false));
-  ALG.forEach(it=>chk(it.id,it.iso,true));return b;}
+    if(sd)b[k+"New"]++;else if(rd)b[k+"Rev"]++;};
+  ITEMS.forEach(it=>chk(it.id,it.iso,"gu"));
+  ALG.forEach(it=>chk(it.id,it.iso,"alg"));
+  PROJ.forEach(it=>chk(it.id,it.iso,"proj"));
+  customList().forEach(c=>chk(c.id,"",PROJSEC.indexOf(c.sec)>=0?"proj":"gu"));   // 自建题按板块归到八股或项目
+  return b;}
 function fmtDur(m){m=Math.round(m);if(m<=0)return "0 分钟";const h=Math.floor(m/60),mm=m%60;return (h?h+" 小时":"")+(h&&mm?" ":"")+(mm?mm+" 分钟":"");}
 function updateEstimate(){const el=document.getElementById("estLine");if(!el)return;
   const b=taskBreakdown();
   const guMin=b.guNew*EST_MIN.guNew+b.guRev*EST_MIN.guRev;
   const algMin=b.algNew*EST_MIN.algNew+b.algRev*EST_MIN.algRev;
-  const total=guMin+algMin;
+  const projMin=b.projNew*EST_MIN.projNew+b.projRev*EST_MIN.projRev;
+  const total=guMin+algMin+projMin;
   if(total<=0){el.className="est none";el.innerHTML=IC.checkcircle+" 今日任务已全部完成，休息一下";return;}
   el.className="est";
   el.innerHTML="<span class='estlabel' title='完成今日剩余任务还需'>"+IC.stopwatch+"</span>"
     +"<button class='estseg gu' data-m='gu' title='切到八股'><span class='estname'>八股</span><b>"+fmtDur(guMin)+"</b><span class='estsub'>新学"+b.guNew+"·复习"+b.guRev+"</span></button>"
     +"<button class='estseg alg' data-m='alg' title='切到算法'><span class='estname'>算法</span><b>"+fmtDur(algMin)+"</b><span class='estsub'>新学"+b.algNew+"·复习"+b.algRev+"</span></button>"
+    +"<button class='estseg proj' data-m='proj' title='切到项目'><span class='estname'>项目</span><b>"+fmtDur(projMin)+"</b><span class='estsub'>新学"+b.projNew+"·复习"+b.projRev+"</span></button>"
     +"<span class='esttot'>合计 "+fmtDur(total)+"</span>";
   el.querySelectorAll(".estseg[data-m]").forEach(s=>s.onclick=()=>{const m=s.dataset.m;if(m!==mode){mode=m;localStorage.setItem("mode_v1",mode);applyMode();}});}
 function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="solo")return it.id===soloId||it.parent===soloId;if(dateFilter==="todayall"){const ti=todayIso();const o=get(it.id);const d=itemDate(it);const reviewDue=!!o.next&&o.next<=ti;if(d&&d>ti)return reviewDue;const studyDue=!!d&&d<=ti&&!(o.cnt>0);const doneToday=o.last===today();return studyDue||reviewDue||doneToday;}if(dateFilter==="review"){const nx=get(it.id).next;return !!nx&&nx<=todayIso();}if(dateFilter==="pick"){const d=itemDate(it),nx=get(it.id).next;return d===pickedDate||nx===pickedDate;}const d=itemDate(it);if(!d)return false;return d===(dateFilter==="today"?todayIso():tomorrowIso());}
 function customList(){return state.__custom||(state.__custom=[]);}
-function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
-  ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso,tags:it.tags,anc:it.anc,jg:it.jg});});
-  customList().forEach(c=>{let xl="",jg;if((c.sub||c.supp)&&c.parent!==undefined){const p=ITEMS.find(x=>x.id===c.parent);if(p){xl=xlLink(p.sec,p.tags,p.anc)||"";jg=p.jg;}}   // 子问题/补充的小林/JavaGuide 链接跟父问题一致（父问题没有则没有）
+function sectionMap(){const map={};const asecs=activeSections();asecs.forEach(s=>map[s]=[]);
+  activeItems().forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso,tags:it.tags,anc:it.anc,jg:it.jg});});
+  activeCustom().forEach(c=>{let xl="",jg;if((c.sub||c.supp)&&c.parent!==undefined){const p=findBuiltin(c.parent);if(p){xl=xlLink(p.sec,p.tags,p.anc)||"";jg=p.jg;}}   // 子问题/补充的小林/JavaGuide 链接跟父问题一致（父问题没有则没有）
     (map[c.sec]||(map[c.sec]=[])).push({id:c.id,sec:c.sec,q:c.q,baseIso:"",custom:true,sub:c.sub,supp:c.supp,parent:c.parent,tags:[],xl:xl,jg:jg});});
   Object.keys(map).forEach(s=>{const ord=state.__order&&state.__order[s];
     if(ord&&ord.length){const pos={};ord.forEach((id,i)=>pos[id]=i);map[s].sort((a,b)=>((pos[a.id]!==undefined?pos[a.id]:1e9)-(pos[b.id]!==undefined?pos[b.id]:1e9)));}
@@ -1622,7 +1722,7 @@ function wireQClick(qb,it,tr){let ct=null;
 // 在某题下方加一个「子问题」（自建题，绿色标签），排到该题已有子问题的最后、进入编辑态
 // kind="sub"（子问题，绿色，日期同父）或 "supp"（补充，粉色，日期留空）；都排到父问题所有子/补充的最后
 function addChild(parentId,sec,kind){const id="c_"+Date.now();const item={id:id,sec:sec,q:kind==="supp"?"补充问题":"子问题",parent:parentId};item[kind]=true;customList().push(item);
-  if(kind==="sub"){const p=ITEMS.find(x=>x.id===parentId);const pdate=realDate(get(parentId),p?p.iso:"");if(pdate)get(id).date=pdate;}   // 子问题日期与父一致；补充留空
+  if(kind==="sub"){const p=findBuiltin(parentId);const pdate=realDate(get(parentId),p?p.iso:"");if(pdate)get(id).date=pdate;}   // 子问题日期与父一致；补充留空
   let ids=(sectionMap()[sec]||[]).map(x=>x.id).filter(x=>x!==id);
   const childOf=cid=>{const c=customList().find(x=>x.id===cid);return !!(c&&c.parent===parentId);};
   let j=ids.indexOf(parentId);if(j<0)j=ids.length-1;while(j+1<ids.length&&childOf(ids[j+1]))j++;   // 跳过已有的子问题/补充，插到最后
@@ -1820,7 +1920,7 @@ function render(){const tb=document.getElementById("tb");
         inp.onkeydown=e=>{if(e.key==="Enter")add();if(e.key==="Escape")render();};};
       ar.appendChild(td);tb.appendChild(ar);}
   });
-  let base=[];SECTIONS.forEach(s=>base=base.concat((map[s]||[]).filter(it=>!isDeleted(it.id)&&!isPurged(it.id))));
+  let base=[];activeSections().forEach(s=>base=base.concat((map[s]||[]).filter(it=>!isDeleted(it.id)&&!isPurged(it.id))));
   let done=0,fam=0;base.forEach(it=>{const l=get(it.id).lvl;if(l>=2)done++;else if(l==1)fam++;});
   const tot=base.length,pct=tot?Math.round(done/tot*100):0,fpct=tot?Math.round(fam/tot*100):0;
   document.getElementById("pbar").style.width=pct+"%";
@@ -1863,7 +1963,7 @@ function renderBackups(){const a=loadBackups(),box=document.getElementById("bkLi
 function todayTaskItems(){const ti=todayIso();const res=[];
   const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=realDate(o,baseIso);if(d&&d>ti)return;const reviewDue=!!o.next&&o.next<=ti;const studyDue=!!d&&d<=ti&&!(o.cnt>0);if(studyDue||reviewDue)res.push({id:id,reviewDue:reviewDue,when:reviewDue?o.next:d});};
   if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return res;}
-  ITEMS.forEach(it=>chk(it.id,it.iso));customList().forEach(c=>chk(c.id,""));return res;}
+  activeItems().forEach(it=>chk(it.id,it.iso));activeCustom().forEach(c=>chk(c.id,""));return res;}
 const trimModal=document.getElementById("trimModal");
 let trimType="all";
 const TT_LABEL={all:"全部",study:"新学习",review:"复习"};
@@ -1929,7 +2029,7 @@ if(window.matchMedia)try{matchMedia("(prefers-color-scheme: dark)").addEventList
 applyTheme();
 document.getElementById("cfYes").onclick=()=>{document.getElementById("cfModal").classList.remove("show");const f=cfCb;cfCb=null;if(f)f();};
 document.getElementById("cfNo").onclick=()=>{document.getElementById("cfModal").classList.remove("show");cfCb=null;};
-function applyMode(){document.querySelectorAll("#modeSw button").forEach(b=>b.classList.toggle("on",b.dataset.mode===mode));document.body.classList.toggle("algmode",mode==="alg");document.getElementById("filters").style.display=mode==="alg"?"none":"";document.getElementById("diffBar").style.display=mode==="alg"?"":"none";render();}
+function applyMode(){document.querySelectorAll("#modeSw button").forEach(b=>b.classList.toggle("on",b.dataset.mode===mode));document.body.classList.toggle("algmode",mode==="alg");document.body.classList.toggle("projmode",mode==="proj");document.getElementById("filters").style.display=mode==="alg"?"none":"";document.getElementById("diffBar").style.display=mode==="alg"?"":"none";render();}
 document.querySelectorAll("#modeSw button").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;localStorage.setItem("mode_v1",mode);applyMode();});
 loadStuck();buildFilters();applyMode();
 restoreFocusUI();
@@ -1938,7 +2038,7 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 window.addEventListener("focus",autoSync);
 setInterval(autoSync,60000);
 </script></body></html>'''
-html = html.replace("__ITEMS__", JS).replace("__SEC__", SEC).replace("__ALG__", ALGJS)
+html = html.replace("__ITEMS__", JS).replace("__SEC__", SEC).replace("__ALG__", ALGJS).replace("__PROJ__", PROJJS).replace("__PROJSEC__", PROJSEC)
 html = html.replace("@@IC_JSON@@", IC_JSON)
 for _name,_svg_str in ICONS.items():
     html = html.replace("@@"+_name+"@@", _svg_str)
