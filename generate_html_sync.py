@@ -583,6 +583,7 @@ ICONS = {
  "subadd": '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v6a3 3 0 0 0 3 3h2"/><line x1="17" y1="9" x2="17" y2="17"/><line x1="13" y1="13" x2="21" y2="13"/></svg>',
  "chevrondown": _svg('<polyline points="6 9 12 15 18 9"/>'),
  "chevronright": _svg('<polyline points="9 6 15 12 9 18"/>'),
+ "suppadd": _svg('<circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>'),
  "triup": '<svg class="ic" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M3 16h18L12 9z"/></svg>',
  "tridown": '<svg class="ic" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M3 8h18l-9 7z"/></svg>',
  "undo": _svg('<polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/>'),
@@ -631,6 +632,10 @@ body.dark .rowfocus:hover{color:#fdba74}
 .rowsub:hover{color:#16a34a}
 body.dark .rowsub{color:#6b7280}
 body.dark .rowsub:hover{color:#4ade80}
+.rowsupp{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:14px;line-height:1}
+.rowsupp:hover{color:#db2777}
+body.dark .rowsupp{color:#6b7280}
+body.dark .rowsupp:hover{color:#f472b6}
 tr.flash>td{animation:rowflash 1.4s ease-out}
 @keyframes rowflash{0%,30%{background:#fef9c3}100%{background:transparent}}
 body.dark tr.flash>td{animation:rowflashd 1.4s ease-out}
@@ -1071,7 +1076,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v2.11.8.3</span></div>
+<div class="sub"><span style="color:#9ca3af">v2.11.8.4</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1581,8 +1586,8 @@ function passDate(it){if(dateFilter==="all")return true;if(dateFilter==="solo")r
 function customList(){return state.__custom||(state.__custom=[]);}
 function sectionMap(){const map={};SECTIONS.forEach(s=>map[s]=[]);
   ITEMS.forEach(it=>{(map[it.sec]||(map[it.sec]=[])).push({id:it.id,sec:it.sec,q:it.q,baseIso:it.iso,tags:it.tags,anc:it.anc,jg:it.jg});});
-  customList().forEach(c=>{let xl="",jg;if(c.sub&&c.parent!==undefined){const p=ITEMS.find(x=>x.id===c.parent);if(p){xl=xlLink(p.sec,p.tags,p.anc)||"";jg=p.jg;}}   // 子问题的小林/JavaGuide 链接跟父问题一致（父问题没有则没有）
-    (map[c.sec]||(map[c.sec]=[])).push({id:c.id,sec:c.sec,q:c.q,baseIso:"",custom:true,sub:c.sub,parent:c.parent,tags:[],xl:xl,jg:jg});});
+  customList().forEach(c=>{let xl="",jg;if((c.sub||c.supp)&&c.parent!==undefined){const p=ITEMS.find(x=>x.id===c.parent);if(p){xl=xlLink(p.sec,p.tags,p.anc)||"";jg=p.jg;}}   // 子问题/补充的小林/JavaGuide 链接跟父问题一致（父问题没有则没有）
+    (map[c.sec]||(map[c.sec]=[])).push({id:c.id,sec:c.sec,q:c.q,baseIso:"",custom:true,sub:c.sub,supp:c.supp,parent:c.parent,tags:[],xl:xl,jg:jg});});
   Object.keys(map).forEach(s=>{const ord=state.__order&&state.__order[s];
     if(ord&&ord.length){const pos={};ord.forEach((id,i)=>pos[id]=i);map[s].sort((a,b)=>((pos[a.id]!==undefined?pos[a.id]:1e9)-(pos[b.id]!==undefined?pos[b.id]:1e9)));}
     map[s].forEach((it,i)=>it.idx=i+1);});return map;}
@@ -1602,13 +1607,15 @@ function wireQClick(qb,it,tr){let ct=null;
   qb.onclick=()=>{if(ct)return;ct=setTimeout(()=>{ct=null;openIds.has(it.id)?openIds.delete(it.id):openIds.add(it.id);render();},220);};
   qb.ondblclick=e=>{e.preventDefault();if(ct){clearTimeout(ct);ct=null;}startQEdit(it,tr,false);};}
 // 在某题下方加一个「子问题」（自建题，绿色标签），排到该题已有子问题的最后、进入编辑态
-function addSubQuestion(parentId,sec){const id="c_"+Date.now();customList().push({id:id,sec:sec,q:"子问题",sub:true,parent:parentId});
-  const p=ITEMS.find(x=>x.id===parentId);const pdate=realDate(get(parentId),p?p.iso:"");if(pdate)get(id).date=pdate;   // 建议日期与原问题一致
+// kind="sub"（子问题，绿色，日期同父）或 "supp"（补充，粉色，日期留空）；都排到父问题所有子/补充的最后
+function addChild(parentId,sec,kind){const id="c_"+Date.now();const item={id:id,sec:sec,q:kind==="supp"?"补充问题":"子问题",parent:parentId};item[kind]=true;customList().push(item);
+  if(kind==="sub"){const p=ITEMS.find(x=>x.id===parentId);const pdate=realDate(get(parentId),p?p.iso:"");if(pdate)get(id).date=pdate;}   // 子问题日期与父一致；补充留空
   let ids=(sectionMap()[sec]||[]).map(x=>x.id).filter(x=>x!==id);
   const childOf=cid=>{const c=customList().find(x=>x.id===cid);return !!(c&&c.parent===parentId);};
-  let j=ids.indexOf(parentId);if(j<0)j=ids.length-1;while(j+1<ids.length&&childOf(ids[j+1]))j++;   // 跳过已有的子问题，插到最后
+  let j=ids.indexOf(parentId);if(j<0)j=ids.length-1;while(j+1<ids.length&&childOf(ids[j+1]))j++;   // 跳过已有的子问题/补充，插到最后
   ids.splice(j+1,0,id);
   (state.__order||(state.__order={}))[sec]=ids;newSubId=id;save();render();}
+function addSubQuestion(parentId,sec){addChild(parentId,sec,"sub");}
 // 点击「·子问题」标签跳到其父问题（滚动定位并短暂高亮；被筛选隐藏时先放开筛选）
 function jumpToItem(id){let row=document.querySelector('tr[data-id="'+id+'"]');
   if(!row){secFilter="all";lvlFilter="all";diffFilter="all";starOnly=false;pickedDate="";dateFilter="all";buildFilters();
@@ -1711,7 +1718,7 @@ function render(){const tb=document.getElementById("tb");
     const sr=document.createElement("tr");sr.className="sec-row";sr.innerHTML='<td colspan="6">'+esc(s)+'</td>';tb.appendChild(sr);
     if(recycleMode){
       list.forEach(it=>{const tr=document.createElement("tr");
-        tr.innerHTML='<td class="c">'+it.idx+'</td><td class="c hide-sm date"></td><td class="q">'+esc(qText(it))+(it.custom?(it.sub?' <span class="subparent" data-parent="'+it.parent+'" title="点击跳到父问题" style="color:#16a34a;font-size:11px;cursor:pointer">·子问题</span>':' <span style="color:#9333ea;font-size:11px">·自建</span>'):'')+'</td>'+
+        tr.innerHTML='<td class="c">'+it.idx+'</td><td class="c hide-sm date"></td><td class="q">'+esc(qText(it))+(it.custom?(it.sub?' <span class="subparent" data-parent="'+it.parent+'" title="点击跳到父问题" style="color:#16a34a;font-size:11px;cursor:pointer">·子问题</span>':(it.supp?' <span class="subparent" data-parent="'+it.parent+'" title="点击跳到父问题" style="color:#db2777;font-size:11px;cursor:pointer">·补充</span>':' <span style="color:#9333ea;font-size:11px">·自建</span>')):'')+'</td>'+
           '<td class="c" colspan="3"><button class="restore">'+IC.undo+' 恢复</button> <button class="purge">'+IC.trash+' 永久删除</button></td>';
         tr.querySelector(".restore").onclick=()=>{delete get(it.id).del;save();render();};
         tr.querySelector(".purge").onclick=()=>{confirmDlg("永久删除这道题？不可恢复",()=>{if(it.custom){state.__custom=customList().filter(c=>c.id!==it.id);delete state[it.id];}else{const o=get(it.id);delete o.del;o.purged=true;}save();render();});};
@@ -1723,16 +1730,17 @@ function render(){const tb=document.getElementById("tb");
       const tr=document.createElement("tr");tr.dataset.id=it.id;
       tr.innerHTML='<td class="c">'+(isTodoToday(it)?'<span class="tododot" title="今天还没开始"></span>':'')+it.idx+'</td>'+
         '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
-        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?(it.sub?' <span class="subparent" data-parent="'+it.parent+'" title="点击跳到父问题" style="color:#16a34a;font-size:11px;cursor:pointer">·子问题</span>':' <span style="color:#9333ea;font-size:11px">·自建</span>'):'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+(function(u){if(!u)return '';const jg=/javaguide\.cn/.test(u);return '<a class="tag lc" href="'+u+'" target="_blank" rel="noopener" title="'+(jg?'在 JavaGuide 打开这一题':'在小林coding打开这一题')+'">'+(jg?'JavaGuide':'小林')+' ↗</a>';})(it.sub?(it.xl||''):xlLink(it.sec,it.tags,it.anc))+(it.jg?'<a class="tag lc" href="'+it.jg+'" target="_blank" rel="noopener" title="在 JavaGuide 打开这一题">JavaGuide ↗</a>':'')+'<span class="qedit" title="编辑题目">✎</span></td>'+
+        '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?(it.sub?' <span class="subparent" data-parent="'+it.parent+'" title="点击跳到父问题" style="color:#16a34a;font-size:11px;cursor:pointer">·子问题</span>':(it.supp?' <span class="subparent" data-parent="'+it.parent+'" title="点击跳到父问题" style="color:#db2777;font-size:11px;cursor:pointer">·补充</span>':' <span style="color:#9333ea;font-size:11px">·自建</span>')):'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+(function(u){if(!u)return '';const jg=/javaguide\.cn/.test(u);return '<a class="tag lc" href="'+u+'" target="_blank" rel="noopener" title="'+(jg?'在 JavaGuide 打开这一题':'在小林coding打开这一题')+'">'+(jg?'JavaGuide':'小林')+' ↗</a>';})((it.sub||it.supp)?(it.xl||''):xlLink(it.sec,it.tags,it.anc))+(it.jg?'<a class="tag lc" href="'+it.jg+'" target="_blank" rel="noopener" title="在 JavaGuide 打开这一题">JavaGuide ↗</a>':'')+'<span class="qedit" title="编辑题目">✎</span></td>'+
         '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
         '<td class="c"><span class="cnt"><button class="minus">−</button><b>'+st.cnt+'</b><button class="plus">＋</button></span></td>'+
         '<td class="c hide-sm last">'+(st.last||"—")+(st.next?' <span class="revdate" title="点击调整/延后复习" style="font-size:11px;cursor:pointer;color:'+(st.next<=todayIso()?"#dc2626":"#9ca3af")+'">↻'+st.next.slice(5)+'</span>':'')+'</td>';
       tr.cells[0].insertAdjacentHTML("beforeend",'<span class="mv"><button class="mvup" title="上移">▲</button><button class="mvdn" title="下移">▼</button></span>');
       tr.querySelector(".mvup").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,-1);};
       tr.querySelector(".mvdn").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,1);};
-      tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button><button class="rowsub" title="在下面加一个子问题">'+IC.subadd+'</button><button class="rowdel" title="删除这道题">'+IC.trash+'</button>');
+      tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button><button class="rowsub" title="在下面加一个子问题">'+IC.subadd+'</button><button class="rowsupp" title="在下面加一个补充问题">'+IC.suppadd+'</button><button class="rowdel" title="删除这道题">'+IC.trash+'</button>');
       tr.querySelector(".rowfocus").onclick=e=>{e.stopPropagation();focusFromItem(it.id);};
-      tr.querySelector(".rowsub").onclick=e=>{e.stopPropagation();addSubQuestion(it.id,it.sec);};
+      tr.querySelector(".rowsub").onclick=e=>{e.stopPropagation();addChild(it.id,it.sec,"sub");};
+      tr.querySelector(".rowsupp").onclick=e=>{e.stopPropagation();addChild(it.id,it.sec,"supp");};
       tr.querySelector(".rowdel").onclick=e=>{e.stopPropagation();confirmDlg("删除这道题？可在回收站恢复",()=>{get(it.id).del=true;openIds.delete(it.id);save();render();});};
       const spx=tr.querySelector(".subparent");if(spx)spx.onclick=e=>{e.stopPropagation();jumpToItem(spx.dataset.parent);};
       const dc=tr.querySelector(".date");
