@@ -87,15 +87,24 @@ body.dark .timer button:hover{background:#303030}
 .focusbar .fp-time b{font-size:18px;font-variant-numeric:tabular-nums;color:#ea580c;font-weight:600;min-width:52px;display:inline-block}
 .focusbar .fp-time.over b{color:#c2410c}
 .focusbar .fp-allot{font-size:12px;color:#6b7280;white-space:nowrap}
-#focusBtn{border-color:#ea580c}
-#focusBtn:hover{background:#fff7ed}
+/* 专注按钮边框跟随所在板块主题色（八股蓝 / 算法紫 / 项目粉），激活(.pri)时仍为专注橙 */
+body:not(.algmode):not(.projmode) #focusBtn:not(:disabled){border-color:#2563eb}
+body:not(.algmode):not(.projmode) #focusBtn:not(:disabled):hover{background:#eff6ff}
+body.algmode #focusBtn:not(:disabled){border-color:#7c3aed}
+body.algmode #focusBtn:not(:disabled):hover{background:#f5f3ff}
+body.projmode #focusBtn:not(:disabled){border-color:#db2777}
+body.projmode #focusBtn:not(:disabled):hover{background:#fdf2f8}
 #focusBtn:disabled{border-color:#e5e7eb;color:#9ca3af;background:#f9fafb;cursor:not-allowed}
 #focusBtn:disabled:hover{background:#f9fafb}
 body.dark #focusBtn:disabled{border-color:#3a3a3a;color:#6b7280;background:#1c1c1c}
 .focusbar .btn.pri,#focusModal .btn.pri,#focusBtn.pri,body.dark .focusbar .btn.pri,body.dark #focusModal .btn.pri,body.dark #focusBtn.pri{background:#ea580c;border-color:#ea580c;color:#fff}
 .focusbar .btn.pri:hover,#focusModal .btn.pri:hover,#focusBtn.pri:hover,body.dark .focusbar .btn.pri:hover,body.dark #focusModal .btn.pri:hover,body.dark #focusBtn.pri:hover{background:#c2410c;border-color:#c2410c}
-body.dark #focusBtn{border-color:#ea580c}
-body.dark #focusBtn:hover{background:#2a1a0e}
+body.dark:not(.algmode):not(.projmode) #focusBtn:not(:disabled){border-color:#3b82f6}
+body.dark:not(.algmode):not(.projmode) #focusBtn:not(:disabled):hover{background:#12233a}
+body.dark.algmode #focusBtn:not(:disabled){border-color:#7a3fe0}
+body.dark.algmode #focusBtn:not(:disabled):hover{background:#241a3a}
+body.dark.projmode #focusBtn:not(:disabled){border-color:#ec4899}
+body.dark.projmode #focusBtn:not(:disabled):hover{background:#2a1522}
 body.dark .focusbar{background:#2a1a0e;border-color:#6b3f16}
 body.dark .focusbar .fp-q{color:#e5e5e5}
 body.dark .focusbar .fp-time b{color:#fdba74}
@@ -535,10 +544,10 @@ body.algmode .chip.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
 body.dark.algmode .chip.active{background:#7a3fe0;border-color:#7a3fe0}
 body.algmode .theme button.on{background:#7c3aed;color:#fff}
 body.dark.algmode .theme button.on{background:#7a3fe0}
-body.algmode .toolbar .btn.pri,body.algmode #bkModal .btn.pri,body.algmode #modal .btn.pri,body.algmode #cfModal .btn.pri{background:#7c3aed;border-color:#7c3aed;color:#fff}
-body.dark.algmode .toolbar .btn.pri,body.dark.algmode #bkModal .btn.pri,body.dark.algmode #modal .btn.pri,body.dark.algmode #cfModal .btn.pri{background:#7a3fe0;border-color:#7a3fe0}
-body.algmode .toolbar .btn.pri:hover,body.algmode #bkModal .btn.pri:hover,body.algmode #modal .btn.pri:hover,body.algmode #cfModal .btn.pri:hover{background:#6d28d9;border-color:#6d28d9}
-body.dark.algmode .toolbar .btn.pri:hover,body.dark.algmode #bkModal .btn.pri:hover,body.dark.algmode #modal .btn.pri:hover,body.dark.algmode #cfModal .btn.pri:hover{background:#574095;border-color:#574095}
+body.algmode .toolbar .btn.pri,body.algmode #bkModal .btn.pri,body.algmode #modal .btn.pri,body.algmode #cfModal .btn.pri,body.algmode #postponeModal .btn.pri{background:#7c3aed;border-color:#7c3aed;color:#fff}
+body.dark.algmode .toolbar .btn.pri,body.dark.algmode #bkModal .btn.pri,body.dark.algmode #modal .btn.pri,body.dark.algmode #cfModal .btn.pri,body.dark.algmode #postponeModal .btn.pri{background:#7a3fe0;border-color:#7a3fe0}
+body.algmode .toolbar .btn.pri:hover,body.algmode #bkModal .btn.pri:hover,body.algmode #modal .btn.pri:hover,body.algmode #cfModal .btn.pri:hover,body.algmode #postponeModal .btn.pri:hover{background:#6d28d9;border-color:#6d28d9}
+body.dark.algmode .toolbar .btn.pri:hover,body.dark.algmode #bkModal .btn.pri:hover,body.dark.algmode #modal .btn.pri:hover,body.dark.algmode #cfModal .btn.pri:hover,body.dark.algmode #postponeModal .btn.pri:hover{background:#574095;border-color:#574095}
 body.algmode .timer button.on{background:#7c3aed;border-color:#7c3aed}
 body.dark.algmode .timer button.on{background:#7a3fe0;border-color:#7a3fe0}
 body.algmode .tag{color:#5b21b6;background:#f3edfb;border-color:#ddd6fe}
@@ -570,10 +579,10 @@ body.projmode .chip.active{background:#db2777;color:#fff;border-color:#db2777}
 body.dark.projmode .chip.active{background:#ec4899;border-color:#ec4899}
 body.projmode .theme button.on{background:#db2777;color:#fff}
 body.dark.projmode .theme button.on{background:#ec4899}
-body.projmode .toolbar .btn.pri,body.projmode #bkModal .btn.pri,body.projmode #modal .btn.pri,body.projmode #cfModal .btn.pri{background:#db2777;border-color:#db2777;color:#fff}
-body.dark.projmode .toolbar .btn.pri,body.dark.projmode #bkModal .btn.pri,body.dark.projmode #modal .btn.pri,body.dark.projmode #cfModal .btn.pri{background:#ec4899;border-color:#ec4899}
-body.projmode .toolbar .btn.pri:hover,body.projmode #bkModal .btn.pri:hover,body.projmode #modal .btn.pri:hover,body.projmode #cfModal .btn.pri:hover{background:#be185d;border-color:#be185d}
-body.dark.projmode .toolbar .btn.pri:hover,body.dark.projmode #bkModal .btn.pri:hover,body.dark.projmode #modal .btn.pri:hover,body.dark.projmode #cfModal .btn.pri:hover{background:#db2777;border-color:#db2777}
+body.projmode .toolbar .btn.pri,body.projmode #bkModal .btn.pri,body.projmode #modal .btn.pri,body.projmode #cfModal .btn.pri,body.projmode #postponeModal .btn.pri{background:#db2777;border-color:#db2777;color:#fff}
+body.dark.projmode .toolbar .btn.pri,body.dark.projmode #bkModal .btn.pri,body.dark.projmode #modal .btn.pri,body.dark.projmode #cfModal .btn.pri,body.dark.projmode #postponeModal .btn.pri{background:#ec4899;border-color:#ec4899}
+body.projmode .toolbar .btn.pri:hover,body.projmode #bkModal .btn.pri:hover,body.projmode #modal .btn.pri:hover,body.projmode #cfModal .btn.pri:hover,body.projmode #postponeModal .btn.pri:hover{background:#be185d;border-color:#be185d}
+body.dark.projmode .toolbar .btn.pri:hover,body.dark.projmode #bkModal .btn.pri:hover,body.dark.projmode #modal .btn.pri:hover,body.dark.projmode #cfModal .btn.pri:hover,body.dark.projmode #postponeModal .btn.pri:hover{background:#db2777;border-color:#db2777}
 body.projmode .timer button.on{background:#db2777;border-color:#db2777}
 body.dark.projmode .timer button.on{background:#ec4899;border-color:#ec4899}
 body.projmode .tag{color:#9d174d;background:#fdf2f8;border-color:#fbcfe8}
@@ -602,7 +611,6 @@ body.projmode .cal-quick button:hover{background:#fce7f3}
 body.dark.projmode .cal-quick button{background:#2a1522;border-color:#5f2640;color:#f9a8d4}
 body.projmode td.date:hover{background:#fdf2f8}
 body.dark.projmode td.date:hover{background:#2c1520}
-body.projmode #focusBtn{border-color:#db2777}
 body.algmode .pill.busy,body.dark.algmode .pill.busy{background:#ede9fe;color:#5b21b6}
 .ProseMirror:focus{outline:none}
 .ProseMirror>:first-child{margin-top:0}
@@ -35798,7 +35806,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.0.0.5</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.0.1.0</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -35821,6 +35829,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   <span class="chip" data-date="review" title="按艾宾浩斯遗忘曲线，到期/逾期需复习的题"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 4 21 9 16 9"/><path d="M20.4 14a8.5 8.5 0 1 1-1.9-8.6L21 9"/></svg> 今日复习</span>
   <span class="chip" data-date="solo" id="soloChip" title="只看专注面板里点选的那一题"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg> 选择</span>
   <span class="pickwrap" style="margin-left:8px"><button class="pickbtn" id="pickBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> 选择日期</button></span>
+  <button class="btn" id="postponeBtn" title="把所有任务（复习+学习）整体往后推迟一天" style="margin-left:6px"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> 推迟一天</button>
 </div>
 <div class="toolbar">
   <span style="font-size:12px;color:#6b7280">按掌握程度：</span>
@@ -35865,6 +35874,11 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   <div class="acts"><button class="btn" id="focusPickCancel">取消</button><button class="btn" id="focusPickReview"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 4 21 9 16 9"/><path d="M20.4 14a8.5 8.5 0 1 1-1.9-8.6L21 9"/></svg> 复习 <b id="focusPickReviewN"></b></button><button class="btn pri" id="focusPickNew"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 新学 <b id="focusPickNewN"></b></button></div>
 </div></div>
 <div id="toast"></div>
+<div class="modal" id="postponeModal"><div class="card" style="max-width:420px">
+  <h3>推迟一天</h3>
+  <p style="font-size:13px;color:#4b5563;margin-bottom:16px;line-height:1.6">将<b>所有板块（八股 / 算法 / 项目）的全部任务</b>——包括复习日期和学习日期——整体往后<b>推迟一天</b>。已设为「未分配」的题不受影响。此操作无法自动撤销，确定继续吗？</p>
+  <div class="acts"><button class="btn" id="postponeCancel">取消</button><button class="btn pri" id="postponeOk">确认推迟一天</button></div>
+</div></div>
 <div class="modal" id="trimModal"><div class="card" style="max-width:430px">
   <h3>缩减今日任务</h3>
   <p style="font-size:13px;color:#6b7280;margin-bottom:10px">把今天<b>未完成</b>的一部分任务均匀挪到未来，减轻当天负担。已完成的不动。</p>
@@ -36600,6 +36614,20 @@ document.querySelectorAll("#trimModal [data-trim]").forEach(btn=>btn.onclick=()=
   moving.forEach((m,k)=>{const off=(k%N)+1,o=get(m.id);if(m.reviewDue)o.next=addDays(todayIso(),off);else o.date=addDays(todayIso(),off);});
   save();render();trimModal.classList.remove("show");
 });
+// ---- 推迟一天：所有板块全部任务（复习日期 o.next + 学习日期）整体 +1 天 ----
+const postponeModal=document.getElementById("postponeModal");
+function postponeAllOneDay(){
+  const bump=(it,baseIso)=>{const o=get(it.id);
+    const eff=realDate(o,baseIso);if(eff)o.date=addDays(eff,1);   // 有学习日期（含用基准日期的）才推迟，未分配的不动
+    if(o.next)o.next=addDays(o.next,1);};                          // 有复习日期的也推迟
+  ITEMS.forEach(it=>bump(it,it.iso));
+  ALG.forEach(it=>bump(it,it.iso));
+  PROJ.forEach(it=>bump(it,it.iso));
+  customList().forEach(c=>bump(c,""));
+  save();render();}
+document.getElementById("postponeBtn").onclick=()=>postponeModal.classList.add("show");
+document.getElementById("postponeCancel").onclick=()=>postponeModal.classList.remove("show");
+document.getElementById("postponeOk").onclick=()=>{postponeAllOneDay();postponeModal.classList.remove("show");toast("已把所有任务推迟一天");};
 const bkModal=document.getElementById("bkModal");
 // ---- 云端备份：每个备份单独一个小仓库，主进度只存索引（不会撑爆主仓库）----
 function bkIndex(){return state.__bkIndex||(state.__bkIndex=[]);}
