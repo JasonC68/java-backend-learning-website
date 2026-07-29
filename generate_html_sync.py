@@ -721,24 +721,24 @@ body.dark .timer button:hover{background:#303030}
 .focusbar .fp-time b{font-size:18px;font-variant-numeric:tabular-nums;color:#ea580c;font-weight:600;min-width:52px;display:inline-block}
 .focusbar .fp-time.over b{color:#c2410c}
 .focusbar .fp-allot{font-size:12px;color:#6b7280;white-space:nowrap}
-/* 专注按钮边框跟随所在板块主题色（八股蓝 / 算法紫 / 项目粉），激活(.pri)时仍为专注橙 */
-body:not(.algmode):not(.projmode) #focusBtn:not(:disabled){border-color:#2563eb}
-body:not(.algmode):not(.projmode) #focusBtn:not(:disabled):hover{background:#eff6ff}
-body.algmode #focusBtn:not(:disabled){border-color:#7c3aed}
-body.algmode #focusBtn:not(:disabled):hover{background:#f5f3ff}
-body.projmode #focusBtn:not(:disabled){border-color:#db2777}
-body.projmode #focusBtn:not(:disabled):hover{background:#fdf2f8}
+/* 专注按钮边框跟随所在板块主题色（八股蓝 / 算法紫 / 项目粉），激活(.pri)时仍为专注橙（用 :not(.pri) 避开，防止 #id 选择器盖过 .pri 的橙色） */
+body:not(.algmode):not(.projmode) #focusBtn:not(:disabled):not(.pri){border-color:#2563eb}
+body:not(.algmode):not(.projmode) #focusBtn:not(:disabled):not(.pri):hover{background:#eff6ff}
+body.algmode #focusBtn:not(:disabled):not(.pri){border-color:#7c3aed}
+body.algmode #focusBtn:not(:disabled):not(.pri):hover{background:#f5f3ff}
+body.projmode #focusBtn:not(:disabled):not(.pri){border-color:#db2777}
+body.projmode #focusBtn:not(:disabled):not(.pri):hover{background:#fdf2f8}
 #focusBtn:disabled{border-color:#e5e7eb;color:#9ca3af;background:#f9fafb;cursor:not-allowed}
 #focusBtn:disabled:hover{background:#f9fafb}
 body.dark #focusBtn:disabled{border-color:#3a3a3a;color:#6b7280;background:#1c1c1c}
 .focusbar .btn.pri,#focusModal .btn.pri,#focusBtn.pri,body.dark .focusbar .btn.pri,body.dark #focusModal .btn.pri,body.dark #focusBtn.pri{background:#ea580c;border-color:#ea580c;color:#fff}
 .focusbar .btn.pri:hover,#focusModal .btn.pri:hover,#focusBtn.pri:hover,body.dark .focusbar .btn.pri:hover,body.dark #focusModal .btn.pri:hover,body.dark #focusBtn.pri:hover{background:#c2410c;border-color:#c2410c}
-body.dark:not(.algmode):not(.projmode) #focusBtn:not(:disabled){border-color:#3b82f6}
-body.dark:not(.algmode):not(.projmode) #focusBtn:not(:disabled):hover{background:#12233a}
-body.dark.algmode #focusBtn:not(:disabled){border-color:#7a3fe0}
-body.dark.algmode #focusBtn:not(:disabled):hover{background:#241a3a}
-body.dark.projmode #focusBtn:not(:disabled){border-color:#ec4899}
-body.dark.projmode #focusBtn:not(:disabled):hover{background:#2a1522}
+body.dark:not(.algmode):not(.projmode) #focusBtn:not(:disabled):not(.pri){border-color:#3b82f6}
+body.dark:not(.algmode):not(.projmode) #focusBtn:not(:disabled):not(.pri):hover{background:#12233a}
+body.dark.algmode #focusBtn:not(:disabled):not(.pri){border-color:#7a3fe0}
+body.dark.algmode #focusBtn:not(:disabled):not(.pri):hover{background:#241a3a}
+body.dark.projmode #focusBtn:not(:disabled):not(.pri){border-color:#ec4899}
+body.dark.projmode #focusBtn:not(:disabled):not(.pri):hover{background:#2a1522}
 body.dark .focusbar{background:#2a1a0e;border-color:#6b3f16}
 body.dark .focusbar .fp-q{color:#e5e5e5}
 body.dark .focusbar .fp-time b{color:#fdba74}
@@ -1187,7 +1187,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.0.1.3</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.0.1.4</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
