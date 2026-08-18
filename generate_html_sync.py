@@ -689,6 +689,17 @@ body.dark tr.flash>td{animation:rowflashd 1.4s ease-out}
 body.dark .rowdel{color:#6b7280}
 body.dark .rowdel:hover{color:#fca5a5}
 .tododot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#dc2626;margin-right:5px;vertical-align:middle}
+/* 点序号打标记：序号外套一个板块主题色的实心圆 */
+.idxmark{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 4px;border-radius:999px;cursor:pointer;vertical-align:middle;box-sizing:border-box;transition:background .12s,color .12s}
+.idxmark:hover{background:#eceef1}
+.idxmark.on{color:#fff;font-weight:500}
+body:not(.algmode):not(.projmode) .idxmark.on,body.dark:not(.algmode):not(.projmode) .idxmark.on{background:#2563eb}
+body.algmode .idxmark.on{background:#7c3aed}
+body.dark.algmode .idxmark.on{background:#7a3fe0}
+body.projmode .idxmark.on{background:#db2777}
+body.dark.projmode .idxmark.on{background:#ec4899}
+body.dark .idxmark:hover{background:#303030}
+body.dark .idxmark.on:hover,.idxmark.on:hover{filter:brightness(1.08)}
 .mv{display:inline-flex;flex-direction:column;gap:0;margin-left:6px;vertical-align:middle}
 .mv button{border:none;background:none;color:#c0c4cc;font-size:9px;line-height:9px;height:10px;padding:0;cursor:pointer}
 .mv button:hover{color:#2563eb}
@@ -1187,7 +1198,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.0.1.4</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.0.1.5</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1777,7 +1788,7 @@ function renderAlg(tb){
     const opened=openIds.has(it.id);
     const hasStuff=(st.codes&&st.codes.some(c=>(c.code||c)&&(c.code||c).trim&&(c.code||c).trim()))||(st.memo&&st.memo.trim());
     const tr=document.createElement("tr");tr.dataset.id=it.id;
-    tr.innerHTML='<td class="c">'+(isTodoToday(it)?'<span class="tododot" title="今天还没开始"></span>':'')+it.idx+'</td>'+
+    tr.innerHTML='<td class="c">'+(isTodoToday(it)?'<span class="tododot" title="今天还没开始"></span>':'')+'<span class="idxmark'+(st.mark?' on':'')+'" title="点击标记/取消标记这一题">'+it.idx+'</span></td>'+
       '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
       '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasStuff?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(it.q)+'</span><span class="dtag d'+it.lv+'">'+DL[it.lv]+'</span><span class="tag">'+esc(it.tag)+'</span><a class="tag lc" href="https://leetcode.cn/problems/'+it.slug+'/" target="_blank" rel="noopener" title="在力扣打开这道题">LC '+esc(it.num)+' ↗</a></td>'+
       '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
@@ -1789,6 +1800,7 @@ function renderAlg(tb){
       onNone:()=>{get(it.id).date="none";save();render();},
       onClear:()=>{delete get(it.id).date;save();render();}});};
     tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
+      {const im=tr.querySelector(".idxmark");if(im)im.onclick=e=>{e.stopPropagation();if(st.mark)delete st.mark;else st.mark=1;save();render();};}   // 点序号：标记/取消标记
     tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button>');
     tr.querySelector(".rowfocus").onclick=e=>{e.stopPropagation();focusFromItem(it.id);};
     wireQClick(tr.querySelector(".qbtn"),it,tr);
@@ -1866,7 +1878,7 @@ function render(){const tb=document.getElementById("tb");
     list.forEach(it=>{const st=get(it.id);
       const opened=openIds.has(it.id), hasNote=st.note&&st.note.trim();
       const tr=document.createElement("tr");tr.dataset.id=it.id;
-      tr.innerHTML='<td class="c">'+(isTodoToday(it)?'<span class="tododot" title="今天还没开始"></span>':'')+it.idx+'</td>'+
+      tr.innerHTML='<td class="c">'+(isTodoToday(it)?'<span class="tododot" title="今天还没开始"></span>':'')+'<span class="idxmark'+(st.mark?' on':'')+'" title="点击标记/取消标记这一题">'+it.idx+'</span></td>'+
         '<td class="c hide-sm date">'+(fmtIso(itemDate(it))||'<span style="color:#bbb">＋日期</span>')+'</td>'+
         '<td class="q"><span class="star'+(st.star?' on':'')+'" title="收藏">'+(st.star?'★':'☆')+'</span><span class="qbtn'+(hasNote?' has':'')+'"><span class="arw">'+(opened?'▾':'▸')+'</span>'+esc(qText(it))+(it.custom?(it.sub?' <span class="subparent" data-parent="'+it.parent+'" title="点击跳到父问题" style="color:#16a34a;font-size:11px;cursor:pointer">·子问题</span>':(it.supp?' <span class="subparent" data-parent="'+it.parent+'" title="点击跳到父问题" style="color:#db2777;font-size:11px;cursor:pointer">·补充</span>':' <span style="color:#9333ea;font-size:11px">·自建</span>')):'')+'</span>'+((it.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(''))+(function(u){if(!u)return '';const jg=/javaguide\.cn/.test(u);return '<a class="tag lc" href="'+u+'" target="_blank" rel="noopener" title="'+(jg?'在 JavaGuide 打开这一题':'在小林coding打开这一题')+'">'+(jg?'JavaGuide':'小林')+' ↗</a>';})((it.sub||it.supp)?(it.xl||''):xlLink(it.sec,it.tags,it.anc))+(it.jg?'<a class="tag lc" href="'+it.jg+'" target="_blank" rel="noopener" title="在 JavaGuide 打开这一题">JavaGuide ↗</a>':'')+'<span class="qedit" title="编辑题目">✎</span></td>'+
         '<td class="c"><button class="lvl l'+st.lvl+'">'+LVLS[st.lvl]+'</button></td>'+
@@ -1892,6 +1904,7 @@ function render(){const tb=document.getElementById("tb");
         onClear:()=>{delete st.next;save();render();},
         onQuick:n=>{st.next=addDays(st.next||todayIso(),n);save();render();}});};
       tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
+      {const im=tr.querySelector(".idxmark");if(im)im.onclick=e=>{e.stopPropagation();if(st.mark)delete st.mark;else st.mark=1;save();render();};}   // 点序号：标记/取消标记
       tr.querySelector(".qedit").onclick=e=>{e.stopPropagation();startQEdit(it,tr,false);};
       wireQClick(tr.querySelector(".qbtn"),it,tr);
       tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
