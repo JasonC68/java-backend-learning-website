@@ -692,14 +692,15 @@ body.dark .rowdel:hover{color:#fca5a5}
 /* 点序号打标记：序号外套一个板块主题色的实心圆 */
 .idxmark{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 4px;border-radius:999px;cursor:pointer;vertical-align:middle;box-sizing:border-box;transition:background .12s,color .12s}
 .idxmark:hover{background:#eceef1}
-.idxmark.on{color:#fff;font-weight:500}
-body:not(.algmode):not(.projmode) .idxmark.on,body.dark:not(.algmode):not(.projmode) .idxmark.on{background:#2563eb}
-body.algmode .idxmark.on{background:#7c3aed}
-body.dark.algmode .idxmark.on{background:#7a3fe0}
-body.projmode .idxmark.on{background:#db2777}
-body.dark.projmode .idxmark.on{background:#ec4899}
+.idxmark.on{font-weight:500}
+body:not(.algmode):not(.projmode) .idxmark.on{background:#bfdbfe;color:#1e40af}
+body.dark:not(.algmode):not(.projmode) .idxmark.on{background:rgba(59,130,246,.28);color:#93c5fd}
+body.algmode .idxmark.on{background:#ddd6fe;color:#5b21b6}
+body.dark.algmode .idxmark.on{background:rgba(122,63,224,.32);color:#c4b5fd}
+body.projmode .idxmark.on{background:#fbcfe8;color:#9d174d}
+body.dark.projmode .idxmark.on{background:rgba(236,72,153,.28);color:#f9a8d4}
 body.dark .idxmark:hover{background:#303030}
-body.dark .idxmark.on:hover,.idxmark.on:hover{filter:brightness(1.08)}
+body.dark .idxmark.on:hover,.idxmark.on:hover{filter:brightness(1.05)}
 .mv{display:inline-flex;flex-direction:column;gap:0;margin-left:6px;vertical-align:middle}
 .mv button{border:none;background:none;color:#c0c4cc;font-size:9px;line-height:9px;height:10px;padding:0;cursor:pointer}
 .mv button:hover{color:#2563eb}
