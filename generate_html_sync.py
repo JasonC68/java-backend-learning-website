@@ -1199,7 +1199,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.0.1.5</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.0.1.6</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1269,7 +1269,14 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <div id="toast"></div>
 <div class="modal" id="postponeModal"><div class="card" style="max-width:420px">
   <h3>推迟一天</h3>
-  <p style="font-size:13px;color:#4b5563;margin-bottom:16px;line-height:1.6">将<b>所有板块（八股 / 算法 / 项目）的全部任务</b>——包括复习日期和学习日期——整体往后<b>推迟一天</b>。已设为「未分配」的题不受影响。此操作无法自动撤销，确定继续吗？</p>
+  <p style="font-size:13px;color:#6b7280;margin-bottom:10px">选择要推迟的板块，包括该板块的复习日期和学习日期都会整体往后推迟一天。已设为「未分配」的题不受影响。</p>
+  <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">
+    <span class="chip active" data-pt="all">全部板块</span>
+    <span class="chip" data-pt="gu">八股</span>
+    <span class="chip" data-pt="alg">算法</span>
+    <span class="chip" data-pt="proj">项目</span>
+  </div>
+  <p style="font-size:12px;color:#9ca3af;margin-bottom:14px">此操作无法自动撤销，确定继续吗？</p>
   <div class="acts"><button class="btn" id="postponeCancel">取消</button><button class="btn pri" id="postponeOk">确认推迟一天</button></div>
 </div></div>
 <div class="modal" id="trimModal"><div class="card" style="max-width:430px">
@@ -2019,20 +2026,23 @@ document.querySelectorAll("#trimModal [data-trim]").forEach(btn=>btn.onclick=()=
   moving.forEach((m,k)=>{const off=(k%N)+1,o=get(m.id);if(m.reviewDue)o.next=addDays(todayIso(),off);else o.date=addDays(todayIso(),off);});
   save();render();trimModal.classList.remove("show");
 });
-// ---- 推迟一天：所有板块全部任务（复习日期 o.next + 学习日期）整体 +1 天 ----
+// ---- 推迟一天：可选「全部板块」或单独 八股/算法/项目，复习日期 o.next + 学习日期整体 +1 天 ----
 const postponeModal=document.getElementById("postponeModal");
-function postponeAllOneDay(){
+let postponeScope="all";
+const PT_LABEL={all:"全部板块",gu:"八股",alg:"算法",proj:"项目"};
+function postponeOneDay(scope){
   const bump=(it,baseIso)=>{const o=get(it.id);
     const eff=realDate(o,baseIso);if(eff)o.date=addDays(eff,1);   // 有学习日期（含用基准日期的）才推迟，未分配的不动
     if(o.next)o.next=addDays(o.next,1);};                          // 有复习日期的也推迟
-  ITEMS.forEach(it=>bump(it,it.iso));
-  ALG.forEach(it=>bump(it,it.iso));
-  PROJ.forEach(it=>bump(it,it.iso));
-  customList().forEach(c=>bump(c,""));
+  const isProjSec=sec=>PROJSEC.indexOf(sec)>=0;
+  if(scope==="all"||scope==="gu"){ITEMS.forEach(it=>bump(it,it.iso));customList().filter(c=>!isProjSec(c.sec)).forEach(c=>bump(c,""));}
+  if(scope==="all"||scope==="alg"){ALG.forEach(it=>bump(it,it.iso));}
+  if(scope==="all"||scope==="proj"){PROJ.forEach(it=>bump(it,it.iso));customList().filter(c=>isProjSec(c.sec)).forEach(c=>bump(c,""));}
   save();render();}
-document.getElementById("postponeBtn").onclick=()=>postponeModal.classList.add("show");
+document.getElementById("postponeBtn").onclick=()=>{postponeScope="all";document.querySelectorAll("#postponeModal [data-pt]").forEach(ch=>ch.classList.toggle("active",ch.dataset.pt==="all"));postponeModal.classList.add("show");};
 document.getElementById("postponeCancel").onclick=()=>postponeModal.classList.remove("show");
-document.getElementById("postponeOk").onclick=()=>{postponeAllOneDay();postponeModal.classList.remove("show");toast("已把所有任务推迟一天");};
+document.querySelectorAll("#postponeModal [data-pt]").forEach(ch=>ch.onclick=()=>{postponeScope=ch.dataset.pt;document.querySelectorAll("#postponeModal [data-pt]").forEach(x=>x.classList.toggle("active",x===ch));});
+document.getElementById("postponeOk").onclick=()=>{postponeOneDay(postponeScope);postponeModal.classList.remove("show");toast("已把「"+PT_LABEL[postponeScope]+"」的任务推迟一天");};
 const bkModal=document.getElementById("bkModal");
 // ---- 云端备份：每个备份单独一个小仓库，主进度只存索引（不会撑爆主仓库）----
 function bkIndex(){return state.__bkIndex||(state.__bkIndex=[]);}
