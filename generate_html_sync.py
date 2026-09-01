@@ -582,6 +582,48 @@ proj_data = {
   "Token 成本是怎么控制的？（上下文压缩、模型选型、Prompt Caching 等）",
   "如果让你重做这个项目，你会怎么改进？还有哪些没做完 / 可优化的地方？",
  ],
+ "JasonMessage 统一消息推送平台": [
+  "整体介绍一下 JasonMessage 这个统一消息推送平台：解决了什么问题、支持哪些渠道、核心链路是怎样的？",
+  "为什么要做一个统一消息中台，而不是让各业务系统各自对接短信 / 邮件 / 飞书？",
+  "渠道扩展是怎么设计的？为什么用策略模式，新增一个渠道具体要改哪些代码？",
+  "统一推送接口的抽象层大概长什么样？不同渠道实现之间怎么保证行为一致（比如失败语义）？",
+  "优先级链路是怎么做的？低 / 中 / 高 / 重试为什么分别用不同的 Kafka 主题，而不是一个主题里加优先级字段由消费者内部排序？",
+  "消费端怎么通过「不同主题配置不同并发度」保证高优先级消息优先处理？这种方式和「单队列按优先级排序消费」相比有什么优劣？",
+  "Kafka 消费为什么选手动 ACK 而不是自动 ACK？手动 ACK 具体是在什么时机调用的？",
+  "失败重试是怎么做的？重试次数记在哪里？超过最大重试次数之后消息去哪了，业务方怎么感知到「发送失败」？",
+  "retry 主题和原主题是同一套消费逻辑吗？如果重试消息又失败了，会不会无限循环重新投递到 retry 主题？",
+  "限流限额为什么选 Redis INCR 实现固定窗口，而不是滑动窗口 / 令牌桶 / 漏桶？固定窗口有什么已知问题（比如临界突刺）？",
+  "「按来源 + 渠道维度限额，优先读渠道级配置、缺省回落全局配置」具体怎么实现？key 怎么设计，多级配置的读取顺序和缓存怎么处理？",
+  "Redis INCR 判断限流的完整流程是什么？INCR 和设置过期时间这两步怎么保证原子性？",
+  "定时发送是怎么实现的？为什么是「定时消息落库 + 触发时间写 Redis + 独立线程池轮询补发」，而不是用延迟队列或 Redis 过期事件通知？",
+  "轮询补发的线程池是怎么设计的？轮询间隔怎么定？消息量大了轮询会不会有性能问题，怎么优化（比如用 Redis zset 按触发时间排序）？",
+  "模板管理的占位符变量替换是怎么实现的？发送前的模板状态校验具体校验什么，什么情况下模板不可用？",
+  "模板详情为什么要走 Redis 缓存？缓存和数据库怎么保持一致（模板被修改后缓存怎么失效）？",
+  "这个系统怎么保证消息「不丢、不重」？如果消费者处理完业务但还没来得及手动 ACK 就挂了，会发生什么？",
+  "Nacos 在这个项目里承担什么角色？如果换成 Eureka / ZooKeeper 做注册中心，会有什么区别？",
+  "如果消息量再涨 10 倍，这套架构里最先撑不住的是哪个环节？你会怎么优化？",
+  "这个项目最大的技术难点是什么？如果重新设计，你会怎么改进？",
+ ],
+ "Better Health 智能医疗平台": [
+  "整体介绍一下 Better Health 这个医疗平台项目：解决什么问题、核心模块、技术栈是怎样的？",
+  "这是一个高并发、多角色的平台，「多角色」具体指哪些角色？不同角色的权限是怎么控制的？",
+  "「查询性能提升 30%」具体是怎么测出来的？优化前后你是怎么对比的（用了什么工具 / 指标）？",
+  "B+ 树为什么适合做数据库索引？和 B 树、红黑树、哈希索引比优势在哪？",
+  "组合索引是怎么建的？最左匹配原则是什么？你在这个项目里具体优化了哪些慢查询？",
+  "覆盖索引是怎么减少回表的？举一个你项目里的具体例子。",
+  "你是怎么定位到这些慢查询的（慢查询日志 / EXPLAIN）？EXPLAIN 结果你重点看哪几列？",
+  "Redis 缓存穿透是怎么解决的？用空值缓存有什么缺点（比如缓存被打满、脏数据）？还有其他方案吗（布隆过滤器）？",
+  "缓存雪崩是怎么防的？「过期时间打散」具体怎么打散，随机范围怎么定的？",
+  "基于 Spring MVC 设计 RESTful 接口，你是怎么规范 URL、HTTP 方法和状态码的？",
+  "参数校验和统一异常处理是怎么做的？（JSR-303/@Valid，@ControllerAdvice）",
+  "用 Redis 实现库存缓存，缓存和数据库怎么保持一致？",
+  "防超卖的分布式锁是怎么实现的？为什么不用 synchronized 或数据库悲观锁？",
+  "分布式锁的过期时间怎么定？如果业务没执行完锁就过期了会怎样（有没有考虑续期 / 看门狗）？",
+  "为什么用 RabbitMQ 把下单、扣减库存异步化？哪些步骤适合异步，哪些必须同步？",
+  "消息确认机制是怎么保证可靠投递的？（生产者 confirm、消费者手动 ack）",
+  "死信队列在这里是怎么用的？消费幂等具体是怎么实现的？",
+  "如果并发量再翻 10 倍，这套架构最先出问题的地方在哪？你会怎么优化？",
+ ],
 }
 proj_items=[]; _pid=0
 for _sec,_qs in proj_data.items():
@@ -1199,7 +1241,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.0.1.7</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.0.2.0</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
