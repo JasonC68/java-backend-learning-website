@@ -43,6 +43,7 @@ for sec,qs in data.items():
         gid+=1
 # 成块组：顺序占天
 for k,rec in enumerate(seq_items): rec["_day"]=k//seq_per_day
+seq_last_day=max((rec["_day"] for rec in seq_items),default=-1)   # 记录顺序组用到的最后一天，后面补充题接着往后排，不影响已有题目的日期
 # 打散组：各板块轮流交错，再均匀铺到所有天（数据库 + AI 交替贯穿全程）
 spread_order=[]; secs=list(spread_by_sec.keys()); pos={s:0 for s in secs}; left=sum(len(v) for v in spread_by_sec.values())
 while left>0:
@@ -52,6 +53,22 @@ for rank,rec in enumerate(spread_order): rec["_day"]=rank*num_days//spread_total
 for rec in items:
     d=START+timedelta(days=rec.pop("_day"))
     rec["date"]=fmt_d(d); rec["iso"]=d.isoformat()
+
+# ===== 后续给已有板块「追加」新题目，一律走这里、不要改上面 data 里已有板块的数组 =====
+# 原因：题目 id 是按 data 字典顺序从 0 开始编号的，直接在数组中间插入/追加会让后面所有板块的 id 整体后移，
+# 导致已经积累的复习进度（掌握程度/复习次数/下次复习日期等，按 id 存在 localStorage/云端）全部错位到别的题目上。
+# 这里改成：id 接着当前最大 id 继续往后编号（不影响任何已有 id），日期从顺序组用到的最后一天之后继续排（每天 3 题），
+# sec 仍标记为原板块名，所以界面上会正常并入该板块，显示在原有题目的后面。
+def append_more(sec,qs,per_day=3):
+    global gid
+    start_idx=len(data[sec])
+    start_day=max(seq_last_day+1,(date.today()-START).days)   # 建议日期从「今天」和「顺序组最后一天」里取较晚的一个，避免新题一来就显示成已经过期很久
+    for k,q in enumerate(qs):
+        d=START+timedelta(days=start_day+k//per_day)
+        items.append({"id":gid,"sec":sec,"idx":start_idx+k+1,"q":q,"date":fmt_d(d),"iso":d.isoformat()})
+        gid+=1
+
+append_more("Spring",["过滤器 Filter vs 拦截器 Interceptor vs AOP 的区别与执行顺序","全局异常处理怎么做（@ControllerAdvice + @ExceptionHandler）","Spring Boot starter 的原理 / 怎么自定义一个 starter","自动装配的底层机制（spring.factories / AutoConfiguration.imports）","@Conditional 系列条件注解是怎么起作用的","内嵌 Tomcat 的原理是什么","SpringApplication.run() 的启动流程","配置文件加载优先级与多环境 profile 怎么隔离","Actuator 监控端点的作用是什么","@SpringBootApplication 包含哪些注解","@Component / @Service / @Repository 的区别","@Value vs @ConfigurationProperties 的区别","注册中心（如 Nacos）的作用是什么 / 服务发现怎么实现的","Spring Cloud Gateway 网关做了什么"])
 
 # ===== 自动归纳标签：关键词 -> 标签（顺序：越具体越靠前）=====
 TAG_RULES=[
@@ -1241,7 +1258,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.0.2.0</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.0.2.1</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
