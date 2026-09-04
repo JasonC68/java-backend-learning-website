@@ -69,7 +69,8 @@ def append_more(sec,qs,per_day=3):
         gid+=1
 
 # 以下均对照 xiaolincoding.com/interview/spring.html 实际目录挑选，避免和上面 11 题重复，锚点见 XL_ANCHOR
-append_more("Spring",["依赖倒置 / 依赖注入 / 控制反转三者分别是什么？","依赖注入有哪几种实现方式？（构造器注入 / Setter 注入 / 字段注入）","AOP 在 Spring 中有哪些典型应用场景？（事务 / 日志 / 权限校验）","AOP 常用注解有哪些？（@Before/@After/@Around/@AfterReturning/@AfterThrowing）","Spring 为什么用三级缓存解决循环依赖？只用二级缓存行不行？","Spring 的事务，用 this 调用本类方法会生效吗？为什么？","Bean 加载 / 销毁前后想执行自定义逻辑，可以怎么做（有哪些扩展点）？","MVC 分层是怎么划分的？各层职责是什么？","HandlerMapping 和 HandlerAdapter 分别是做什么的？","为什么要用 SpringBoot？相比 Spring 解决了什么问题？","怎么理解 SpringBoot 的「约定大于配置」？","SpringBoot 有哪些常用启动器（starter）？starter 的作用是什么？","SpringBoot 里有哪些重要注解？还有一个配置相关的注解是哪个？","SpringBoot 怎么开启事务？","Filter 过滤器和 Interceptor 拦截器的区别是什么？","用过哪些微服务组件？（注册中心 / 网关 / 负载均衡 / 熔断降级）","负载均衡有哪些常见算法？","服务熔断和服务降级分别是什么，有什么区别？"])
+# 数量对齐其他板块的基础密度（MySQL16/网络15/Redis14 这个量级），只留最高频、和原 11 题呼应最紧的几条
+append_more("Spring",["依赖注入有哪几种实现方式？（构造器注入 / Setter 注入 / 字段注入）","Spring 为什么用三级缓存解决循环依赖？只用二级缓存行不行？","Spring 的事务，用 this 调用本类方法会生效吗？为什么？","为什么要用 SpringBoot？相比 Spring 解决了什么问题？","怎么理解 SpringBoot 的「约定大于配置」？","Filter 过滤器和 Interceptor 拦截器的区别是什么？"])
 
 # ===== 自动归纳标签：关键词 -> 标签（顺序：越具体越靠前）=====
 TAG_RULES=[
@@ -210,25 +211,13 @@ XL_ANCHOR={
  "Spring MVC 请求处理流程":"了解springmvc的处理流程吗",
  "Spring Boot 自动装配原理":"springboot自动装配原理是什么",
  "常用注解区别（@Autowired vs @Resource 等）":"spring-常用注解有什么",
- # Spring 补充题（对照 spring.html 实际目录逐条核对锚点）
- "依赖倒置 / 依赖注入 / 控制反转三者分别是什么？":"依赖倒置-依赖注入-控制反转分别是什么",
+ # Spring 补充题（对照 spring.html 实际目录逐条核对锚点，只保留最高频、和原 11 题呼应最紧的几条）
  "依赖注入有哪几种实现方式？（构造器注入 / Setter 注入 / 字段注入）":"依赖注入了解吗-怎么实现依赖注入的",
- "AOP 在 Spring 中有哪些典型应用场景？（事务 / 日志 / 权限校验）":"aop在spring中的应用-你知道哪些",
- "AOP 常用注解有哪些？（@Before/@After/@Around/@AfterReturning/@AfterThrowing）":"aop实现有哪些注解",
  "Spring 为什么用三级缓存解决循环依赖？只用二级缓存行不行？":"spring为什么用3级缓存解决循环依赖问题-用2级缓存不行吗",
  "Spring 的事务，用 this 调用本类方法会生效吗？为什么？":"spring的事务-使用this调用是否生效",
- "Bean 加载 / 销毁前后想执行自定义逻辑，可以怎么做（有哪些扩展点）？":"在spring中-在bean加载-销毁前后-如果想实现某些逻辑-可以怎么做",
- "MVC 分层是怎么划分的？各层职责是什么？":"mvc分层介绍一下",
- "HandlerMapping 和 HandlerAdapter 分别是做什么的？":"handlermapping-和-handleradapter有了解吗",
  "为什么要用 SpringBoot？相比 Spring 解决了什么问题？":"为什么使用springboot",
  "怎么理解 SpringBoot 的「约定大于配置」？":"怎么理解springboot中的约定大于配置",
- "SpringBoot 有哪些常用启动器（starter）？starter 的作用是什么？":"说几个启动器-starter",
- "SpringBoot 里有哪些重要注解？还有一个配置相关的注解是哪个？":"springboot里面有哪些重要的注解-还有一个配置相关的注解是哪个",
- "SpringBoot 怎么开启事务？":"springboot怎么开启事务",
  "Filter 过滤器和 Interceptor 拦截器的区别是什么？":"springboot-过滤器和拦截器说一下",
- "用过哪些微服务组件？（注册中心 / 网关 / 负载均衡 / 熔断降级）":"用过哪些微服务组件",
- "负载均衡有哪些常见算法？":"负载均衡有哪些算法",
- "服务熔断和服务降级分别是什么，有什么区别？":"介绍一下服务熔断",
  # 集合（已核对 collections.html 目录）
  "HashMap 实现原理":"hashmap实现原理介绍一下",
  "HashMap 的 put / get 过程":"hashmap的put过程介绍一下",
@@ -1278,7 +1267,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.0.2.3</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.0.2.4</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
