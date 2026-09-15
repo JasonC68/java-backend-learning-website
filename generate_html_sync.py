@@ -738,34 +738,26 @@ body.projmode .est .estseg.proj .estname{color:#db2777}
 .est.none{color:#16a34a}
 .ic{width:1em;height:1em;display:inline-block;vertical-align:-0.14em;flex:none}
 .rowfocus{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:8px;vertical-align:middle;font-size:14px;line-height:1}
-.rowfocus:hover{color:#ea580c}
 body.dark .rowfocus{color:#6b7280}
-body.dark .rowfocus:hover{color:#fdba74}
 .rowsub{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:15px;line-height:1}
-.rowsub:hover{color:#16a34a}
 body.dark .rowsub{color:#6b7280}
-body.dark .rowsub:hover{color:#4ade80}
 .rowsupp{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:14px;line-height:1}
-.rowsupp:hover{color:#db2777}
 body.dark .rowsupp{color:#6b7280}
-body.dark .rowsupp:hover{color:#f472b6}
 tr.flash>td{animation:rowflash 1.4s ease-out}
 @keyframes rowflash{0%,30%{background:#fef9c3}100%{background:transparent}}
 body.dark tr.flash>td{animation:rowflashd 1.4s ease-out}
 @keyframes rowflashd{0%,30%{background:#3f3a12}100%{background:transparent}}
 .rowdel{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:14px;line-height:1}
-.rowdel:hover{color:#dc2626}
 body.dark .rowdel{color:#6b7280}
-body.dark .rowdel:hover{color:#fca5a5}
 .rowpool{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:14px;line-height:1}
 body.dark .rowpool{color:#6b7280}
-/* 加入复习池后的高亮色跟随所在板块主题色：八股蓝 / 算法紫 / 项目粉 */
-body:not(.algmode):not(.projmode) .rowpool:hover,body:not(.algmode):not(.projmode) .rowpool.on{color:#2563eb}
-body.dark:not(.algmode):not(.projmode) .rowpool:hover,body.dark:not(.algmode):not(.projmode) .rowpool.on{color:#60a5fa}
-body.algmode .rowpool:hover,body.algmode .rowpool.on{color:#7c3aed}
-body.dark.algmode .rowpool:hover,body.dark.algmode .rowpool.on{color:#a78bfa}
-body.projmode .rowpool:hover,body.projmode .rowpool.on{color:#db2777}
-body.dark.projmode .rowpool:hover,body.dark.projmode .rowpool.on{color:#f472b6}
+/* 题目后面这几个图标（专注/加复习池/补充/子问题/删除）的高亮色统一跟随所在板块主题色：八股蓝 / 算法紫 / 项目粉 */
+body:not(.algmode):not(.projmode) .rowfocus:hover,body:not(.algmode):not(.projmode) .rowsub:hover,body:not(.algmode):not(.projmode) .rowsupp:hover,body:not(.algmode):not(.projmode) .rowdel:hover,body:not(.algmode):not(.projmode) .rowpool:hover,body:not(.algmode):not(.projmode) .rowpool.on{color:#2563eb}
+body.dark:not(.algmode):not(.projmode) .rowfocus:hover,body.dark:not(.algmode):not(.projmode) .rowsub:hover,body.dark:not(.algmode):not(.projmode) .rowsupp:hover,body.dark:not(.algmode):not(.projmode) .rowdel:hover,body.dark:not(.algmode):not(.projmode) .rowpool:hover,body.dark:not(.algmode):not(.projmode) .rowpool.on{color:#60a5fa}
+body.algmode .rowfocus:hover,body.algmode .rowsub:hover,body.algmode .rowsupp:hover,body.algmode .rowdel:hover,body.algmode .rowpool:hover,body.algmode .rowpool.on{color:#7c3aed}
+body.dark.algmode .rowfocus:hover,body.dark.algmode .rowsub:hover,body.dark.algmode .rowsupp:hover,body.dark.algmode .rowdel:hover,body.dark.algmode .rowpool:hover,body.dark.algmode .rowpool.on{color:#a78bfa}
+body.projmode .rowfocus:hover,body.projmode .rowsub:hover,body.projmode .rowsupp:hover,body.projmode .rowdel:hover,body.projmode .rowpool:hover,body.projmode .rowpool.on{color:#db2777}
+body.dark.projmode .rowfocus:hover,body.dark.projmode .rowsub:hover,body.dark.projmode .rowsupp:hover,body.dark.projmode .rowdel:hover,body.dark.projmode .rowpool:hover,body.dark.projmode .rowpool.on{color:#f472b6}
 /* 复习池：跨板块加一批题统一复习 */
 #poolBar{align-items:center}
 .poolchips{display:inline-flex;flex-wrap:wrap;gap:6px}
@@ -1290,7 +1282,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.1.0.3</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.1.0.4</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
