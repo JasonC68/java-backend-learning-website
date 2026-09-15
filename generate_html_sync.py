@@ -758,11 +758,14 @@ body.dark tr.flash>td{animation:rowflashd 1.4s ease-out}
 body.dark .rowdel{color:#6b7280}
 body.dark .rowdel:hover{color:#fca5a5}
 .rowpool{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:14px;line-height:1}
-.rowpool:hover{color:#2563eb}
-.rowpool.on{color:#2563eb}
 body.dark .rowpool{color:#6b7280}
-body.dark .rowpool:hover{color:#60a5fa}
-body.dark .rowpool.on{color:#60a5fa}
+/* 加入复习池后的高亮色跟随所在板块主题色：八股蓝 / 算法紫 / 项目粉 */
+body:not(.algmode):not(.projmode) .rowpool:hover,body:not(.algmode):not(.projmode) .rowpool.on{color:#2563eb}
+body.dark:not(.algmode):not(.projmode) .rowpool:hover,body.dark:not(.algmode):not(.projmode) .rowpool.on{color:#60a5fa}
+body.algmode .rowpool:hover,body.algmode .rowpool.on{color:#7c3aed}
+body.dark.algmode .rowpool:hover,body.dark.algmode .rowpool.on{color:#a78bfa}
+body.projmode .rowpool:hover,body.projmode .rowpool.on{color:#db2777}
+body.dark.projmode .rowpool:hover,body.dark.projmode .rowpool.on{color:#f472b6}
 /* 复习池：跨板块加一批题统一复习 */
 #poolBar{align-items:center}
 .poolchips{display:inline-flex;flex-wrap:wrap;gap:6px}
@@ -1287,7 +1290,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.1.0.1</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.1.0.3</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1800,7 +1803,7 @@ function normId(id){return (typeof id==="string"&&/^\d+$/.test(id))?+id:id;}
 function poolIds(){return state.__pool||(state.__pool=[]);}
 function inPool(id){id=normId(id);return poolIds().indexOf(id)>=0;}
 function togglePool(id){id=normId(id);const p=poolIds();const i=p.indexOf(id);if(i>=0)p.splice(i,1);else p.push(id);save();render();}
-function removeFromPool(id){id=normId(id);const p=poolIds();const i=p.indexOf(id);if(i>=0){p.splice(i,1);save();renderPool();}}
+function removeFromPool(id){id=normId(id);const p=poolIds();const i=p.indexOf(id);if(i>=0){p.splice(i,1);save();render();}}   // 用 render() 而不是 renderPool()，顺带把表格里那一行的「加入复习池」图标也刷新掉高亮
 function clearPool(){if(!poolIds().length)return;confirmDlg("清空复习池？（不影响题目本身的复习进度）",()=>{state.__pool=[];save();renderPool();});}
 // 跨模式（八股/算法/项目）取某题的元信息，不依赖当前 mode，专供复习池用
 function poolMeta(id){
