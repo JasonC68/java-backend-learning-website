@@ -55,18 +55,33 @@ body.algmode .rowfocus:hover,body.algmode .rowsub:hover,body.algmode .rowsupp:ho
 body.dark.algmode .rowfocus:hover,body.dark.algmode .rowsub:hover,body.dark.algmode .rowsupp:hover,body.dark.algmode .rowdel:hover,body.dark.algmode .rowpool:hover,body.dark.algmode .rowpool.on{color:#a78bfa}
 body.projmode .rowfocus:hover,body.projmode .rowsub:hover,body.projmode .rowsupp:hover,body.projmode .rowdel:hover,body.projmode .rowpool:hover,body.projmode .rowpool.on{color:#db2777}
 body.dark.projmode .rowfocus:hover,body.dark.projmode .rowsub:hover,body.dark.projmode .rowsupp:hover,body.dark.projmode .rowdel:hover,body.dark.projmode .rowpool:hover,body.dark.projmode .rowpool.on{color:#f472b6}
-/* 复习池：跨板块加一批题统一复习 */
+/* 复习池：跨板块加一批题统一复习。每个 chip 的颜色跟这道题自己所属的板块走（八股蓝/算法紫/项目粉），不受当前切换的模式影响 */
 #poolBar{align-items:center}
 .poolchips{display:inline-flex;flex-wrap:wrap;gap:6px}
-.poolchip{display:inline-flex;align-items:center;gap:4px;background:#eff6ff;border:1px solid #dbeafe;color:#1d4ed8;border-radius:12px;padding:2px 6px 2px 10px;font-size:12px;cursor:pointer;white-space:nowrap}
+.poolchip{display:inline-flex;align-items:center;gap:4px;border-radius:12px;padding:2px 6px 2px 10px;font-size:12px;cursor:pointer;white-space:nowrap}
 .poolchip b{font-weight:600}
-.poolchip .pcx{display:inline-flex;align-items:center;justify-content:center;color:#93c5fd;cursor:pointer;padding:2px;border-radius:50%;width:14px;height:14px}
-.poolchip .pcx:hover{color:#1d4ed8;background:#dbeafe}
+.poolchip .pcx{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:2px;border-radius:50%;width:14px;height:14px}
 .poolchip .pcx svg{width:10px;height:10px}
 #poolEmpty{font-size:12px;color:#bbb}
-body.dark .poolchip{background:#12233a;border-color:#1e3a5f;color:#93c5fd}
-body.dark .poolchip .pcx{color:#3b82f6}
-body.dark .poolchip .pcx:hover{color:#93c5fd;background:#1e3a5f}
+body.dark #poolEmpty{color:#555}
+.poolchip.pc-gu{background:#eff6ff;border:1px solid #dbeafe;color:#1d4ed8}
+.poolchip.pc-gu .pcx{color:#93c5fd}
+.poolchip.pc-gu .pcx:hover{color:#1d4ed8;background:#dbeafe}
+body.dark .poolchip.pc-gu{background:#12233a;border:1px solid #1e3a5f;color:#93c5fd}
+body.dark .poolchip.pc-gu .pcx{color:#3b82f6}
+body.dark .poolchip.pc-gu .pcx:hover{color:#93c5fd;background:#1e3a5f}
+.poolchip.pc-alg{background:#f5f3ff;border:1px solid #e9d5ff;color:#5b21b6}
+.poolchip.pc-alg .pcx{color:#c4b5fd}
+.poolchip.pc-alg .pcx:hover{color:#5b21b6;background:#ede9fe}
+body.dark .poolchip.pc-alg{background:rgba(122,63,224,.18);border:1px solid #3a2a5c;color:#c4b5fd}
+body.dark .poolchip.pc-alg .pcx{color:#a78bfa}
+body.dark .poolchip.pc-alg .pcx:hover{color:#c4b5fd;background:#2a1f45}
+.poolchip.pc-proj{background:#fdf2f8;border:1px solid #fbcfe8;color:#9d174d}
+.poolchip.pc-proj .pcx{color:#f9a8d4}
+.poolchip.pc-proj .pcx:hover{color:#9d174d;background:#fce7f3}
+body.dark .poolchip.pc-proj{background:rgba(236,72,153,.15);border:1px solid #5f2640;color:#f9a8d4}
+body.dark .poolchip.pc-proj .pcx{color:#ec4899}
+body.dark .poolchip.pc-proj .pcx:hover{color:#f9a8d4;background:#3a1c2c}
 body.dark #poolEmpty{color:#555}
 .tododot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#dc2626;margin-right:5px;vertical-align:middle}
 /* 点序号打标记：序号外套一个板块主题色的实心圆 */
@@ -35840,7 +35855,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.1.0.4</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.1.0.5</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -36373,7 +36388,8 @@ function renderPool(){
   if(valid.length!==ids.length){state.__pool=valid;save();}   // 清掉已被删除/清空的失效题
   const box=document.getElementById("poolChips");if(!box)return;
   box.innerHTML=valid.map(id=>{const m=poolMeta(id);const qs=m.q.length>10?m.q.slice(0,10)+"…":m.q;
-    return '<span class="poolchip" data-id="'+id+'" title="'+esc(m.q)+'"><b>'+esc(poolSecAbbr(m.sec))+'</b>·'+esc(qs)+'<i class="pcx" data-id="'+id+'" title="移出复习池">'+IC.x+'</i></span>';}).join("");
+    const kc=m.isAlg?"pc-alg":(m.isProj?"pc-proj":"pc-gu");   // chip 颜色跟这道题自己所属的板块（八股/算法/项目）走，不受当前切换的模式影响
+    return '<span class="poolchip '+kc+'" data-id="'+id+'" title="'+esc(m.q)+'"><b>'+esc(poolSecAbbr(m.sec))+'</b>·'+esc(qs)+'<i class="pcx" data-id="'+id+'" title="移出复习池">'+IC.x+'</i></span>';}).join("");
   const eb=document.getElementById("poolEmpty");if(eb)eb.style.display=valid.length?"none":"";
   const rb=document.getElementById("poolReviewBtn");if(rb){rb.disabled=!valid.length;rb.innerHTML=IC.play+" 统一复习"+(valid.length?"（"+valid.length+"）":"");}
   const cb=document.getElementById("poolClearBtn");if(cb)cb.disabled=!valid.length;
