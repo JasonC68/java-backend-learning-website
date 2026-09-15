@@ -56,7 +56,8 @@ body.dark.algmode .rowfocus:hover,body.dark.algmode .rowsub:hover,body.dark.algm
 body.projmode .rowfocus:hover,body.projmode .rowsub:hover,body.projmode .rowsupp:hover,body.projmode .rowdel:hover,body.projmode .rowpool:hover,body.projmode .rowpool.on{color:#db2777}
 body.dark.projmode .rowfocus:hover,body.dark.projmode .rowsub:hover,body.dark.projmode .rowsupp:hover,body.dark.projmode .rowdel:hover,body.dark.projmode .rowpool:hover,body.dark.projmode .rowpool.on{color:#f472b6}
 /* 复习池：跨板块加一批题统一复习。每个 chip 的颜色跟这道题自己所属的板块走（八股蓝/算法紫/项目粉），不受当前切换的模式影响 */
-#poolBar{align-items:center}
+#poolBar{align-items:center;border:1px solid #e5e7eb;border-radius:10px;padding:8px 10px;background:#fafafa}
+body.dark #poolBar{border-color:#3a3a3a;background:#1c1c1c}
 .poolchips{display:inline-flex;flex-wrap:wrap;gap:6px}
 .poolchip{display:inline-flex;align-items:center;gap:4px;border-radius:12px;padding:2px 6px 2px 10px;font-size:12px;cursor:pointer;white-space:nowrap}
 .poolchip b{font-weight:600}
@@ -35924,6 +35925,11 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   <p id="focusModalMsg" style="font-size:13px;color:#4b5563;margin-bottom:14px;line-height:1.6"></p>
   <div class="acts"><button class="btn" id="focusStopBtn">停止复习</button><button class="btn" id="focusStayBtn">继续本题</button><button class="btn pri" id="focusNextBtn">复习下一题</button></div>
 </div></div>
+<div class="modal" id="poolDoneModal"><div class="card" style="max-width:360px">
+  <h3 style="font-size:16px;margin-bottom:8px"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><polyline points="22 4 12 14.1 9 11.1"/></svg> 复习池完成</h3>
+  <p id="poolDoneMsg" style="font-size:13px;color:#4b5563;margin-bottom:14px;line-height:1.6">复习池内容全部完成，要继续复习今天的任务，还是结束专注？</p>
+  <div class="acts"><button class="btn" id="poolDoneStop">结束复习</button><button class="btn pri" id="poolDoneContinue">继续复习今日任务</button></div>
+</div></div>
 <div class="modal" id="focusPickModal"><div class="card" style="max-width:360px">
   <h3 style="font-size:16px;margin-bottom:8px"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg> 开始专注</h3>
   <p style="font-size:13px;color:#4b5563;margin-bottom:14px;line-height:1.6">先专注做哪一类？做完这一类会自动转入另一类。</p>
@@ -36407,11 +36413,22 @@ function jumpToPoolItem(id){const m=poolMeta(id);if(!m)return;id=m.id;   // 用 
   openIds.add(id);render();jumpToItem(id);}
 function focusPoolNext(){
   const ids=poolIds().filter(id=>!focusSkipped.has(id));
-  if(!ids.length){const skipped=focusSkipped.size;endFocus();toast(skipped?"剩下的都跳过了，复习池结束":"复习池内容全部完成");return;}
+  if(!ids.length){
+    const skipped=focusSkipped.size;
+    focusSetRun(false);   // 弹窗选择期间先暂停计时，避免面板还显示已完成那一题、时间却继续在走
+    const m=document.getElementById("poolDoneMsg");
+    if(m)m.textContent=skipped?"复习池里剩下的都跳过了，要继续复习今天的任务，还是结束专注？":"复习池内容全部完成，要继续复习今天的任务，还是结束专注？";
+    document.getElementById("poolDoneModal").classList.add("show");
+    return;}
   const meta=poolMeta(ids[0]);
   if(!meta){removeFromPool(ids[0]);focusPoolNext();return;}
   focusMode=meta.isAlg?"alg":(meta.isProj?"proj":"gu");
   loadFocusTask(meta);}
+function poolDoneContinueToday(){
+  document.getElementById("poolDoneModal").classList.remove("show");
+  focusSource="today";focusMode=mode;focusSkipped.clear();focusPos=-1;
+  if(!focusQueue(focusMode).length){toast("今日任务已全部完成");endFocus();return;}
+  focusNext();}
 function startPoolReview(){
   if(!poolIds().length){toast("复习池是空的，先在题目旁点「加入复习池」");return;}
   focusSkipped.clear();focusSource="pool";focusPos=-1;
@@ -36448,6 +36465,8 @@ document.getElementById("focusStop").onclick=endFocus;
 document.getElementById("focusStopBtn").onclick=endFocus;
 document.getElementById("focusStayBtn").onclick=()=>{document.getElementById("focusModal").classList.remove("show");focusSetRun(true);};
 document.getElementById("focusNextBtn").onclick=()=>{document.getElementById("focusModal").classList.remove("show");focusComplete();};
+document.getElementById("poolDoneStop").onclick=()=>{document.getElementById("poolDoneModal").classList.remove("show");endFocus();};
+document.getElementById("poolDoneContinue").onclick=poolDoneContinueToday;
 function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const o=get(id);if(o.del||o.purged)return;const d=realDate(o,baseIso);const rd=!!o.next&&o.next<=ti;if(d&&d>ti){if(rd)n++;return;}const sd=!!d&&d<=ti&&!(o.cnt>0);if(sd||rd)n++;};if(mode==="alg"){ALG.forEach(it=>chk(it.id,it.iso));return n;}activeItems().forEach(it=>chk(it.id,it.iso));activeCustom().forEach(c=>chk(c.id,""));return n;}
 // 今天该做但还没开始（未点过加号 / 复习到期未做）→ 显示红点
 function isTodoToday(it){const o=get(it.id);if(o.del||o.purged)return false;const ti=todayIso();const d=realDate(o,it.baseIso);const rd=!!o.next&&o.next<=ti;if(d&&d>ti)return rd;const sd=!!d&&d<=ti&&!(o.cnt>0);return sd||rd;}
