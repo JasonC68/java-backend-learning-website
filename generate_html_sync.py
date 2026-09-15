@@ -694,6 +694,7 @@ ICONS = {
  "chevrondown": _svg('<polyline points="6 9 12 15 18 9"/>'),
  "chevronright": _svg('<polyline points="9 6 15 12 9 18"/>'),
  "suppadd": _svg('<circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>'),
+ "pooladd": _svg('<path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5z"/><line x1="9.3" y1="8" x2="14.7" y2="8"/><line x1="12" y1="5.3" x2="12" y2="10.7"/>'),
  "triup": '<svg class="ic" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M3 16h18L12 9z"/></svg>',
  "tridown": '<svg class="ic" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M3 8h18l-9 7z"/></svg>',
  "undo": _svg('<polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/>'),
@@ -756,6 +757,25 @@ body.dark tr.flash>td{animation:rowflashd 1.4s ease-out}
 .rowdel:hover{color:#dc2626}
 body.dark .rowdel{color:#6b7280}
 body.dark .rowdel:hover{color:#fca5a5}
+.rowpool{border:none;background:none;color:#c7cbd1;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;font-size:14px;line-height:1}
+.rowpool:hover{color:#2563eb}
+.rowpool.on{color:#2563eb}
+body.dark .rowpool{color:#6b7280}
+body.dark .rowpool:hover{color:#60a5fa}
+body.dark .rowpool.on{color:#60a5fa}
+/* 复习池：跨板块加一批题统一复习 */
+#poolBar{align-items:center}
+.poolchips{display:inline-flex;flex-wrap:wrap;gap:6px}
+.poolchip{display:inline-flex;align-items:center;gap:4px;background:#eff6ff;border:1px solid #dbeafe;color:#1d4ed8;border-radius:12px;padding:2px 6px 2px 10px;font-size:12px;cursor:pointer;white-space:nowrap}
+.poolchip b{font-weight:600}
+.poolchip .pcx{display:inline-flex;align-items:center;justify-content:center;color:#93c5fd;cursor:pointer;padding:2px;border-radius:50%;width:14px;height:14px}
+.poolchip .pcx:hover{color:#1d4ed8;background:#dbeafe}
+.poolchip .pcx svg{width:10px;height:10px}
+#poolEmpty{font-size:12px;color:#bbb}
+body.dark .poolchip{background:#12233a;border-color:#1e3a5f;color:#93c5fd}
+body.dark .poolchip .pcx{color:#3b82f6}
+body.dark .poolchip .pcx:hover{color:#93c5fd;background:#1e3a5f}
+body.dark #poolEmpty{color:#555}
 .tododot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#dc2626;margin-right:5px;vertical-align:middle}
 /* 点序号打标记：序号外套一个板块主题色的实心圆 */
 .idxmark{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 4px;border-radius:999px;cursor:pointer;vertical-align:middle;box-sizing:border-box;transition:background .12s,color .12s}
@@ -1267,7 +1287,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.0.2.4</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.1.0.0</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1278,13 +1298,20 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   <div class="fp-main"><span class="fp-kind" id="focusKind"></span><span class="fp-q" id="focusQ" title="点击跳到这道题并展开"></span></div>
   <div class="fp-side"><span class="fp-time" id="focusTime"><b id="focusDisp">00:00</b><span class="fp-allot" id="focusAllot"></span></span><button class="btn pri" id="focusDone">@@check@@ 完成本题</button><button class="btn" id="focusPause" title="暂停/继续本题计时">@@pause@@ 暂停</button><button class="btn" id="focusSkip" title="这题先跳过，换下一题">@@skip@@ 跳过</button><button class="btn" id="focusStop">@@stop@@ 结束</button></div>
 </div>
+<div class="toolbar" id="poolBar">
+  <span style="font-size:12px;color:#6b7280">复习池：</span>
+  <span id="poolChips" class="poolchips"></span>
+  <span id="poolEmpty">空的，点题目旁的 @@pooladd@@ 加入</span>
+  <button class="btn" id="poolReviewBtn" title="按加入顺序统一复习复习池里的题目" style="margin-left:2px">@@play@@ 统一复习</button>
+  <button class="btn" id="poolClearBtn" title="清空复习池（不影响题目本身的复习进度）">@@trash@@ 清空</button>
+  <button class="btn" id="focusBtn" title="从今日任务里挑一题、按建议时长开始专注学习/复习">@@target@@ 专注</button>
+</div>
 <div class="toolbar" id="filters"></div>
 <div class="toolbar" id="dateBar">
   <span style="font-size:12px;color:#6b7280">按日期：</span>
   <span class="chip active" data-date="all">全部</span>
   <span class="chip" data-date="todayall" title="今天要打卡的（点 ＋ 算完成）+ 之前没完成顺延的 + 今天到期/逾期要复习的">@@pin@@ 今天任务</span>
   <button class="btn" id="trimBtn" title="把今天未完成的一部分任务挪到未来" style="margin-left:2px">@@scissors@@ 缩减</button>
-  <button class="btn" id="focusBtn" title="从今日任务里挑一题、按建议时长开始专注学习/复习">@@target@@ 专注</button>
   <span class="chip" data-date="today">@@calendar@@ 今天打卡</span>
   <span class="chip" data-date="tomorrow">明天</span>
   <span class="chip" data-date="review" title="按艾宾浩斯遗忘曲线，到期/逾期需复习的题">@@review@@ 今日复习</span>
@@ -1758,9 +1785,68 @@ function startFocus(pref){focusSkipped.clear();focusMode=mode;focusSource="today
 function endFocus(){focusOn=false;focusTask=null;focusRunning=false;if(focusTick){clearInterval(focusTick);focusTick=null;}
   const p=document.getElementById("focusPanel");if(p)p.style.display="none";
   const b=document.getElementById("focusBtn");if(b)b.classList.remove("pri");
+  const pb=document.getElementById("poolReviewBtn");if(pb)pb.classList.remove("pri");
   document.getElementById("focusModal").classList.remove("show");updateFocusBtn();saveFocusUI();}
-function focusComplete(){if(!focusTask)return;const o=get(focusTask.id);o.cnt=(o.cnt||0)+1;o.last=today();o.next=focusTask.isAlg?schedNextAlg(o.cnt,focusTask.idx):schedNext(o.cnt);save();render();toast("✓ 已完成，下一题");focusNext();}
-function focusSkip(){if(!focusTask)return;focusSkipped.add(focusTask.id);focusNext();}
+function focusComplete(){if(!focusTask)return;const o=get(focusTask.id);o.cnt=(o.cnt||0)+1;o.last=today();o.next=focusTask.isAlg?schedNextAlg(o.cnt,focusTask.idx):schedNext(o.cnt);
+  if(focusSource==="pool")removeFromPool(focusTask.id);
+  save();render();toast("✓ 已完成，下一题");
+  if(focusSource==="pool")focusPoolNext();else focusNext();}
+function focusSkip(){if(!focusTask)return;focusSkipped.add(focusTask.id);
+  if(focusSource==="pool")focusPoolNext();else focusNext();}
+// ===== 复习池：跨板块挑题，攒一批统一复习 =====
+function poolIds(){return state.__pool||(state.__pool=[]);}
+function inPool(id){return poolIds().indexOf(id)>=0;}
+function togglePool(id){const p=poolIds();const i=p.indexOf(id);if(i>=0)p.splice(i,1);else p.push(id);save();render();}
+function removeFromPool(id){const p=poolIds();const i=p.indexOf(id);if(i>=0){p.splice(i,1);save();renderPool();}}
+function clearPool(){if(!poolIds().length)return;confirmDlg("清空复习池？（不影响题目本身的复习进度）",()=>{state.__pool=[];save();renderPool();});}
+// 跨模式（八股/算法/项目）取某题的元信息，不依赖当前 mode，专供复习池用
+function poolMeta(id){
+  const algIt=ALG.find(x=>x.id===id);
+  if(algIt)return {id:id,isAlg:true,isProj:false,q:qText(algIt),sec:"算法",idx:algIt.idx,kind:(get(id).cnt||0)>0?"review":"new"};
+  const it=findBuiltin(id);
+  if(it)return {id:id,isAlg:false,isProj:PROJSEC.indexOf(it.sec)>=0,q:qText(it),sec:it.sec,kind:(get(id).cnt||0)>0?"review":"new"};
+  const c=customList().find(x=>x.id===id);
+  if(c)return {id:id,isAlg:false,isProj:PROJSEC.indexOf(c.sec)>=0,q:qText(c),sec:c.sec,kind:(get(id).cnt||0)>0?"review":"new"};
+  return null;}
+const POOL_SEC_ABBR={"扩展(MyBatis/MQ/分布式)":"扩展","计算机网络":"网络","操作系统":"OS","Java基础":"Java","AI·Agent":"Agent","AI·RAG":"RAG","AI·工具调用":"工具调用","AI·大模型基础":"大模型"};
+function poolSecAbbr(sec){return POOL_SEC_ABBR[sec]||sec;}
+function renderPool(){
+  const ids=poolIds();
+  const valid=ids.filter(id=>!!poolMeta(id));
+  if(valid.length!==ids.length){state.__pool=valid;save();}   // 清掉已被删除/清空的失效题
+  const box=document.getElementById("poolChips");if(!box)return;
+  box.innerHTML=valid.map(id=>{const m=poolMeta(id);const qs=m.q.length>10?m.q.slice(0,10)+"…":m.q;
+    return '<span class="poolchip" data-id="'+id+'" title="'+esc(m.q)+'"><b>'+esc(poolSecAbbr(m.sec))+'</b>·'+esc(qs)+'<i class="pcx" data-id="'+id+'" title="移出复习池">'+IC.x+'</i></span>';}).join("");
+  const eb=document.getElementById("poolEmpty");if(eb)eb.style.display=valid.length?"none":"";
+  const rb=document.getElementById("poolReviewBtn");if(rb){rb.disabled=!valid.length;rb.innerHTML=IC.play+" 统一复习"+(valid.length?"（"+valid.length+"）":"");}
+  const cb=document.getElementById("poolClearBtn");if(cb)cb.disabled=!valid.length;
+  box.querySelectorAll(".poolchip").forEach(ch=>{ch.onclick=e=>{if(e.target.closest(".pcx"))return;jumpToPoolItem(ch.dataset.id);};});
+  box.querySelectorAll(".pcx").forEach(x=>{x.onclick=e=>{e.stopPropagation();removeFromPool(x.dataset.id);};});
+}
+function jumpToPoolItem(id){const m=poolMeta(id);if(!m)return;
+  const wantMode=m.isAlg?"alg":(m.isProj?"proj":"gu");if(mode!==wantMode){mode=wantMode;localStorage.setItem("mode_v1",mode);applyMode();}
+  secFilter="all";lvlFilter="all";diffFilter="all";starOnly=false;pickedDate="";dateFilter="all";
+  buildFilters();
+  document.querySelectorAll('[data-lvl]').forEach(x=>x.classList.toggle("active",x.dataset.lvl==="all"));
+  document.querySelectorAll('[data-diff]').forEach(x=>x.classList.toggle("active",x.dataset.diff==="all"));
+  document.querySelectorAll('[data-date]').forEach(x=>x.classList.toggle("active",x.dataset.date==="all"));
+  const sf=document.getElementById("starFilter");if(sf)sf.classList.remove("active");updatePickBtn();
+  openIds.add(id);render();jumpToItem(id);}
+function focusPoolNext(){
+  const ids=poolIds().filter(id=>!focusSkipped.has(id));
+  if(!ids.length){const skipped=focusSkipped.size;endFocus();toast(skipped?"剩下的都跳过了，复习池结束":"复习池内容全部完成");return;}
+  const meta=poolMeta(ids[0]);
+  if(!meta){removeFromPool(ids[0]);focusPoolNext();return;}
+  focusMode=meta.isAlg?"alg":(meta.isProj?"proj":"gu");
+  loadFocusTask(meta);}
+function startPoolReview(){
+  if(!poolIds().length){toast("复习池是空的，先在题目旁点「加入复习池」");return;}
+  focusSkipped.clear();focusSource="pool";focusPos=-1;
+  focusOn=true;document.getElementById("focusPanel").style.display="";
+  document.getElementById("focusBtn").classList.add("pri");document.getElementById("poolReviewBtn").classList.add("pri");
+  focusPoolNext();}
+document.getElementById("poolReviewBtn").onclick=startPoolReview;
+document.getElementById("poolClearBtn").onclick=clearPool;
 function showFocusTimeup(){focusSetRun(false);const m=document.getElementById("focusModalMsg");if(m&&focusTask)m.textContent="「"+focusTask.q+"」的建议用时 "+focusMinFor(focusTask)+" 分钟已到（计时已暂停）。可以继续复习这一题、进入下一题，或停止。";document.getElementById("focusModal").classList.add("show");}
 function jumpToFocusItem(){if(!focusOn||!focusTask)return;soloId=focusTask.id;openIds.add(soloId);
   const wantMode=focusTask.isAlg?"alg":(focusTask.isProj?"proj":"gu");if(mode!==wantMode){mode=wantMode;localStorage.setItem("mode_v1",mode);applyMode();}
@@ -1890,8 +1976,9 @@ function renderAlg(tb){
       onClear:()=>{delete get(it.id).date;save();render();}});};
     tr.querySelector(".star").onclick=e=>{e.stopPropagation();st.star=!st.star;save();render();};
       {const im=tr.querySelector(".idxmark");if(im)im.onclick=e=>{e.stopPropagation();if(st.mark)delete st.mark;else st.mark=1;save();render();};}   // 点序号：标记/取消标记
-    tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button>');
+    tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button><button class="rowpool'+(inPool(it.id)?' on':'')+'" title="'+(inPool(it.id)?'移出复习池':'加入复习池')+'">'+IC.pooladd+'</button>');
     tr.querySelector(".rowfocus").onclick=e=>{e.stopPropagation();focusFromItem(it.id);};
+    tr.querySelector(".rowpool").onclick=e=>{e.stopPropagation();togglePool(it.id);};
     wireQClick(tr.querySelector(".qbtn"),it,tr);
     tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
     tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNextAlg(st.cnt,it.idx);save();render();if(focusOn&&focusTask&&focusTask.id===it.id){toast("✓ 已完成，下一题");focusNext();}};
@@ -1943,6 +2030,7 @@ function renderAlg(tb){
   document.getElementById("stat").innerHTML="已掌握(能讲框架+能扛追问)：<b>"+done+"</b> / "+tot+"　("+pct+"%)　·　<span style='color:#d97706'>眼熟 "+fam+"</span>";
 }
 function render(){const tb=document.getElementById("tb");
+  renderPool();
   const _sy=window.scrollY;
   editors.forEach(e=>{try{e.destroy();}catch(_){}});editors=[];
   tb.innerHTML="";
@@ -1976,8 +2064,9 @@ function render(){const tb=document.getElementById("tb");
       tr.cells[0].insertAdjacentHTML("beforeend",'<span class="mv"><button class="mvup" title="上移">▲</button><button class="mvdn" title="下移">▼</button></span>');
       tr.querySelector(".mvup").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,-1);};
       tr.querySelector(".mvdn").onclick=e=>{e.stopPropagation();moveItem(it.sec,it.id,1);};
-      tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button><button class="rowsupp" title="在下面加一个补充问题">'+IC.suppadd+'</button><button class="rowsub" title="在下面加一个子问题">'+IC.subadd+'</button><button class="rowdel" title="删除这道题">'+IC.trash+'</button>');
+      tr.querySelector(".q").insertAdjacentHTML("beforeend",'<button class="rowfocus" title="从这题开始顺序专注">'+IC.target+'</button><button class="rowpool'+(inPool(it.id)?' on':'')+'" title="'+(inPool(it.id)?'移出复习池':'加入复习池')+'">'+IC.pooladd+'</button><button class="rowsupp" title="在下面加一个补充问题">'+IC.suppadd+'</button><button class="rowsub" title="在下面加一个子问题">'+IC.subadd+'</button><button class="rowdel" title="删除这道题">'+IC.trash+'</button>');
       tr.querySelector(".rowfocus").onclick=e=>{e.stopPropagation();focusFromItem(it.id);};
+      tr.querySelector(".rowpool").onclick=e=>{e.stopPropagation();togglePool(it.id);};
       tr.querySelector(".rowsub").onclick=e=>{e.stopPropagation();addChild(it.id,it.sec,"sub");};
       tr.querySelector(".rowsupp").onclick=e=>{e.stopPropagation();addChild(it.id,it.sec,"supp");};
       tr.querySelector(".rowdel").onclick=e=>{e.stopPropagation();confirmDlg("删除这道题？可在回收站恢复",()=>{get(it.id).del=true;openIds.delete(it.id);save();render();});};
