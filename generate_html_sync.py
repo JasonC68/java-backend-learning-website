@@ -68,6 +68,76 @@ def append_more(sec,qs,per_day=3):
         items.append({"id":gid,"sec":sec,"idx":start_idx+k+1,"q":q,"date":fmt_d(d),"iso":d.isoformat()})
         gid+=1
 
+# ===== 在已有板块「中间插入」新题目：需要让新题和同标签的旧题排在一起时用这个 =====
+# 和 append_more 的区别只是「插入位置」：append_more 只能加在板块最后；这个可以按 ordered_qs
+# 给的完整顺序重排整个板块的显示顺序。已有题目（原文一字不差匹配到）复用原来的 dict 对象，
+# id / date / sec / q 一律不变，只是在 items 列表里挪了个位置（不影响任何积累的复习进度，
+# 因为进度是按 id 存的，不看数组位置）；只有真正新增的题目才会用 gid 继续往后编号、
+# 用和 append_more 一样的规则给建议日期，绝不会撞到任何已有 id。
+def insert_group(sec,ordered_qs,per_day=3):
+    global gid
+    existing={it["q"]:it for it in items if it["sec"]==sec}
+    old_indices=[i for i,it in enumerate(items) if it["sec"]==sec]
+    insert_at=old_indices[0]
+    for i in reversed(old_indices):
+        items.pop(i)
+    start_day=max(seq_last_day+1,(date.today()-START).days)
+    new_count=0
+    block=[]
+    for q in ordered_qs:
+        if q in existing:
+            block.append(existing[q])
+        else:
+            d=START+timedelta(days=start_day+new_count//per_day)
+            block.append({"id":gid,"sec":sec,"idx":0,"q":q,"date":fmt_d(d),"iso":d.isoformat()})
+            gid+=1
+            new_count+=1
+    assert len(existing)==sum(1 for q in ordered_qs if q in existing),"insert_group: 有已有题目在新顺序里对不上号！"
+    for offset,it in enumerate(block):
+        items.insert(insert_at+offset,it)
+
+# Spring：在原 11 题基础上插入 6 题，按同标签靠近排列（依据 xiaolincoding.com/interview/spring.html
+# 实际目录逐条核对锚点，anchor 见 XL_ANCHOR）：
+#  - IoC/DI 组：57 原题 + 依赖注入方式怎么选
+#  - Bean 组：生命周期/作用域 + Bean是否单例
+#  - 循环依赖：原题不动
+#  - AOP 组：AOP 原理 + AOP 用到哪些注解
+#  - 事务组：事务原理/传播行为/失效场景 + 默认在哪些异常下回滚
+#  - SpringMVC：原题不动
+#  - SpringBoot 组：自动装配原理 + SpringBoot 比 Spring 好在哪里
+#  - 常用注解 + 设计模式（两题都归到默认 Spring 标签，跟前面 IoC/DI、Bean 组同一挂）
+insert_group("Spring",[
+ "IoC / DI 是什么",
+ "依赖注入了解吗？构造器注入 / Setter 注入 / 字段注入怎么选？",
+ "Bean 的生命周期",
+ "Bean 的作用域",
+ "Bean 默认是单例的吗？单例和非单例 Bean 的生命周期一样吗？",
+ "三级缓存如何解决循环依赖",
+ "AOP 原理（JDK 代理 vs CGLIB）",
+ "AOP 实现用到了哪些注解？（@Before/@After/@Around 等）",
+ "@Transactional 事务原理",
+ "事务的传播行为",
+ "事务失效的场景",
+ "Spring 默认在哪些异常下才会回滚事务？",
+ "Spring MVC 请求处理流程",
+ "Spring Boot 自动装配原理",
+ "SpringBoot 比 Spring 好在哪里？",
+ "常用注解区别（@Autowired vs @Resource 等）",
+ "Spring 框架中用到了哪些设计模式？",
+])
+
+# 扩展(MyBatis/MQ/分布式)：追加 SpringCloud/微服务 6 题，全部落到该板块默认「分布式」标签，
+# 正好和已有的 CAP/分布式事务/分布式ID/限流算法这组挨在一起（同为默认标签，排在数组末尾即相邻）。
+# 依据 xiaolincoding.com/interview/spring.html 的 SpringCloud 目录逐条核对锚点。
+append_more("扩展(MyBatis/MQ/分布式)",[
+ "SpringCloud 和 SpringBoot 是什么关系？",
+ "用过哪些微服务组件？（注册中心/网关/配置中心/负载均衡组件等）",
+ "负载均衡有哪些常见算法？",
+ "如何实现一致性负载均衡？（同一个用户的请求落到同一台机器）",
+ "介绍一下服务熔断",
+ "介绍一下服务降级",
+])
+
 # ===== 自动归纳标签：关键词 -> 标签（顺序：越具体越靠前）=====
 TAG_RULES=[
   ("ConcurrentHashMap","ConcurrentHashMap"),("Hashtable","Hashtable"),("HashMap","HashMap"),
@@ -207,6 +277,13 @@ XL_ANCHOR={
  "Spring MVC 请求处理流程":"了解springmvc的处理流程吗",
  "Spring Boot 自动装配原理":"springboot自动装配原理是什么",
  "常用注解区别（@Autowired vs @Resource 等）":"spring-常用注解有什么",
+ # Spring 补充题（对照 spring.html 实际目录逐条核对锚点，2026-09 第二轮：按标签和原题挨在一起插入）
+ "依赖注入了解吗？构造器注入 / Setter 注入 / 字段注入怎么选？":"依赖注入了解吗-怎么实现依赖注入的",
+ "Bean 默认是单例的吗？单例和非单例 Bean 的生命周期一样吗？":"bean是否单例",
+ "AOP 实现用到了哪些注解？（@Before/@After/@Around 等）":"aop实现有哪些注解",
+ "Spring 默认在哪些异常下才会回滚事务？":"spring的事务什么情况下会失效",
+ "SpringBoot 比 Spring 好在哪里？":"springboot比spring好在哪里",
+ "Spring 框架中用到了哪些设计模式？":"spring框架中都用到了哪些设计模式",
  # 集合（已核对 collections.html 目录）
  "HashMap 实现原理":"hashmap实现原理介绍一下",
  "HashMap 的 put / get 过程":"hashmap的put过程介绍一下",
@@ -276,6 +353,14 @@ XL_ANCHOR={
  "分布式事务方案（2PC/TCC/本地消息表）":"https://xiaolincoding.com/interview/cap.html#分布式事务的解决方案你知道哪些",
  "分布式 ID 生成方案（雪花算法）":"分布式id有什么方案",
  "限流算法（漏桶/令牌桶等）":"常见的限流算法你知道哪些",
+ # SpringCloud/微服务（对照 spring.html 的 SpringCloud 目录逐条核对锚点；该板块默认锚点基地址是
+ # cap.html，这几题实际锚点在 spring.html，所以用完整 URL 覆盖，跟"分布式事务方案"那条是同一种写法）
+ "SpringCloud 和 SpringBoot 是什么关系？":"https://xiaolincoding.com/interview/spring.html#了解springcloud吗-说一下他和springboot的区别",
+ "用过哪些微服务组件？（注册中心/网关/配置中心/负载均衡组件等）":"https://xiaolincoding.com/interview/spring.html#用过哪些微服务组件",
+ "负载均衡有哪些常见算法？":"https://xiaolincoding.com/interview/spring.html#负载均衡有哪些算法",
+ "如何实现一致性负载均衡？（同一个用户的请求落到同一台机器）":"https://xiaolincoding.com/interview/spring.html#如何实现一直均衡给一个用户",
+ "介绍一下服务熔断":"https://xiaolincoding.com/interview/spring.html#介绍一下服务熔断",
+ "介绍一下服务降级":"https://xiaolincoding.com/interview/spring.html#介绍一下服务降级",
  # MyBatis：小林站内无对应页面，改用 JavaGuide
  "MyBatis #{} 和 ${} 的区别":"https://javaguide.cn/system-design/framework/mybatis/mybatis-interview.html#和-的区别是什么",
  "MyBatis 一级/二级缓存":"https://javaguide.cn/system-design/framework/mybatis/mybatis-interview.html",
@@ -571,81 +656,123 @@ proj_data = {
   "整体介绍一下这个 OnCall Agent 项目：解决什么痛点、核心能力、整体架构是怎样的？",
   "为什么用 Spring AI Alibaba？相比自己直接调 LLM API 或用 LangChain4j 有什么取舍？",
   "三类 Agent（Knowledge Index、Chat ReAct、Plan-Execute-Replan）各自职责是什么？为什么这样划分？",
-  "「以图编排组织工作流」具体是怎么做的？图编排相比顺序调用解决了什么问题？",
-  "技术栈里 Milvus / MySQL / Redis / MCP / SSE 各自承担什么角色？",
-  "日志查询、Prometheus 指标、内部文档检索是怎么封装成标准化 Tool 的？一个 Tool 的定义包含哪些要素？",
   "LLM 如何自主完成工具选择、参数解析与组合调用？Function Calling 的底层原理是什么？",
   "为什么用 MCP 协议接入外部工具？MCP 和 Function Calling 的区别与关系是什么？",
-  "工具调用失败 / 超时 / 返回异常时怎么处理？如何保证 Agent 整体的健壮性？",
   "RAG 知识库的完整链路（文档切分 → Embedding → Milvus 入库 → Top-K 召回）讲一下？",
-  "文档分块（chunk）大小怎么定？过大过小分别有什么问题？你是怎么做对比实验的？",
-  "TopK 怎么选？过大过小的影响？「检索准确率 85%+」是怎么定义和测出来的？",
   "Embedding 模型怎么选？向量库为什么选 Milvus（相比 pgvector / Faiss / ES 等）？",
-  "如何缓解 RAG 幻觉 / 召回不准？有没有做 rerank、多路召回、Query 改写？",
-  "知识库如何持续 / 增量更新？文档变更后怎么保证向量库同步？",
-  "ReAct 是什么？在多轮对话 Agent 里是怎么落地实现的？",
   "「最近 N 轮原文 + 历史摘要」机制怎么设计的？为什么能把 Token 使用率降 60%？N 怎么定？",
-  "历史摘要是什么时候触发、怎么生成的？摘要丢失关键信息怎么办？",
-  "会话记忆按用户 ID 隔离，具体用什么结构存（Redis）？并发下的「串话」是怎么避免的？",
-  "SSE 流式输出怎么实现的？为什么能掩盖首 Token 延迟？SSE 和 WebSocket 怎么选？",
   "Plan-Execute-Replan 是什么？和 ReAct 的区别？为什么运维排障用这个模式而不是 ReAct？",
-  "AIOps 排障闭环（告警接入 → 知识检索 → 步骤规划 → 工具取证 → 结果分析 → 生成建议）每一步怎么落地？",
-  "Replan（重规划）在什么情况下触发？怎么判断当前计划需要调整？",
   "「故障响应时间由小时级降到分钟级」是怎么量化 / 验证的？",
   "这个项目你觉得最大的难点是什么？你是怎么解决的？",
-  "LLM 输出不稳定（幻觉、格式错误）时如何兜底？（结构化输出 / 校验 / 重试）",
-  "Token 成本是怎么控制的？（上下文压缩、模型选型、Prompt Caching 等）",
-  "如果让你重做这个项目，你会怎么改进？还有哪些没做完 / 可优化的地方？",
  ],
  "JasonMessage 统一消息推送平台": [
   "整体介绍一下 JasonMessage 这个统一消息推送平台：解决了什么问题、支持哪些渠道、核心链路是怎样的？",
   "为什么要做一个统一消息中台，而不是让各业务系统各自对接短信 / 邮件 / 飞书？",
-  "渠道扩展是怎么设计的？为什么用策略模式，新增一个渠道具体要改哪些代码？",
-  "统一推送接口的抽象层大概长什么样？不同渠道实现之间怎么保证行为一致（比如失败语义）？",
   "优先级链路是怎么做的？低 / 中 / 高 / 重试为什么分别用不同的 Kafka 主题，而不是一个主题里加优先级字段由消费者内部排序？",
-  "消费端怎么通过「不同主题配置不同并发度」保证高优先级消息优先处理？这种方式和「单队列按优先级排序消费」相比有什么优劣？",
   "Kafka 消费为什么选手动 ACK 而不是自动 ACK？手动 ACK 具体是在什么时机调用的？",
   "失败重试是怎么做的？重试次数记在哪里？超过最大重试次数之后消息去哪了，业务方怎么感知到「发送失败」？",
-  "retry 主题和原主题是同一套消费逻辑吗？如果重试消息又失败了，会不会无限循环重新投递到 retry 主题？",
   "限流限额为什么选 Redis INCR 实现固定窗口，而不是滑动窗口 / 令牌桶 / 漏桶？固定窗口有什么已知问题（比如临界突刺）？",
-  "「按来源 + 渠道维度限额，优先读渠道级配置、缺省回落全局配置」具体怎么实现？key 怎么设计，多级配置的读取顺序和缓存怎么处理？",
   "Redis INCR 判断限流的完整流程是什么？INCR 和设置过期时间这两步怎么保证原子性？",
   "定时发送是怎么实现的？为什么是「定时消息落库 + 触发时间写 Redis + 独立线程池轮询补发」，而不是用延迟队列或 Redis 过期事件通知？",
-  "轮询补发的线程池是怎么设计的？轮询间隔怎么定？消息量大了轮询会不会有性能问题，怎么优化（比如用 Redis zset 按触发时间排序）？",
-  "模板管理的占位符变量替换是怎么实现的？发送前的模板状态校验具体校验什么，什么情况下模板不可用？",
-  "模板详情为什么要走 Redis 缓存？缓存和数据库怎么保持一致（模板被修改后缓存怎么失效）？",
   "这个系统怎么保证消息「不丢、不重」？如果消费者处理完业务但还没来得及手动 ACK 就挂了，会发生什么？",
-  "Nacos 在这个项目里承担什么角色？如果换成 Eureka / ZooKeeper 做注册中心，会有什么区别？",
   "如果消息量再涨 10 倍，这套架构里最先撑不住的是哪个环节？你会怎么优化？",
   "这个项目最大的技术难点是什么？如果重新设计，你会怎么改进？",
  ],
  "Better Health 智能医疗平台": [
   "整体介绍一下 Better Health 这个医疗平台项目：解决什么问题、核心模块、技术栈是怎样的？",
-  "这是一个高并发、多角色的平台，「多角色」具体指哪些角色？不同角色的权限是怎么控制的？",
   "「查询性能提升 30%」具体是怎么测出来的？优化前后你是怎么对比的（用了什么工具 / 指标）？",
   "B+ 树为什么适合做数据库索引？和 B 树、红黑树、哈希索引比优势在哪？",
   "组合索引是怎么建的？最左匹配原则是什么？你在这个项目里具体优化了哪些慢查询？",
-  "覆盖索引是怎么减少回表的？举一个你项目里的具体例子。",
-  "你是怎么定位到这些慢查询的（慢查询日志 / EXPLAIN）？EXPLAIN 结果你重点看哪几列？",
   "Redis 缓存穿透是怎么解决的？用空值缓存有什么缺点（比如缓存被打满、脏数据）？还有其他方案吗（布隆过滤器）？",
   "缓存雪崩是怎么防的？「过期时间打散」具体怎么打散，随机范围怎么定的？",
-  "基于 Spring MVC 设计 RESTful 接口，你是怎么规范 URL、HTTP 方法和状态码的？",
-  "参数校验和统一异常处理是怎么做的？（JSR-303/@Valid，@ControllerAdvice）",
-  "用 Redis 实现库存缓存，缓存和数据库怎么保持一致？",
   "防超卖的分布式锁是怎么实现的？为什么不用 synchronized 或数据库悲观锁？",
   "分布式锁的过期时间怎么定？如果业务没执行完锁就过期了会怎样（有没有考虑续期 / 看门狗）？",
   "为什么用 RabbitMQ 把下单、扣减库存异步化？哪些步骤适合异步，哪些必须同步？",
-  "消息确认机制是怎么保证可靠投递的？（生产者 confirm、消费者手动 ack）",
-  "死信队列在这里是怎么用的？消费幂等具体是怎么实现的？",
   "如果并发量再翻 10 倍，这套架构最先出问题的地方在哪？你会怎么优化？",
  ],
 }
-proj_items=[]; _pid=0
+# ===== 项目题库精简前的 id 快照（2026-09）：删减题目时严格保留剩下题目的原 id =====
+# proj 的 id 本来是纯按位置从 0 往后数的（proj0,proj1,...），如果直接在 proj_data 里删题，
+# 后面所有题目的 id 会跟着整体往前移，导致已经积累的复习进度（按 id 存）全部错位到别的题目上。
+# 这里把删减前 66 题的 (题目文案 -> 原 id) 全部固定下来：仍然保留的题目照旧用原来的 id，
+# 被删掉的题目的 id 直接作废、不会分配给别人；未来真要新增题目，id 从 max+1 继续往后编号。
+PROJ_FIXED_ID={
+ "整体介绍一下这个 OnCall Agent 项目：解决什么痛点、核心能力、整体架构是怎样的？":0,
+ "为什么用 Spring AI Alibaba？相比自己直接调 LLM API 或用 LangChain4j 有什么取舍？":1,
+ "三类 Agent（Knowledge Index、Chat ReAct、Plan-Execute-Replan）各自职责是什么？为什么这样划分？":2,
+ "「以图编排组织工作流」具体是怎么做的？图编排相比顺序调用解决了什么问题？":3,
+ "技术栈里 Milvus / MySQL / Redis / MCP / SSE 各自承担什么角色？":4,
+ "日志查询、Prometheus 指标、内部文档检索是怎么封装成标准化 Tool 的？一个 Tool 的定义包含哪些要素？":5,
+ "LLM 如何自主完成工具选择、参数解析与组合调用？Function Calling 的底层原理是什么？":6,
+ "为什么用 MCP 协议接入外部工具？MCP 和 Function Calling 的区别与关系是什么？":7,
+ "工具调用失败 / 超时 / 返回异常时怎么处理？如何保证 Agent 整体的健壮性？":8,
+ "RAG 知识库的完整链路（文档切分 → Embedding → Milvus 入库 → Top-K 召回）讲一下？":9,
+ "文档分块（chunk）大小怎么定？过大过小分别有什么问题？你是怎么做对比实验的？":10,
+ "TopK 怎么选？过大过小的影响？「检索准确率 85%+」是怎么定义和测出来的？":11,
+ "Embedding 模型怎么选？向量库为什么选 Milvus（相比 pgvector / Faiss / ES 等）？":12,
+ "如何缓解 RAG 幻觉 / 召回不准？有没有做 rerank、多路召回、Query 改写？":13,
+ "知识库如何持续 / 增量更新？文档变更后怎么保证向量库同步？":14,
+ "ReAct 是什么？在多轮对话 Agent 里是怎么落地实现的？":15,
+ "「最近 N 轮原文 + 历史摘要」机制怎么设计的？为什么能把 Token 使用率降 60%？N 怎么定？":16,
+ "历史摘要是什么时候触发、怎么生成的？摘要丢失关键信息怎么办？":17,
+ "会话记忆按用户 ID 隔离，具体用什么结构存（Redis）？并发下的「串话」是怎么避免的？":18,
+ "SSE 流式输出怎么实现的？为什么能掩盖首 Token 延迟？SSE 和 WebSocket 怎么选？":19,
+ "Plan-Execute-Replan 是什么？和 ReAct 的区别？为什么运维排障用这个模式而不是 ReAct？":20,
+ "AIOps 排障闭环（告警接入 → 知识检索 → 步骤规划 → 工具取证 → 结果分析 → 生成建议）每一步怎么落地？":21,
+ "Replan（重规划）在什么情况下触发？怎么判断当前计划需要调整？":22,
+ "「故障响应时间由小时级降到分钟级」是怎么量化 / 验证的？":23,
+ "这个项目你觉得最大的难点是什么？你是怎么解决的？":24,
+ "LLM 输出不稳定（幻觉、格式错误）时如何兜底？（结构化输出 / 校验 / 重试）":25,
+ "Token 成本是怎么控制的？（上下文压缩、模型选型、Prompt Caching 等）":26,
+ "如果让你重做这个项目，你会怎么改进？还有哪些没做完 / 可优化的地方？":27,
+ "整体介绍一下 JasonMessage 这个统一消息推送平台：解决了什么问题、支持哪些渠道、核心链路是怎样的？":28,
+ "为什么要做一个统一消息中台，而不是让各业务系统各自对接短信 / 邮件 / 飞书？":29,
+ "渠道扩展是怎么设计的？为什么用策略模式，新增一个渠道具体要改哪些代码？":30,
+ "统一推送接口的抽象层大概长什么样？不同渠道实现之间怎么保证行为一致（比如失败语义）？":31,
+ "优先级链路是怎么做的？低 / 中 / 高 / 重试为什么分别用不同的 Kafka 主题，而不是一个主题里加优先级字段由消费者内部排序？":32,
+ "消费端怎么通过「不同主题配置不同并发度」保证高优先级消息优先处理？这种方式和「单队列按优先级排序消费」相比有什么优劣？":33,
+ "Kafka 消费为什么选手动 ACK 而不是自动 ACK？手动 ACK 具体是在什么时机调用的？":34,
+ "失败重试是怎么做的？重试次数记在哪里？超过最大重试次数之后消息去哪了，业务方怎么感知到「发送失败」？":35,
+ "retry 主题和原主题是同一套消费逻辑吗？如果重试消息又失败了，会不会无限循环重新投递到 retry 主题？":36,
+ "限流限额为什么选 Redis INCR 实现固定窗口，而不是滑动窗口 / 令牌桶 / 漏桶？固定窗口有什么已知问题（比如临界突刺）？":37,
+ "「按来源 + 渠道维度限额，优先读渠道级配置、缺省回落全局配置」具体怎么实现？key 怎么设计，多级配置的读取顺序和缓存怎么处理？":38,
+ "Redis INCR 判断限流的完整流程是什么？INCR 和设置过期时间这两步怎么保证原子性？":39,
+ "定时发送是怎么实现的？为什么是「定时消息落库 + 触发时间写 Redis + 独立线程池轮询补发」，而不是用延迟队列或 Redis 过期事件通知？":40,
+ "轮询补发的线程池是怎么设计的？轮询间隔怎么定？消息量大了轮询会不会有性能问题，怎么优化（比如用 Redis zset 按触发时间排序）？":41,
+ "模板管理的占位符变量替换是怎么实现的？发送前的模板状态校验具体校验什么，什么情况下模板不可用？":42,
+ "模板详情为什么要走 Redis 缓存？缓存和数据库怎么保持一致（模板被修改后缓存怎么失效）？":43,
+ "这个系统怎么保证消息「不丢、不重」？如果消费者处理完业务但还没来得及手动 ACK 就挂了，会发生什么？":44,
+ "Nacos 在这个项目里承担什么角色？如果换成 Eureka / ZooKeeper 做注册中心，会有什么区别？":45,
+ "如果消息量再涨 10 倍，这套架构里最先撑不住的是哪个环节？你会怎么优化？":46,
+ "这个项目最大的技术难点是什么？如果重新设计，你会怎么改进？":47,
+ "整体介绍一下 Better Health 这个医疗平台项目：解决什么问题、核心模块、技术栈是怎样的？":48,
+ "这是一个高并发、多角色的平台，「多角色」具体指哪些角色？不同角色的权限是怎么控制的？":49,
+ "「查询性能提升 30%」具体是怎么测出来的？优化前后你是怎么对比的（用了什么工具 / 指标）？":50,
+ "B+ 树为什么适合做数据库索引？和 B 树、红黑树、哈希索引比优势在哪？":51,
+ "组合索引是怎么建的？最左匹配原则是什么？你在这个项目里具体优化了哪些慢查询？":52,
+ "覆盖索引是怎么减少回表的？举一个你项目里的具体例子。":53,
+ "你是怎么定位到这些慢查询的（慢查询日志 / EXPLAIN）？EXPLAIN 结果你重点看哪几列？":54,
+ "Redis 缓存穿透是怎么解决的？用空值缓存有什么缺点（比如缓存被打满、脏数据）？还有其他方案吗（布隆过滤器）？":55,
+ "缓存雪崩是怎么防的？「过期时间打散」具体怎么打散，随机范围怎么定的？":56,
+ "基于 Spring MVC 设计 RESTful 接口，你是怎么规范 URL、HTTP 方法和状态码的？":57,
+ "参数校验和统一异常处理是怎么做的？（JSR-303/@Valid，@ControllerAdvice）":58,
+ "用 Redis 实现库存缓存，缓存和数据库怎么保持一致？":59,
+ "防超卖的分布式锁是怎么实现的？为什么不用 synchronized 或数据库悲观锁？":60,
+ "分布式锁的过期时间怎么定？如果业务没执行完锁就过期了会怎样（有没有考虑续期 / 看门狗）？":61,
+ "为什么用 RabbitMQ 把下单、扣减库存异步化？哪些步骤适合异步，哪些必须同步？":62,
+ "消息确认机制是怎么保证可靠投递的？（生产者 confirm、消费者手动 ack）":63,
+ "死信队列在这里是怎么用的？消费幂等具体是怎么实现的？":64,
+ "如果并发量再翻 10 倍，这套架构最先出问题的地方在哪？你会怎么优化？":65,
+}
+proj_items=[]; _pid_next=max(PROJ_FIXED_ID.values())+1; _pos=0
 for _sec,_qs in proj_data.items():
     for _i,_q in enumerate(_qs,1):
-        _d=PROJ_START+timedelta(days=_pid//PROJ_PER_DAY)
+        _pid=PROJ_FIXED_ID.get(_q)
+        if _pid is None:
+            _pid=_pid_next; _pid_next+=1
+        _d=PROJ_START+timedelta(days=_pos//PROJ_PER_DAY)
         proj_items.append({"id":"proj"+str(_pid),"sec":_sec,"idx":_i,"q":_q,"date":fmt_d(_d),"iso":_d.isoformat(),"anc":"","jg":"","tags":[]})
-        _pid+=1
+        _pos+=1
 PROJJS=json.dumps(proj_items,ensure_ascii=False); PROJSEC=json.dumps(list(proj_data.keys()),ensure_ascii=False)
 
 # ===== 内联 SVG 图标（单色、跟随 currentColor，离线自包含，替代所有 emoji）=====
@@ -1287,7 +1414,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.1.0.7</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.1.0.9</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
