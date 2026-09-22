@@ -1855,7 +1855,8 @@ function restoreFocusUI(){let d;try{d=JSON.parse(localStorage.getItem(FUIKEY)||"
     if(focusRunning){if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);}
     renderFocus();}}
 function fmtMS(ms){let s=Math.floor(ms/1000);const h=Math.floor(s/3600);s-=h*3600;const m=Math.floor(s/60);s-=m*60;const p=n=>(n+"").padStart(2,"0");return (h?h+":":"")+p(m)+":"+p(s);}
-function focusMinFor(t){return t.isAlg?(t.kind==="review"?EST_MIN.algRev:EST_MIN.algNew):(t.kind==="review"?EST_MIN.guRev:EST_MIN.guNew);}
+function reviewMinFor(cnt,isAlg){var max=isAlg?30:15,min=isAlg?10:4;cnt=cnt||0;if(cnt<2)return max;if(cnt>=10)return min;var step=(max-min)/8;return Math.round(max-step*(cnt-2));}
+function focusMinFor(t){if(t.kind==="review"){var o=get(t.id);return reviewMinFor(o.cnt,t.isAlg);}return t.isAlg?EST_MIN.algNew:(t.isProj?EST_MIN.projNew:EST_MIN.guNew);}
 function focusQueue(m){m=m||mode;const ti=todayIso();const rev=[],neu=[];
   const isProj=m==="proj";
   const push=(id,baseIso,isAlg,q,sec,idx)=>{const o=get(id);if(o.del||o.purged)return;
@@ -2030,23 +2031,23 @@ function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const
 function isTodoToday(it){const o=get(it.id);if(o.del||o.purged)return false;const ti=todayIso();const d=realDate(o,it.baseIso);const rd=!!o.next&&o.next<=ti;if(d&&d>ti)return rd;const sd=!!d&&d<=ti&&!(o.cnt>0);return sd||rd;}
 // ---- 今日剩余任务估时（八股/算法 · 新学/复习 分类，跨两个模式统计）----
 const EST_MIN={guNew:10,guRev:4,algNew:25,algRev:10,projNew:10,projRev:4};   // 单题分钟数
-function taskBreakdown(){const ti=todayIso();const b={guNew:0,guRev:0,algNew:0,algRev:0,projNew:0,projRev:0};
-  const chk=(id,baseIso,k)=>{const o=get(id);if(o.del||o.purged)return;
+function taskBreakdown(){const ti=todayIso();const b={guNew:0,guRev:0,algNew:0,algRev:0,projNew:0,projRev:0,guRevMin:0,algRevMin:0,projRevMin:0};
+  const chk=(id,baseIso,k,isAlg)=>{const o=get(id);if(o.del||o.purged)return;
     const d=realDate(o,baseIso);const rd=!!o.next&&o.next<=ti;
-    if(d&&d>ti){if(rd)b[k+"Rev"]++;return;}
+    if(d&&d>ti){if(rd){b[k+"Rev"]++;b[k+"RevMin"]+=reviewMinFor(o.cnt,isAlg);}return;}
     const sd=!!d&&d<=ti&&!(o.cnt>0);
-    if(sd)b[k+"New"]++;else if(rd)b[k+"Rev"]++;};
-  ITEMS.forEach(it=>chk(it.id,it.iso,"gu"));
-  ALG.forEach(it=>chk(it.id,it.iso,"alg"));
-  PROJ.forEach(it=>chk(it.id,it.iso,"proj"));
-  customList().forEach(c=>chk(c.id,"",PROJSEC.indexOf(c.sec)>=0?"proj":"gu"));   // 自建题按板块归到八股或项目
+    if(sd)b[k+"New"]++;else if(rd){b[k+"Rev"]++;b[k+"RevMin"]+=reviewMinFor(o.cnt,isAlg);}};
+  ITEMS.forEach(it=>chk(it.id,it.iso,"gu",false));
+  ALG.forEach(it=>chk(it.id,it.iso,"alg",true));
+  PROJ.forEach(it=>chk(it.id,it.iso,"proj",false));
+  customList().forEach(c=>chk(c.id,"",PROJSEC.indexOf(c.sec)>=0?"proj":"gu",false));   // 自建题按板块归到八股或项目
   return b;}
 function fmtDur(m){m=Math.round(m);if(m<=0)return "0 分钟";const h=Math.floor(m/60),mm=m%60;return (h?h+" 小时":"")+(h&&mm?" ":"")+(mm?mm+" 分钟":"");}
 function updateEstimate(){const el=document.getElementById("estLine");if(!el)return;
   const b=taskBreakdown();
-  const guMin=b.guNew*EST_MIN.guNew+b.guRev*EST_MIN.guRev;
-  const algMin=b.algNew*EST_MIN.algNew+b.algRev*EST_MIN.algRev;
-  const projMin=b.projNew*EST_MIN.projNew+b.projRev*EST_MIN.projRev;
+  const guMin=b.guNew*EST_MIN.guNew+b.guRevMin;
+  const algMin=b.algNew*EST_MIN.algNew+b.algRevMin;
+  const projMin=b.projNew*EST_MIN.projNew+b.projRevMin;
   const total=guMin+algMin+projMin;
   if(total<=0){el.className="est none";el.innerHTML=IC.checkcircle+" 今日任务已全部完成，休息一下";return;}
   el.className="est";
