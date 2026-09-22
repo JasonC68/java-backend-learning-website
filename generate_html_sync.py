@@ -1414,7 +1414,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.1.0.9</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.1.1.0</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1855,7 +1855,11 @@ function restoreFocusUI(){let d;try{d=JSON.parse(localStorage.getItem(FUIKEY)||"
     if(focusRunning){if(focusTick)clearInterval(focusTick);focusTick=setInterval(renderFocus,250);}
     renderFocus();}}
 function fmtMS(ms){let s=Math.floor(ms/1000);const h=Math.floor(s/3600);s-=h*3600;const m=Math.floor(s/60);s-=m*60;const p=n=>(n+"").padStart(2,"0");return (h?h+":":"")+p(m)+":"+p(s);}
-function focusMinFor(t){return t.isAlg?(t.kind==="review"?EST_MIN.algRev:EST_MIN.algNew):(t.kind==="review"?EST_MIN.guRev:EST_MIN.guNew);}
+// 建议专注时长按这道题「已复习次数」线性递减：次数 <2 用最长时间，>=10 用最短时间，中间线性插值。
+// 八股/项目共用一档：15min（<2 次）→ 4min（>=10 次）；算法：30min（<2 次）→ 10min（>=10 次）。
+function focusMinFor(t){const cnt=get(t.id).cnt||0;const maxM=t.isAlg?30:15,minM=t.isAlg?10:4;
+  let m;if(cnt<2)m=maxM;else if(cnt>=10)m=minM;else m=maxM-(cnt-2)*(maxM-minM)/8;
+  return Math.round(m);}
 function focusQueue(m){m=m||mode;const ti=todayIso();const rev=[],neu=[];
   const isProj=m==="proj";
   const push=(id,baseIso,isAlg,q,sec,idx)=>{const o=get(id);if(o.del||o.purged)return;
