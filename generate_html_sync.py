@@ -2030,7 +2030,7 @@ function todayCount(){const ti=todayIso();let n=0;const chk=(id,baseIso)=>{const
 // 今天该做但还没开始（未点过加号 / 复习到期未做）→ 显示红点
 function isTodoToday(it){const o=get(it.id);if(o.del||o.purged)return false;const ti=todayIso();const d=realDate(o,it.baseIso);const rd=!!o.next&&o.next<=ti;if(d&&d>ti)return rd;const sd=!!d&&d<=ti&&!(o.cnt>0);return sd||rd;}
 // ---- 今日剩余任务估时（八股/算法 · 新学/复习 分类，跨两个模式统计）----
-const EST_MIN={guNew:10,guRev:4,algNew:25,algRev:10,projNew:10,projRev:4};   // 单题分钟数
+const EST_MIN={guNew:15,guRev:4,algNew:30,algRev:10,projNew:15,projRev:4};   // 单题分钟数（新学按最长时间处理，与复习次数<2时一致）
 function taskBreakdown(){const ti=todayIso();const b={guNew:0,guRev:0,algNew:0,algRev:0,projNew:0,projRev:0,guRevMin:0,algRevMin:0,projRevMin:0};
   const chk=(id,baseIso,k,isAlg)=>{const o=get(id);if(o.del||o.purged)return;
     const d=realDate(o,baseIso);const rd=!!o.next&&o.next<=ti;
