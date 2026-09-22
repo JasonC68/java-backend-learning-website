@@ -65,6 +65,8 @@ body.dark #poolBar{border-color:#3a3a3a;background:#1c1c1c}
 .poolchip .pcx svg{width:10px;height:10px}
 #poolEmpty{font-size:12px;color:#bbb}
 body.dark #poolEmpty{color:#555}
+#poolEst{font-size:12px;color:#6b7280;white-space:nowrap}
+body.dark #poolEst{color:#9ca3af}
 .poolchip.pc-gu{background:#eff6ff;border:1px solid #dbeafe;color:#1d4ed8}
 .poolchip.pc-gu .pcx{color:#93c5fd}
 .poolchip.pc-gu .pcx:hover{color:#1d4ed8;background:#dbeafe}
@@ -35857,7 +35859,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 </script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.1.1.0</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.1.1.1</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -35872,6 +35874,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
   <span style="font-size:12px;color:#6b7280">复习池：</span>
   <span id="poolChips" class="poolchips"></span>
   <span id="poolEmpty">空的，点题目旁的 <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5z"/><line x1="9.3" y1="8" x2="14.7" y2="8"/><line x1="12" y1="5.3" x2="12" y2="10.7"/></svg> 加入</span>
+  <span id="poolEst" class="poolest" title="按每题当前的建议专注时长（随复习次数递减）估算复习完这些题大概要多久"></span>
   <button class="btn" id="poolReviewBtn" title="按加入顺序统一复习复习池里的题目" style="margin-left:2px"><svg class="ic" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 4 20 12 6 20 6 4"/></svg> 统一复习</button>
   <button class="btn" id="poolClearBtn" title="清空复习池（不影响题目本身的复习进度）"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> 清空</button>
   <button class="btn" id="focusBtn" title="从今日任务里挑一题、按建议时长开始专注学习/复习"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg> 专注</button>
@@ -36402,6 +36405,8 @@ function renderPool(){
     const kc=m.isAlg?"pc-alg":(m.isProj?"pc-proj":"pc-gu");   // chip 颜色跟这道题自己所属的板块（八股/算法/项目）走，不受当前切换的模式影响
     return '<span class="poolchip '+kc+'" data-id="'+id+'" title="'+esc(m.q)+'"><b>'+esc(poolSecAbbr(m.sec))+'</b>·'+esc(qs)+'<i class="pcx" data-id="'+id+'" title="移出复习池">'+IC.x+'</i></span>';}).join("");
   const eb=document.getElementById("poolEmpty");if(eb)eb.style.display=valid.length?"none":"";
+  const est=document.getElementById("poolEst");
+  if(est){if(valid.length){const totalMin=valid.reduce((s,id)=>s+focusMinFor(poolMeta(id)),0);est.textContent="预计 "+fmtDur(totalMin);est.style.display="";}else{est.style.display="none";}}
   const rb=document.getElementById("poolReviewBtn");if(rb){rb.disabled=!valid.length;rb.innerHTML=IC.play+" 统一复习"+(valid.length?"（"+valid.length+"）":"");}
   const cb=document.getElementById("poolClearBtn");if(cb)cb.disabled=!valid.length;
   box.querySelectorAll(".poolchip").forEach(ch=>{ch.onclick=e=>{if(e.target.closest(".pcx"))return;jumpToPoolItem(ch.dataset.id);};});
