@@ -1416,7 +1416,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.1.1.1</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.1.1.2</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -2140,7 +2140,11 @@ function renderAlg(tb){
     tr.querySelector(".rowpool").onclick=e=>{e.stopPropagation();togglePool(it.id);};
     wireQClick(tr.querySelector(".qbtn"),it,tr);
     tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
-    tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNextAlg(st.cnt,it.idx);save();render();if(focusOn&&focusTask&&focusTask.id===it.id){toast("✓ 已完成，下一题");focusNext();}};
+    tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNextAlg(st.cnt,it.idx);
+      const wasFocusing=focusOn&&focusTask&&focusTask.id===it.id;   // 专注面板显示的这一题被从表格行的「+」完成时，也要走和「完成本题」一样的下一题逻辑（复习池里的题要接着跳池内下一题，不能跑到池外）
+      if(inPool(it.id))removeFromPool(it.id);
+      save();render();
+      if(wasFocusing){toast("✓ 已完成，下一题");if(focusSource==="pool")focusPoolNext();else focusNext();}};
     tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNextAlg(st.cnt,it.idx);else delete st.next;}save();render();};
     const rv=tr.querySelector(".revdate");
     if(rv)rv.onclick=e=>{e.stopPropagation();openCal(rv,{selected:st.next,dot:false,clearLabel:"移出复习",quick:[-1,-3,-5,3,7,14],
@@ -2245,7 +2249,11 @@ function render(){const tb=document.getElementById("tb");
       tr.querySelector(".qedit").onclick=e=>{e.stopPropagation();startQEdit(it,tr,false);};
       wireQClick(tr.querySelector(".qbtn"),it,tr);
       tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
-      tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNext(st.cnt);save();render();if(focusOn&&focusTask&&focusTask.id===it.id){toast("✓ 已完成，下一题");focusNext();}};
+      tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNext(st.cnt);
+        const wasFocusing=focusOn&&focusTask&&focusTask.id===it.id;   // 同上：表格行「+」完成时也要按复习池/今日任务分别跳下一题
+        if(inPool(it.id))removeFromPool(it.id);
+        save();render();
+        if(wasFocusing){toast("✓ 已完成，下一题");if(focusSource==="pool")focusPoolNext();else focusNext();}};
       tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNext(st.cnt);else delete st.next;}save();render();};
       tb.appendChild(tr);
       if(it.id===newSubId){newSubId=null;startQEdit(it,tr,true);}
