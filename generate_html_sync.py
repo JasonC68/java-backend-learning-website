@@ -981,6 +981,12 @@ body.dark .focusbar .fp-kind.review{background:#4a2f12;color:#fed7aa}
 .spacer{flex:1}
 .btn{border:1px solid #d1d5db;background:#fff;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer}
 .btn:hover{background:#f3f4f6}.btn.pri{background:#2563eb;color:#fff;border-color:#2563eb}
+.btn.grade-bad{color:#dc2626;border-color:#fecaca}.btn.grade-bad:hover{background:#fef2f2}
+.btn.grade-mid{color:#b45309;border-color:#fde68a}.btn.grade-mid:hover{background:#fffbeb}
+.btn.grade-good.pri{background:#16a34a;border-color:#16a34a}.btn.grade-good.pri:hover{background:#15803d}
+body.dark .btn.grade-bad{color:#f87171;border-color:#7f1d1d}body.dark .btn.grade-bad:hover{background:#2a1313}
+body.dark .btn.grade-mid{color:#fbbf24;border-color:#78350f}body.dark .btn.grade-mid:hover{background:#2a2010}
+body.dark .btn.grade-good.pri{background:#16a34a;border-color:#16a34a}
 table{width:100%;table-layout:fixed;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 th:nth-child(1),td:nth-child(1){width:56px}
 th:nth-child(4),td.lvlcol{width:100px}
@@ -1416,7 +1422,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 <script>__HL_JS__</script>
 </head><body>
 <div class="row1"><h1>秋招后端 · 打卡表</h1><span class="theme" id="modeSw"><button data-mode="gu">八股</button><button data-mode="alg">算法</button><button data-mode="proj">项目</button></span><span class="pill" id="syncPill">未配置云同步</span><span class="spacer"></span><span class="theme"><button data-theme="system" title="跟随系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="19" height="13" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></svg></button><button data-theme="light" title="亮色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button><button data-theme="dark" title="暗色"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3.2 6.6 6.6 0 0 0 21 12.8z"/></svg></button></span></div>
-<div class="sub"><span style="color:#9ca3af">v3.1.1.2</span></div>
+<div class="sub"><span style="color:#9ca3af">v3.1.2.0</span></div>
 <div class="bar"><i id="pbar"></i><i id="pbar2"></i><span id="goalmark" style="left:60%" title="达到 60% 可开始投递面试"></span></div>
 <div class="statline" id="stat"></div>
 <div class="estrow">
@@ -1425,7 +1431,7 @@ body.dark .ProseMirror mark,body.dark .preview mark{background:#854d0e;color:#fe
 </div>
 <div class="focusbar" id="focusPanel" style="display:none">
   <div class="fp-main"><span class="fp-kind" id="focusKind"></span><span class="fp-q" id="focusQ" title="点击跳到这道题并展开"></span></div>
-  <div class="fp-side"><span class="fp-time" id="focusTime"><b id="focusDisp">00:00</b><span class="fp-allot" id="focusAllot"></span></span><button class="btn pri" id="focusDone">@@check@@ 完成本题</button><button class="btn" id="focusPause" title="暂停/继续本题计时">@@pause@@ 暂停</button><button class="btn" id="focusSkip" title="这题先跳过，换下一题">@@skip@@ 跳过</button><button class="btn" id="focusStop">@@stop@@ 结束</button></div>
+  <div class="fp-side"><span class="fp-time" id="focusTime"><b id="focusDisp">00:00</b><span class="fp-allot" id="focusAllot"></span></span><button class="btn grade-bad" id="focusForgot" title="没想起来，下次复习拉回到明天左右">@@x@@ 忘了</button><button class="btn grade-mid" id="focusFuzzy" title="想起来了但不牢，下次复习来得稍快一点">@@review@@ 模糊</button><button class="btn pri grade-good" id="focusGood" title="答得上来，下次复习间隔明显拉长">@@check@@ 记住了</button><button class="btn" id="focusPause" title="暂停/继续本题计时">@@pause@@ 暂停</button><button class="btn" id="focusSkip" title="这题先跳过，换下一题">@@skip@@ 跳过</button><button class="btn" id="focusStop">@@stop@@ 结束</button></div>
 </div>
 <div class="toolbar" id="poolBar">
   <span style="font-size:12px;color:#6b7280">复习池：</span>
@@ -1586,12 +1592,43 @@ function isPurged(id){return !!get(id).purged;}
 function isoOf(dt){return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");}
 function todayIso(){return isoOf(new Date());}
 function tomorrowIso(){const d=new Date();d.setDate(d.getDate()+1);return isoOf(d);}
-const EBB=[1,2,4,7,15,30,60];   // 艾宾浩斯遗忘曲线间隔（天）
 function addDays(iso,n){const d=new Date((iso||todayIso())+"T00:00:00");d.setDate(d.getDate()+n);return isoOf(d);}
-function schedNext(cnt){const n=EBB[Math.min(Math.max(cnt,1)-1,EBB.length-1)];return addDays(todayIso(),n);}
-// 算法题：艾宾浩斯 × 考察频度系数（CodeTop 排名越靠前＝考频越高＝复习越勤）
+function daysBetween(a,b){return Math.round((new Date(b+"T00:00:00")-new Date(a+"T00:00:00"))/86400000);}
+// ===== 记忆稳定性曲线（3.1.2.0）=====
+// 用连续的遗忘曲线 R(t)=e^(-t/S) 代替之前固定的 1/2/4/7/15/30/60 查表：S 是这道题当前的「记忆稳定性」
+// （天，存在 state 里的 S 字段），每次复习按「忘了/模糊/记住了」三档反馈动态调整，不再是只看复习次数。
+// 下次复习＝让保留率降到目标值（90%）的那一天：interval = S × (−ln(0.9))。
+const RETENTION_TARGET=0.9;
+const NEG_LN_RT=-Math.log(RETENTION_TARGET);        // ≈0.1054
+const S_MIN=1/NEG_LN_RT;                             // ≈9.49：对应「忘了」或第一次学会后，下次间隔≈1 天
+const S_CAP=120/NEG_LN_RT;                           // 间隔封顶约 120 天，避免个别题隔太久才轮到复习
+function intervalFromS(S){return Math.max(1,Math.round(S*NEG_LN_RT));}
+// 算法题：考察频度系数（CodeTop 排名越靠前＝考频越高＝复习越勤），乘在最终间隔上
 function freqFactor(idx){return idx<=20?0.7:(idx<=50?0.9:1.1);}
-function schedNextAlg(cnt,idx){const n=EBB[Math.min(Math.max(cnt,1)-1,EBB.length-1)];return addDays(todayIso(),Math.max(1,Math.round(n*freqFactor(idx))));}
+// 迁移：老数据只有 cnt、没有 S，第一次在新公式下复习时，按旧的 1/2/4/7/15/30/60 查表反推一个等效的初始 S，
+// 这样切换当天不会让所有已经复习过的题突然变成「从头开始」，复习节奏能接得上。
+const LEGACY_EBB=[1,2,4,7,15,30,60];
+function legacyS(cnt){const n=LEGACY_EBB[Math.min(Math.max(cnt,1)-1,LEGACY_EBB.length-1)];return n/NEG_LN_RT;}
+// grade: "forgot"(忘了) / "fuzzy"(模糊) / "good"(记住了)。到期比计划晚、但还是答出来了，说明记忆比预期更稳，
+// 按「实际间隔/计划间隔」给 S 一个封顶 1.5× 的额外加成——这是和旧查表最大的区别，真正用上了「拖多久还记得」这个信号。
+function rateReview(id,isAlg,idx,grade){
+  const o=get(id);
+  // o.last 只存「MM-DD」给界面显示用，算间隔要完整年月日，所以另存一个 o.lastIso；
+  // 老数据没有 lastIso 时 schedGap/actualGap 算不出来，lateBonus 退化成 1（不加成），不会报错也不会算错。
+  const schedGap=(o.lastIso&&o.next)?daysBetween(o.lastIso,o.next):0;
+  const actualGap=o.lastIso?daysBetween(o.lastIso,todayIso()):0;
+  const lateBonus=(schedGap>0&&actualGap>0)?Math.min(1.5,Math.max(1,actualGap/schedGap)):1;
+  let S=o.S;
+  if(S===undefined||S===null)S=(o.cnt>0)?legacyS(o.cnt):S_MIN;
+  if(grade==="forgot")S=S_MIN;
+  else if(grade==="fuzzy")S=Math.min(S_CAP,S*1.3*lateBonus);
+  else S=Math.min(S_CAP,S*2.3*lateBonus);
+  o.S=S;o.cnt=(o.cnt||0)+1;o.last=today();o.lastIso=todayIso();
+  let n=intervalFromS(S);
+  if(isAlg)n=Math.max(1,Math.round(n*freqFactor(idx)));
+  o.next=addDays(todayIso(),n);
+  return o;
+}
 function loadStuck(){try{const s=JSON.parse(localStorage.getItem("stuck_v1")||"null");if(s&&s.day===todayIso()){stuckDay=s.day;stuckToday=new Set(s.ids);}}catch(e){}}
 function saveStuck(){try{localStorage.setItem("stuck_v1",JSON.stringify({day:stuckDay,ids:[...stuckToday]}));}catch(e){}}
 function get(id){return state[id]||(state[id]={lvl:0,cnt:0,last:""});}
@@ -1926,9 +1963,10 @@ function endFocus(){focusOn=false;focusTask=null;focusRunning=false;if(focusTick
   const b=document.getElementById("focusBtn");if(b)b.classList.remove("pri");
   const pb=document.getElementById("poolReviewBtn");if(pb)pb.classList.remove("pri");
   document.getElementById("focusModal").classList.remove("show");updateFocusBtn();saveFocusUI();}
-function focusComplete(){if(!focusTask)return;const o=get(focusTask.id);o.cnt=(o.cnt||0)+1;o.last=today();o.next=focusTask.isAlg?schedNextAlg(o.cnt,focusTask.idx):schedNext(o.cnt);
+function focusComplete(grade){if(!focusTask)return;grade=grade||"good";
+  rateReview(focusTask.id,focusTask.isAlg,focusTask.idx,grade);
   if(inPool(focusTask.id))removeFromPool(focusTask.id);   // 专注完一题，不管是今日专注还是复习池专注，只要这题在复习池里就顺手移出
-  save();render();toast("✓ 已完成，下一题");
+  save();render();toast(grade==="forgot"?"已记录「忘了」，下一题":(grade==="fuzzy"?"已记录「模糊」，下一题":"✓ 记住了，下一题"));
   if(focusSource==="pool")focusPoolNext();else focusNext();}
 function focusSkip(){if(!focusTask)return;focusSkipped.add(focusTask.id);
   if(focusSource==="pool")focusPoolNext();else focusNext();}
@@ -2025,7 +2063,9 @@ document.getElementById("focusBtn").onclick=()=>{if(focusOn){endFocus();return;}
 document.getElementById("focusPickCancel").onclick=()=>focusPickModal.classList.remove("show");
 document.getElementById("focusPickNew").onclick=()=>{focusPickModal.classList.remove("show");startFocus("new");};
 document.getElementById("focusPickReview").onclick=()=>{focusPickModal.classList.remove("show");startFocus("review");};
-document.getElementById("focusDone").onclick=focusComplete;
+document.getElementById("focusForgot").onclick=()=>focusComplete("forgot");
+document.getElementById("focusFuzzy").onclick=()=>focusComplete("fuzzy");
+document.getElementById("focusGood").onclick=()=>focusComplete("good");
 document.getElementById("focusPause").onclick=focusPause;
 document.getElementById("focusSkip").onclick=focusSkip;
 document.getElementById("focusStop").onclick=endFocus;
@@ -2140,12 +2180,12 @@ function renderAlg(tb){
     tr.querySelector(".rowpool").onclick=e=>{e.stopPropagation();togglePool(it.id);};
     wireQClick(tr.querySelector(".qbtn"),it,tr);
     tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
-    tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNextAlg(st.cnt,it.idx);
+    tr.querySelector(".plus").onclick=()=>{rateReview(it.id,true,it.idx,"good");   // 表格行的「+」等价于「记住了」这一档，三档选择在专注面板/复习池里才出现，避免每行塞三个按钮
       const wasFocusing=focusOn&&focusTask&&focusTask.id===it.id;   // 专注面板显示的这一题被从表格行的「+」完成时，也要走和「完成本题」一样的下一题逻辑（复习池里的题要接着跳池内下一题，不能跑到池外）
       if(inPool(it.id))removeFromPool(it.id);
       save();render();
       if(wasFocusing){toast("✓ 已完成，下一题");if(focusSource==="pool")focusPoolNext();else focusNext();}};
-    tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNextAlg(st.cnt,it.idx);else delete st.next;}save();render();};
+    tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt<=0){delete st.next;delete st.S;delete st.lastIso;}}save();render();};   // 撤销不好精确反推 S，cnt 归零时整体重置回「未复习」更安全
     const rv=tr.querySelector(".revdate");
     if(rv)rv.onclick=e=>{e.stopPropagation();openCal(rv,{selected:st.next,dot:false,clearLabel:"移出复习",quick:[-1,-3,-5,3,7,14],
       onPick:iso=>{st.next=iso;save();render();},
@@ -2249,12 +2289,12 @@ function render(){const tb=document.getElementById("tb");
       tr.querySelector(".qedit").onclick=e=>{e.stopPropagation();startQEdit(it,tr,false);};
       wireQClick(tr.querySelector(".qbtn"),it,tr);
       tr.querySelector(".lvl").onclick=()=>{st.lvl=(st.lvl+1)%4;save();render();};
-      tr.querySelector(".plus").onclick=()=>{st.cnt++;st.last=today();st.next=schedNext(st.cnt);
+      tr.querySelector(".plus").onclick=()=>{rateReview(it.id,false,null,"good");   // 同上：等价于「记住了」这一档
         const wasFocusing=focusOn&&focusTask&&focusTask.id===it.id;   // 同上：表格行「+」完成时也要按复习池/今日任务分别跳下一题
         if(inPool(it.id))removeFromPool(it.id);
         save();render();
         if(wasFocusing){toast("✓ 已完成，下一题");if(focusSource==="pool")focusPoolNext();else focusNext();}};
-      tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt>0)st.next=schedNext(st.cnt);else delete st.next;}save();render();};
+      tr.querySelector(".minus").onclick=()=>{if(st.cnt>0){st.cnt--;if(st.cnt<=0){delete st.next;delete st.S;delete st.lastIso;}}save();render();};
       tb.appendChild(tr);
       if(it.id===newSubId){newSubId=null;startQEdit(it,tr,true);}
       if(opened){
